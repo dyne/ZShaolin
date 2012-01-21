@@ -1,0 +1,7 @@
+bootstrap/crosstool-ng*
+bootstrap/build*
+bootstrap/src
+bootstrap/x-tools
+bootstrap/kconfig
+bootstrap/config*
+bootstrap/.config.*

@@ -1,0 +1,13 @@
+ZShaolin bootstrap short instructions
+
+Use crosstools-ng to bootstrap ZShaolin's toolchain
+
+1) download crosstools-ng from http://crosstool-ng.org
+2) install crosstools-ng
+3) inside this bootstrap directory, do:
+   ct-ng menuconfig
+   (tweak at your own risk, default is tested for Android ARM)
+4) start building (takes a while and occupies almost a Gigabyte)
+   ct-ng build
+
+May the source be with you!
