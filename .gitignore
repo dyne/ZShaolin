@@ -1,3 +1,7 @@
+*.tar.gz
+*.tar.bz2
+*.done
+*.log
 bootstrap/crosstool-ng*
 bootstrap/build*
 bootstrap/src

@@ -1,0 +1,141 @@
+#!/bin/zsh
+
+# ZShaolin system build and basic configuration
+
+# configure the target
+TARGET=arm-dyne-linux-gnueabi
+# same value should be the bootstrap target
+
+# toolchain full path
+TOOLCHAIN=`pwd`/bootstrap/x-tools
+
+# make sure the toolchain exists in /usr
+if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
+    echo "error: toolchain not found: $TARGET"
+    echo "first you need to bootstrap."
+#    return 1
+fi
+
+# configure the install prefix
+PREFIX=`pwd`/sysroot
+
+# configure the compile flags
+CFLAGS="-Os -I$PREFIX/include"
+CPPFLAGS="-I$PREFIX/include"
+CXXFLAGS=$CFLAGS
+LDFLAGS="-static -L$PREFIX/lib"
+
+echo "Compiling ZShaolin system root"
+echo "Target:    $TARGET"
+echo "Toolchain: $TOOLCHAIN"
+echo "Install:   $PREFIX"
+echo "CFLAGS:    $CFLAGS"
+echo "LDFLAGS:   $LDFLAGS"
+
+PATH="$PATH:$TOOLCHAIN/bin"
+
+enter() {
+    if ! [ -r $1/conf.zsh ]; then
+	echo "error: build directory misses configuration file: $1/conf.zsh"
+	return 1
+    fi
+    cd $1
+    source conf.zsh
+    cd -
+}
+    
+compile() {
+    if [ -r $1.done ]; then
+	echo "$1.done :: already built, skipping compilation"
+	return 1
+    fi
+    echo "Compiling $1"
+    if ! [ -r $1 ]; then
+	echo "source directory $1 not found, skipping compilation"
+	return 1
+    fi
+    cd $1
+    if ! [ -r configure ]; then
+	echo "error: no autoconf build environment found for $1"
+	return 1
+    fi
+
+    case $2 in
+	default)
+	    confflags="--host=$TARGET --prefix=$PREFIX"
+	    ;;
+	check)
+	    return 0
+	    ;;
+	*)
+	    confflags="$2"
+	    echo "configure = $confflags"
+    esac
+
+    extraflags="$3"
+    if [ "$extraflags" != "" ]; then
+	echo "extra flags = $extraflags"
+    fi
+
+    CFLAGS="$CFLAGS $extracflags" \
+    CPPFLAGS="$CPPFLAGS" \
+    CXXFLAGS="$CXXFLAGS" \
+    LDFLAGS="$LDFLAGS" \
+	./configure ${=confflags} ${=extraflags} >> ../$LOGS
+
+    if [ $? != 0 ]; then
+	echo "error: $1 cannot configure, skipping compilation"
+	cd -
+	return 1
+    fi
+
+    make >> ../$LOGS
+    if [ $? != 0 ]; then
+	echo "error: $1 cannot make, aborted compilation"
+	cd -
+	return 1
+    fi
+
+    make install >> ../$LOGS
+    if [ $? != 0 ]; then
+	echo "error: $1 cannot make install, check permissions"
+	cd -
+	return 1
+    fi
+
+    echo "done compiling $1"
+    cd -
+    touch $1.done
+    return 0
+}
+
+clean() {
+    if ! [ -r $1 ]; then
+	echo "source directory $1 not found, skipping compilation"
+	return 1
+    fi
+    echo "Cleaning $1"
+    rm -f $1.done
+    cd $1
+    make clean >> ../$LOGS
+    cd - > /dev/null
+}
+
+
+case "$1" in
+    build)
+	enter build $@
+	;;
+    pack)
+	enter sysroot
+	;;
+    clean)
+	enter build clean
+	;;
+    help)
+	echo "We're all on our own, for now."
+	;;
+    *)
+	enter build $@
+
+esac
