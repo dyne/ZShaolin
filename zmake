@@ -6,8 +6,11 @@
 TARGET=arm-dyne-linux-gnueabi
 # same value should be the bootstrap target
 
+# where are we
+ZHOME=`pwd`
+
 # toolchain full path
-TOOLCHAIN=`pwd`/bootstrap/x-tools
+TOOLCHAIN=$ZHOME/bootstrap/x-tools
 
 # make sure the toolchain exists in /usr
 if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
@@ -17,7 +20,7 @@ if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
 fi
 
 # configure the install prefix
-PREFIX=`pwd`/sysroot
+PREFIX=$ZHOME/sysroot
 
 # configure the compile flags
 CFLAGS="-Os -I$PREFIX/include"
