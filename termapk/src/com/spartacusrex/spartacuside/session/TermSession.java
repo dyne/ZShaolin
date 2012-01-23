@@ -56,7 +56,7 @@ public class TermSession {
 
     private static final int DEFAULT_COLUMNS = 80;
     private static final int DEFAULT_ROWS = 24;
-    private static final String DEFAULT_SHELL = "/system/bin/sh -";
+    private static final String DEFAULT_SHELL = "/system/bin/zsh -";
     private static final String DEFAULT_INITIAL_COMMAND = "export HOME=/data/data/com.spartacusrex.spartacuside/files;cd $HOME;export PATH=$HOME/bin:$HOME/bin/bbdir:$PATH;bash";
 
     // Number of rows in the transcript
@@ -165,13 +165,13 @@ public class TermSession {
             shell = DEFAULT_SHELL;
         }
 
-        //My BASH
+        //Start the console's shell here
         File home  = new File(mHomeFilesDir);
-        File shellf = new File(home,"system/bin/bash");
-        File initf  = new File(home,".init");
+        File shellf = new File(home,"system/bin/zsh");
+        File initf  = new File(home,"system/.zlogin");
         if(shellf.exists()){
             //Start Bash
-            shell = shellf.getPath()+" --init-file "+ initf.getPath();
+            shell = shellf.getPath() +" -i "+ initf.getPath();
         }
 
         //Now start it..

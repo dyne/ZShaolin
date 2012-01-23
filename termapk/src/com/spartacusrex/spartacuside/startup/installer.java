@@ -217,8 +217,8 @@ public class installer extends Activity implements OnClickListener{
 
                         File busybox  = new File(bindir,"busybox");
 //                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath());
-                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath(),env,home);
-                        pp.waitFor();
+//                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath(),env,home);
+//                        pp.waitFor();
 
                         //Now delete the SU link.. too much confusion..
 //                        File su = new File(bbindir,"su");
@@ -230,25 +230,25 @@ public class installer extends Activity implements OnClickListener{
                         mInstallHandler.sendMessage(msg);
 
                         //bashrc
-                        File bashrc   = new File(system,"bashrc");
+/*                        File bashrc   = new File(system,"bashrc");
                         File bashrcu  = new File(home,".bashrc");
                         if(!bashrcu.exists()  || mOverwriteAll){
 //                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+bashrc.getPath()+" "+bashrcu.getPath());
                             pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+bashrc.getPath()+" "+bashrcu.getPath(),env,home);
                             pp.waitFor();
-                        }
+                        }*/
 
                         //nanorc
-                        File nanorc   = new File(system,"nanorc");
+/*                        File nanorc   = new File(system,"nanorc");
                         File nanorcu  = new File(home,".nanorc");
                         if(!nanorcu.exists()  || mOverwriteAll){
 //                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+nanorc.getPath()+" "+nanorcu.getPath());
                             pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+nanorc.getPath()+" "+nanorcu.getPath(),env,home);
                             pp.waitFor();
                         }
-
+*/
                         //TMUX
-                        File tmuxrc   = new File(system,"tmux.conf");
+/*                        File tmuxrc   = new File(system,"tmux.conf");
                         File tmuxrcu  = new File(home,".tmux.conf");
                         if(!tmuxrcu.exists()  || mOverwriteAll){
 //                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+tmuxrc.getPath()+" "+tmuxrcu.getPath());
@@ -293,7 +293,7 @@ public class installer extends Activity implements OnClickListener{
                             pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -rf "+vimh.getPath()+" "+vimhu.getPath(),env,home);
                             pp.waitFor();
                         }
-
+*/
                         //Create a link to the sdcard
                         File sdcard  = Environment.getExternalStorageDirectory();
                         File lnsdcard = new File(home,"sdcard");
