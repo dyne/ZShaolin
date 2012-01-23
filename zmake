@@ -1,5 +1,27 @@
 #!/bin/zsh
 
+# {{{ LICENSE
+
+# Copyright (C) 2012 Denis Roio <jaromil@dyne.org>
+#
+# This source  code is free  software; you can redistribute  it and/or
+# modify it under the terms of  the GNU Public License as published by
+# the Free  Software Foundation; either  version 3 of the  License, or
+# (at your option) any later version.
+#
+# This source code is distributed in  the hope that it will be useful,
+# but  WITHOUT ANY  WARRANTY;  without even  the  implied warranty  of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# Please refer to the GNU Public License for more details.
+#
+# You should have received a copy of the GNU Public License along with
+# this source code; if not, write to:
+# Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# }}}
+
+# {{{ GLOBAL VARIABLES
+
 # ZShaolin system build and basic configuration
 
 # configure the target
@@ -12,13 +34,6 @@ ZHOME=`pwd`
 # toolchain full path
 TOOLCHAIN=$ZHOME/bootstrap/x-tools
 
-# make sure the toolchain exists in /usr
-if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
-    echo "error: toolchain not found: $TARGET"
-    echo "first you need to bootstrap."
-#    return 1
-fi
-
 # configure the install prefix
 PREFIX=$ZHOME/sysroot
 
@@ -28,12 +43,24 @@ CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
 LDFLAGS="-static -L$PREFIX/lib"
 
+# }}}
+
+
+# make sure the toolchain exists in /usr
+if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
+    echo "error: toolchain not found: $TARGET"
+    echo "first you need to bootstrap."
+#    return 1
+fi
+
 echo "Compiling ZShaolin system root"
 echo "Target:    $TARGET"
 echo "Toolchain: $TOOLCHAIN"
 echo "Install:   $PREFIX"
 echo "CFLAGS:    $CFLAGS"
 echo "LDFLAGS:   $LDFLAGS"
+
+echo "Command:   $@"
 
 PATH="$PATH:$TOOLCHAIN/bin"
 
@@ -43,6 +70,7 @@ enter() {
 	return 1
     fi
     cd $1
+    shift
     source conf.zsh
     cd -
 }
@@ -81,9 +109,9 @@ compile() {
     fi
 
     CFLAGS="$CFLAGS $extracflags" \
-    CPPFLAGS="$CPPFLAGS" \
-    CXXFLAGS="$CXXFLAGS" \
-    LDFLAGS="$LDFLAGS" \
+	CPPFLAGS="$CPPFLAGS" \
+	CXXFLAGS="$CXXFLAGS" \
+	LDFLAGS="$LDFLAGS" \
 	./configure ${=confflags} ${=extraflags} >> ../$LOGS
 
     if [ $? != 0 ]; then
@@ -92,14 +120,22 @@ compile() {
 	return 1
     fi
 
-    make >> ../$LOGS
+    CFLAGS="$CFLAGS $extracflags" \
+	CPPFLAGS="$CPPFLAGS" \
+	CXXFLAGS="$CXXFLAGS" \
+	LDFLAGS="$LDFLAGS" \
+	make >> ../$LOGS
     if [ $? != 0 ]; then
 	echo "error: $1 cannot make, aborted compilation"
 	cd -
 	return 1
     fi
 
-    make install >> ../$LOGS
+    CFLAGS="$CFLAGS $extracflags" \
+	CPPFLAGS="$CPPFLAGS" \
+	CXXFLAGS="$CXXFLAGS" \
+	LDFLAGS="$LDFLAGS" \
+	make install >> ../$LOGS
     if [ $? != 0 ]; then
 	echo "error: $1 cannot make install, check permissions"
 	cd -
@@ -133,12 +169,14 @@ case "$1" in
 	enter sysroot
 	;;
     clean)
-	enter build clean
+	enter build $@
 	;;
-    help)
-	echo "We're all on our own, for now."
+    help|-h)
+	echo "No help. We're all on our own, for now."
 	;;
     *)
-	enter build $@
+	echo "Command not found: $@"
 
 esac
+
+
