@@ -1,25 +1,25 @@
 
 
-rm -rf pack/*
-rsync -dar --files-from=system.tree --delete . pack/
+mkdir -p system
+rm -rf system/*
+rsync -dar --files-from=system.tree --delete . system/
 
-for i in `find pack`; do
+for i in `find system`; do
     file $i | grep 'executable, ARM' > /dev/null
     if [ $? = 0 ]; then
 	$TOOLCHAIN/bin/$TARGET-strip $i
     fi
 done
 
-cd pack/bin
+cd system/bin
 # symlink shells
 ln -s zsh sh
 ln -s zsh ash
 ln -s zsh bash
-cd ..
-
+cd ../..
 
 VER=`cat $ZHOME/VERSION`
-tar cfz $ZHOME/system-$VER.tar.gz .
+tar cfz $ZHOME/system-$VER.tar.gz system
 
 cd $ZHOME
 stat system-$VER.tar.gz
