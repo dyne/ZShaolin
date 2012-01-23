@@ -17,3 +17,5 @@ sysroot/man
 sysroot/pack
 sysroot/sbin
 sysroot/share
+termapk/gen
+termapk/bin
