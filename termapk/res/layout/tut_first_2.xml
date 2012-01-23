@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:layout_weight="1"
+              android:orientation="vertical" >
+
+    <TextView android:id="@+id/help_title"
+                  android:gravity="center"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dip"
+                  android:paddingBottom="10dip"
+                  android:textSize="22dip"
+                  android:text="Tutorial 2"/>
+
+    <ScrollView android:id="@+id/help_scrollview"
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent">
+
+    <TextView android:id="@+id/mixer_deck1_text"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:text=
+"Let's start by compiling the simplest Hello World app.\n
+\n
+First cd into the project folder (Remember to use TAB to complete) :\n
+\n
+# cd ~/system/src/helloworld/
+\n
+List the contents : \n
+\n
+# ls (Allthough I prefer ll)\n
+\n
+You will now see three files. hello.java is the code. Compile with :\n
+\n
+# javac hello.java\n
+\n
+Now you have a hello.class file. Need to convert to DEX format :\n
+\n
+# dx --dex --output=hello.jar hello.class\n
+\n
+Now you have hello.jar in dex format. The naming to .jar seems to matter, not .dex.\n
+\n
+And finally you can run it with :\n
+\n
+# java -jar hello.jar hello\n
+\n
+You just compiled and ran your first program.. Well Done!\n
+\n
+Now you will understand what builder.sh and run.sh are doing : \n
+\n
+# cat hello.java\n
+# cat builder.sh\n
+# cat run.sh\n
+\n
+Now let's play with vim a little\n
+\n
+# vim hello.java\n
+\n
+You should now see a syntax highlighted hello.java file.\n
+\n
+REMEMBER : The most important thing about vim is that [ESC] moves you into Control mode
+where you can type commands and do functions, and press \'i\' for INSERT mode to write some text.(Or use \'a\' for APPEND mode)\n
+\n
+Press \'i\' to enter INSERT mode\n
+\n
+Move around with the arrow keys, and then move over the \'System.\' so that the cursor is on the \'o\' of
+.out\n
+\n
+Now press [CTRL]+X [CTRL]+U\n
+\n
+You should see java completion for the available options!\n
+\n
+There are many available completion type : \n
+  - [CTRL]+X [CTRL]+U\n USER java completion\n
+  - [CTRL]+X [CTRL]+O\n OMNI completion, syntax based for many languages\n
+  - [CTRL]+X [CTRL]+F\n FILE name completion, very handy try ~[CTRL]+X [CTRL]+F\n
+  \n
+And more.. (Enable the dictionary in your ~/.vimrc for many more options..) But for us the important one is the USER completion. Java.\n
+\n
+Completion only works in INSERT mode..\n
+\n
+You can even compile the code with [F7] (this is setup in your ~/.vimrc).\n
+\n
+Make sure you are in Control mode, press [ESC], then press [F7].\n
+\n
+Since there are no errors the compile will succeed and no errors will appear in the
+output window that should now have appeared at the bottom of the screen.\n
+\n
+The Cursor is now in the output window. Move it to the main window.\n
+\n
+Press [ESC] (to make sure you are in control mode). Then press [CTRL]+W (to move into window mode) and then press the UP arrow key.
+This will move you to the window \'above\'. You can use [CTRL]+W [CTRL]+W to toggle between windows. \n
+\n
+You can close the output window if you wish :\n
+\n
+[ESC]:cclose[ENTER]\n
+\n
+Bring it back with :copen or :clist\n
+Cycle with :cnext :cprevious\n
+\n
+Edit the hello.java file by entering INSERT mode and changing it so that there are a few errors.. add a space inbetween the letters of System etc..\n
+\n
+You will need to save your changes. Make sure the cursor is in the main window. Then :\n
+\n
+[ESC]:w\n
+\n
+[ESC] is only required if you are not in Control mode.. From now on I'll omit it. :w is save the file. Most functions
+need to be run from Control mode, and all those starting with :\n
+\n
+Now try and compile again with [F7]. You need to be in the main window in Control mode.\n
+\n
+This time there should be some errors in the output window.\n
+\n
+You can cycle through them with [F8] and [F9], and the cursor will move to the error line.\n
+\n
+Pretty sweet..\n
+\n 
+You can even run your shell build scripts from within vim, so..\n
+\n
+:! ./builder.sh
+\n
+This will run the complete build script, and show you the output.\n
+\n
+NB : You can use TAB completion in the vim command line so just type :\n
+\n
+:! ./b[TAB] and the rest should be filled in..\n
+\n
+To exit vim use : \n
+\n
+:w   - Save file\n
+:q   - Close but file must be saved\n
+:q!  - Force Close\n
+:wq  - Save and Close\n
+:qa! - Force close ALL.\n
+\n
+Ok. Play around here, then move on to Tutorial 3.\n
+\n
+" />
+
+</ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:layout_weight="1"
+              android:orientation="vertical" >
+
+    <TextView android:id="@+id/help_title"
+                  android:gravity="center"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dip"
+                  android:paddingBottom="10dip"
+                  android:textSize="22dip"
+                  android:text="Change Log"/>
+
+    <ScrollView android:id="@+id/help_scrollview"
+                android:layout_height="fill_parent"
+                android:layout_width="fill_parent">
+
+    <TextView android:id="@+id/mixer_deck1_text"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:text=
+"\n
+v1.92 - nano 2.2.6 [update]\n
+     - jping [very useful.. get the IP address of a Hostname..]\n
+     - try : jping www.google.com\n
+\n
+v1.9 - htop 0.8.3\n
+     - Beautiful ncurses process viewer\n
+\n
+v1.8 - Nano 2.2.3 - with color syntax\n
+   - VIM is much MUCH better than nano.. but nobody likes to see babies crying .. ;-)\n
+   - Pls now stop sending me emails requesting this app..\n
+   - BusyBox 'su' link removed. Re-Link it if you need it. Too many people confused..\n
+\n
+v1.7 - ProGuard 4.6\n
+   - Added proguard build scripts to demo_ apps in ~/system/src\n
+\n
+v1.6 - GIT 1.7.8.163\n
+   - BusyBox 1.19.2 recompile. Added about 30 apps. All the apps that I could get to work basically.\n
+\n
+v1.5 - BitchX 1.1 final\n
+\n
+v1.4 - rsync 3.0.8\n
+     - Check help for usage example.\n
+\n
+v1.33 - Fixed line rendering of TMUX on device screen.\n
+      - Start tmux with -u option..\n
+\n
+v1.32 - Removed calls to 'getpwuid' from TMUX\n
+      - Fix crash on some systems..\n
+\n
+v1.3 - TMUX 1.5\n
+     - Terminal Multiplexer..\n
+     - TMUX Still has ENTER key issues, only when in : mode, on device..\n
+\n
+v1.2 - Recommend OVERWRITE ALL install\n
+     - MIDNIGHT COMMANDER 4.8, with most VFS systems installed. I have tested ftp. Works fine.\n
+     - NEW .bashrc required for Midnight Commander to function properly\n
+     - Soft Keyboard F1-F4 now work.\n
+     - Few tweaks to .vimrc\n
+\n
+v1.0 - Initial Release\n
+     - Terminal IDE Soft Keyboard v1.0\n
+     - Hacked Up JackPal Terminal Emulator\n
+     - busybox 1.19.2\n
+     - bash 4.2\n
+     - vim 7.3 (nicely setup with java auto-completion..)\n
+     - javac, java, dx, apkbuilder, aapt\n
+     - dropbear keygen / sshd / ssh\n
+     - utelnetd\n
+     - Normal folder structure\n
+     - With basic setup of ~/.vimrc and ~/.bashrc\n
+     - Best of all, *NO ROOT REQUIRED*!!\n
+     - All works as normal user..\n
+" />
+
+</ScrollView>
+
+</LinearLayout>

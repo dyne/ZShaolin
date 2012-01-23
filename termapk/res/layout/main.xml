@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout    xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="#000000"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:gravity="right"
+        android:textColor="#ffffff"
+        android:textSize="12dip"
+        android:text="May the Source be with You..."/>
+
+
+    <ScrollView   android:layout_gravity="center"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent">
+
+        <LinearLayout   android:orientation="vertical"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:background="#000000"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+            <Button android:id="@+id/main_start"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="ZShaolin"/>
+
+            <Button android:id="@+id/main_install"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="Install System"/>
+
+            <Button android:id="@+id/main_stop"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="Shutdown"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="5dip"
+                android:gravity="center"
+                android:text=" "/>
+
+            <Button android:id="@+id/main_keyboard"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="Keyboard"/>
+
+            <Button android:id="@+id/main_options"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="Options"/>
+
+            <Button android:id="@+id/main_help"
+                    android:layout_width="200dip"
+                    android:layout_height="wrap_content"
+                    android:text="Help"/>
+
+            <TextView   android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textColor="#ffffff"
+                        android:textSize="12dip"
+                        android:text="Read ALL the Help FIRST"/>
+
+        </LinearLayout>
+
+        
+
+     </ScrollView>
+
+
+
+</FrameLayout>
