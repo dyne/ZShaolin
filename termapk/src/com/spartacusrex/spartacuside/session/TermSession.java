@@ -168,10 +168,10 @@ public class TermSession {
         //Start the console's shell here
         File home  = new File(mHomeFilesDir);
         File shellf = new File(home,"system/bin/zsh");
-        File initf  = new File(home,"system/.zlogin");
+        File initf  = new File(home,"system/etc/zlogin");
         if(shellf.exists()){
             //Start Bash
-            shell = shellf.getPath() +" -i "+ initf.getPath();
+            shell = shellf.getPath() + initf.getPath();
         }
 
         //Now start it..

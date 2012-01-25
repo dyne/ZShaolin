@@ -1,0 +1,4 @@
+# ZShaolin configuration
+
+fpath=($SYS/share/zsh/4.3.15/functions $SYS/share/zsh/site-functions)
+

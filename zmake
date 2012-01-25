@@ -165,11 +165,17 @@ case "$1" in
     build)
 	enter build $@
 	;;
+    conf)
+	enter etc $@
+	;;
     pack)
 	enter sysroot
 	;;
     clean)
 	enter build $@
+	;;
+    test)
+	ZHOME=$ZHOME zsh etc/zlogin
 	;;
     help|-h)
 	echo "No help. We're all on our own, for now."

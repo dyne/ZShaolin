@@ -1,0 +1,26 @@
+# ZShaolin initialization
+
+# fundamental paths
+
+
+# detect if we are running in a debugging mode from zmake
+# if yes, set to use system-wide zsh binary on dev machine
+if ! [ -z $ZHOME ]; then
+  export HOME=$ZHOME/sysroot
+else
+  export HOME=/data/data/org.dyne.zshaolin/files
+  export PATH=$SYS/bin:$SYS/bin/bbdir:$PATH
+  export SHELL="$SYS/bin/zsh"
+fi
+
+export SYS=$HOME/system
+export MANPATH=$SYS/share/man
+export TERMINFO=$SYS/share/terminfo
+export TERM=xterm
+
+{ test -r $SYS/etc/zprofile } && source $SYS/etc/zprofile
+{ test -r $SYS/etc/grmlrc } && source $SYS/etc/grmlrc
+
+cd $HOME
+echo "Hellcome in ZShaolin"
+zsh
