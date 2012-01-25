@@ -41,7 +41,7 @@ PREFIX=$ZHOME/sysroot
 CFLAGS="-Os -I$PREFIX/include"
 CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
-LDFLAGS="-static -L$PREFIX/lib"
+LDFLAGS="-static -static-libgcc -L$PREFIX/lib -L$ZHOME/bootstrap/x-tools/$TARGET/sysroot/usr/lib"
 
 # }}}
 
@@ -124,7 +124,7 @@ compile() {
 	CPPFLAGS="$CPPFLAGS" \
 	CXXFLAGS="$CXXFLAGS" \
 	LDFLAGS="$LDFLAGS" \
-	make >> ../$LOGS
+	make V=1 >> ../$LOGS
     if [ $? != 0 ]; then
 	echo "error: $1 cannot make, aborted compilation"
 	cd -
@@ -176,6 +176,19 @@ case "$1" in
 	;;
     test)
 	ZHOME=$ZHOME zsh etc/zlogin
+	;;
+    env)
+	echo "initializing env"
+	export ZHOME
+	export TARGET
+	export TOOLCHAIN
+	export PREFIX
+	export PATH
+	export CFLAGS
+	export CPPFLAGS
+	export CXXFLAGS
+	export LDFLAGS
+	zsh
 	;;
     help|-h)
 	echo "No help. We're all on our own, for now."
