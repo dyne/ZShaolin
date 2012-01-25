@@ -1,0 +1,7 @@
+# ZShaolin user configuration
+# put your tweaks in this file
+
+# GRML configuration - grml.org/zsh
+source $SYS/etc/grmlrc
+source ~/.grml.conf
+

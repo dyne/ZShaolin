@@ -5,5 +5,6 @@
 echo "copying configurations in etc"
 
 mkdir -p $ZHOME/sysroot/system/etc
-cp z* $ZHOME/sysroot/system/etc
-cp grml* $ZHOME/sysroot/system/etc
+cp zlogin grmlrc $ZHOME/sysroot/system/etc
+cp grml.conf $ZHOME/sysroot/.grml.conf
+cp zshrc $ZHOME/sysroot/.zshrc

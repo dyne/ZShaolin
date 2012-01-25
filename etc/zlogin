@@ -18,9 +18,11 @@ export MANPATH=$SYS/share/man
 export TERMINFO=$SYS/share/terminfo
 export TERM=xterm
 
-{ test -r $SYS/etc/zprofile } && source $SYS/etc/zprofile
-{ test -r $SYS/etc/grmlrc } && source $SYS/etc/grmlrc
+fpath=(
+    $SYS/share/zsh/4.3.15/functions
+    $SYS/share/zsh/site-functions
+)
 
 cd $HOME
-echo "Hellcome in ZShaolin"
+echo "Welcome to ZShaolin"
 zsh
