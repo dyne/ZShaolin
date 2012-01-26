@@ -325,11 +325,11 @@ setopt unset
 # setting some default values
 NOCOR=${NOCOR:-0}
 NOMENU=${NOMENU:-0}
-NOPRECMD=${NOPRECMD:-0}
+NOPRECMD=${NOPRECMD:-1}
 COMMAND_NOT_FOUND=${COMMAND_NOT_FOUND:-0}
 GRML_ZSH_CNF_HANDLER=${GRML_ZSH_CNF_HANDLER:-/usr/share/command-not-found/command-not-found}
 BATTERY=${BATTERY:-0}
-GRMLSMALL_SPECIFIC=${GRMLSMALL_SPECIFIC:-1}
+GRMLSMALL_SPECIFIC=${GRMLSMALL_SPECIFIC:-0}
 ZSH_NO_DEFAULT_LOCALE=${ZSH_NO_DEFAULT_LOCALE:-0}
 
 # utility functions
@@ -950,7 +950,7 @@ fi
 is4 && zrcautoload zed # use ZLE editor to edit a file or function
 
 is4 && \
-for mod in complist deltochar mathfunc ; do
+for mod in complist; do # deltochar mathfunc 
     zmodload -i zsh/${mod} 2>/dev/null || print "Notice: no ${mod} available :("
 done
 
@@ -1405,9 +1405,9 @@ ${BLUE}%n${NO_COLOUR}@%m %40<...<%B%~%b%<< "
     else
         # This assembles the primary prompt string
         if (( EUID != 0 )); then
-            PROMPT="${RED}${EXITCODE}${WHITE}${debian_chroot:+($debian_chroot)}${BLUE}%n${NO_COLOUR}@%m %40<...<%B%~%b%<< "
+            PROMPT="${RED}${EXITCODE}${WHITE} %40<...<%B%~%b%<< "
         else
-            PROMPT="${BLUE}${EXITCODE}${WHITE}${debian_chroot:+($debian_chroot)}${RED}%n${NO_COLOUR}@%m %40<...<%B%~%b%<< "
+            PROMPT="${BLUE}${EXITCODE}${WHITE} %40<...<%B%~%b%<< "
         fi
     fi
 fi
@@ -1453,7 +1453,7 @@ if ls --help 2>/dev/null | grep -- --color= >/dev/null \
    && [[ "$TERM" != dumb ]]
 then
     #a1# execute \kbd{@a@}:\quad ls with colors
-    alias ls='ls -b -CF --color=auto'
+    alias ls='ls -CF --color=auto'
     #a1# execute \kbd{@a@}:\quad list all files, with colors
     alias la='ls -la --color=auto'
     #a1# long colored list, without dotfiles (@a@)
