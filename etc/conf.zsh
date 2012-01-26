@@ -3,6 +3,6 @@
 # refer to zmake for license details
 
 echo "copying configurations in etc"
-mkdir -p $ZHOME/sysroot/system/etc
-cp zlogin grmlrc $ZHOME/sysroot/system/etc
-cp grml.conf zshrc $ZHOME/sysroot/system/etc
+mkdir -p $ZHOME/sysroot/etc
+cp zlogin grmlrc $ZHOME/sysroot/etc
+cp grml.conf zshrc $ZHOME/sysroot/etc

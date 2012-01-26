@@ -218,3 +218,4 @@
 ./share/tabset
 ./share/terminfo
 ./share/zsh
+./etc
