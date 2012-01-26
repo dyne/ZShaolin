@@ -29,7 +29,7 @@ public class assetextract {
     }
 
     private static void log(String zLog){
-        Log.v("SpartacusRex","BinaryManager : "+zLog);
+        Log.v("ZShaolin","BinaryManager : "+zLog);
     }
     
     private void copyFile(InputStream in, OutputStream out) throws IOException {

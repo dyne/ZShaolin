@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.spartacusrex.spartacuside.TermService;
 import com.spartacusrex.spartacuside.startup.setup.filemanager;
-import com.spartacusrex.spartacuside.startup.tutorial.tutview;
 
 /**
  *
@@ -95,9 +94,7 @@ public class installer extends Activity implements OnClickListener{
         tv.setTypeface(Typeface.MONOSPACE);
         tv.setText("Current   : "+current+"\n"+  "Available : "+avail);
 
-        Button but = (Button)findViewById(R.id.install_changelog);
-        but.setOnClickListener(this);
-        but = (Button)findViewById(R.id.install_start);
+        Button but = (Button)findViewById(R.id.install_start);
         but.setOnClickListener(this);
     }
 
@@ -111,13 +108,7 @@ public class installer extends Activity implements OnClickListener{
         return mInstallProgress;
     }
     public void onClick(View zButton) {
-        if(zButton == findViewById(R.id.install_changelog)){
-            //Show the Change LOG
-            Intent res = new Intent(this, tutview.class);
-            res.putExtra("com.spartacusrex.prodj.tutorial", R.layout.changelog);
-            startActivity(res);
-
-        }else  if(zButton == findViewById(R.id.install_start)){
+        if(zButton == findViewById(R.id.install_start)){
             //Extract all the files..
             showDialog(0);
             
@@ -189,14 +180,14 @@ public class installer extends Activity implements OnClickListener{
 
                         //Now start
                         msg = new Message();
-                        msg.getData().putString("info", "Removing Old System..");
+                        msg.getData().putString("info", "Removing the old system..");
                         mInstallHandler.sendMessage(msg);
                         
                         File system = new File(home,"system");
                         filemanager.deleteFolder(system);
                         
                         msg = new Message();
-                        msg.getData().putString("info", "Installing new system.. can take a minute");
+                        msg.getData().putString("info", "Extracting the new system..");
                         mInstallHandler.sendMessage(msg);
                         
                         //Now run the extract command
@@ -204,18 +195,21 @@ public class installer extends Activity implements OnClickListener{
                         pp = Runtime.getRuntime().exec(busytar.getPath()+" tar -C "+home.getPath()+" -xzf "+systar.getPath(),env,home);
                         pp.waitFor();
 
-                        msg = new Message();
-                        msg.getData().putString("info", "Installing BusyBox Apps..");
+/*                        msg = new Message();
+                        msg.getData().putString("info", "Running system setup..");
                         mInstallHandler.sendMessage(msg);
+                        pp = Runtime.getRuntime().exec(system.getPath()+"/setup.sh",env,home);
+                        pp.waitFor();*/
                         
                         //Now run the extract command
-                        File bindir   = new File(system,"bin");
+/*                        File bindir   = new File(system,"bin");
                         File bbindir  = new File(bindir,"bbdir");
                         if(!bbindir.exists()){
                             bbindir.mkdirs();
                         }
 
                         File busybox  = new File(bindir,"busybox");
+*/
 //                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath());
 //                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath(),env,home);
 //                        pp.waitFor();
@@ -229,24 +223,24 @@ public class installer extends Activity implements OnClickListener{
                         msg.getData().putString("info", "Copying startup files..");
                         mInstallHandler.sendMessage(msg);
 
-                        //bashrc
-/*                        File bashrc   = new File(system,"bashrc");
-                        File bashrcu  = new File(home,".bashrc");
-                        if(!bashrcu.exists()  || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+bashrc.getPath()+" "+bashrcu.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+bashrc.getPath()+" "+bashrcu.getPath(),env,home);
-                            pp.waitFor();
-                        }*/
+                        File etc = new File(system,"etc");
 
-                        //nanorc
-/*                        File nanorc   = new File(system,"nanorc");
-                        File nanorcu  = new File(home,".nanorc");
-                        if(!nanorcu.exists()  || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+nanorc.getPath()+" "+nanorcu.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+nanorc.getPath()+" "+nanorcu.getPath(),env,home);
+                        // zshrc
+                        File zshrc   = new File(etc,"zshrc");
+                        File zshrcu  = new File(home,".zshrc");
+                        if(!zshrcu.exists()  || mOverwriteAll){
+                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+zshrc.getPath()+" "+zshrcu.getPath(),env,home);
                             pp.waitFor();
                         }
-*/
+
+                        // grml.conf
+                        File grml   = new File(etc,"grml.conf");
+                        File grmlu  = new File(home,".grml.conf");
+                        if(!grmlu.exists()  || mOverwriteAll){
+                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+grml.getPath()+" "+grmlu.getPath(),env,home);
+                            pp.waitFor();
+                        }
+
                         //TMUX
 /*                        File tmuxrc   = new File(system,"tmux.conf");
                         File tmuxrcu  = new File(home,".tmux.conf");
@@ -303,7 +297,7 @@ public class installer extends Activity implements OnClickListener{
                         pp = Runtime.getRuntime().exec(func,env,home);
                         pp.waitFor();
 
-                        //Make a few initial folders
+ /*                       //Make a few initial folders
                         File bin = new File(home,"bin");
                         if(!bin.exists()){bin.mkdirs();}
 
@@ -314,7 +308,7 @@ public class installer extends Activity implements OnClickListener{
                         if(!bin.exists()){bin.mkdirs();}
 
                         bin = new File(home,"projects");
-                        if(!bin.exists()){bin.mkdirs();}
+                        if(!bin.exists()){bin.mkdirs();}*/
 
                         msg = new Message();
                         msg.getData().putString("info", "Cleaning up..");

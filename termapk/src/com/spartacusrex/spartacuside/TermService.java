@@ -101,7 +101,7 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
         mTermSessions = new ArrayList<TermSession>();
 
         /* Put the service in the foreground. */
-        Notification notification = new Notification(R.drawable.terminal, getText(R.string.service_notify_text), System.currentTimeMillis());
+        Notification notification = new Notification(R.drawable.yingyang, getText(R.string.service_notify_text), System.currentTimeMillis());
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
         Intent notifyIntent = new Intent(this, Term.class);
         notifyIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

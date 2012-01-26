@@ -11,7 +11,7 @@
         android:gravity="right"
         android:textColor="#ffffff"
         android:textSize="12dip"
-        android:text="May the Source be with You..."/>
+        android:text="GNU GPL v2 - may the source be with you "/>
 
 
     <ScrollView   android:layout_gravity="center"
@@ -28,7 +28,7 @@
             <Button android:id="@+id/main_start"
                     android:layout_width="200dip"
                     android:layout_height="wrap_content"
-                    android:text="ZShaolin"/>
+                    android:text="Start ZShaolin"/>
 
             <Button android:id="@+id/main_install"
                     android:layout_width="200dip"
@@ -60,14 +60,15 @@
             <Button android:id="@+id/main_help"
                     android:layout_width="200dip"
                     android:layout_height="wrap_content"
-                    android:text="Help"/>
+                    android:text="Documentation"/>
 
             <TextView   android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:textColor="#ffffff"
                         android:textSize="12dip"
-                        android:text="Read ALL the Help FIRST"/>
+                        android:text="ZShaolin.org ver.0.2\n
+Software by dyne.org (2012)"/>
 
         </LinearLayout>
 

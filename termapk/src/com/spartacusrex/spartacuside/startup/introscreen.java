@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -23,7 +24,6 @@ import android.widget.Button;
 
 import com.spartacusrex.spartacuside.Term;
 import com.spartacusrex.spartacuside.TermService;
-import com.spartacusrex.spartacuside.startup.tutorial.tutlist;
 
 /**
  *
@@ -134,8 +134,11 @@ public class introscreen extends Activity implements OnClickListener{
 
         }else if(zButton == findViewById(R.id.main_help)){
             //Open the Help Section
-            startActivity(new Intent(this, tutlist.class));
-            
+        	String url = "http://www.zshaolin.org/help";
+        	Intent i = new Intent(Intent.ACTION_VIEW);
+        	i.setData(Uri.parse(url));
+        	startActivity(i);
+        	
         }else if(zButton == findViewById(R.id.main_options)){
             //Show the Options..
             startActivity(new Intent(this, TerminalIDEPrefs.class));

@@ -2009,7 +2009,7 @@ class TermKeyListener {
      */
     public boolean mCTRLfromMETA = false;
     public void keyDown(int keyCode, KeyEvent event, OutputStream out, boolean appMode) throws IOException {
-        Log.v("SpartacusRex","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
+//        Log.v("SpartacusRex","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
 
         if (handleKeyCode(keyCode, out, appMode)) {
 //            Log.v("SpartacusRex","EMVIEW : Easy handle..");
@@ -2092,7 +2092,7 @@ class TermKeyListener {
     }
 
     public boolean handleKeyCode(int keyCode, OutputStream out, boolean appMode) throws IOException {
-        Log.v("SpartacusRex","handleKeyCode "+keyCode);
+//        Log.v("SpartacusRex","handleKeyCode "+keyCode);
 
         //Special handling -19 >> -22
         String code = null;

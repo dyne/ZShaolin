@@ -3,41 +3,45 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
+
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="#000000"
+    android:gravity="center"
+    android:orientation="vertical" >
 
-<LinearLayout   android:orientation="vertical"
-                android:gravity="center"
-                android:background="#000000"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/terminal" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textColor="#ffffff"
-        android:textSize="14dip"
+        android:textSize="16dip"
         android:text=
- "Terminal IDE has a basic system. This is installed into this application's private memory. You DO NOT NEED ROOT access or any other special permissions. \n
+ "ZShaolin is a shell console environment running into its own application space, so it doesn't needs root access.\n
  \n
- When the system needs to be installed/upgraded with a newer version, you can choose to update when you are ready, here.\n
+ Once installed, the system will be found in data/org.dyne.zshaolin and can be started at any time.\n
  \n
- The ~/system folder will be DELETED and re-written. You should not be storing your work in there.\n
- \n
- The files ~/.vimrc, ~/.vim, ~/.tmux.conf, ~/.bashrc and mc.ini will NOT BE over-written, but will be created if they don't exist.\n"/>
-
-    <TextView
-        android:id="@+id/install_sys"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="left"
-        android:textColor="#ff0000"
-        android:textSize="14dip"
-        android:text=""/>
+ A re-install or upgrade will write files in the ~/system directory, while leaving user modifications untouched.\n"/>
 
     <CheckBox android:id="@+id/install_overwrite"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:paddingBottom="5dip"
-              android:text=" Overwrite ALL"/>>
+              android:text=" Overwrite ALL"/>
+
+    <TextView
+        android:id="@+id/install_sys"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+>
 
     <LinearLayout   android:orientation="horizontal"
                     android:gravity="center"
@@ -45,10 +49,11 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content">
 
-        <Button android:id="@+id/install_changelog"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Change Log"/>
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/yingyang" />
 
         <Button android:id="@+id/install_start"
                 android:layout_width="wrap_content"

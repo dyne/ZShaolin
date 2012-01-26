@@ -31,7 +31,7 @@
             <Button android:id="@+id/main_start"
                     android:layout_width="200dip"
                     android:layout_height="wrap_content"
-                    android:text="Terminal IDE"/>
+                    android:text="ZShaolin"/>
 
             <Button android:id="@+id/main_install"
                     android:layout_width="200dip"

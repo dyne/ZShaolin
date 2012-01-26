@@ -21,7 +21,7 @@ import android.util.Log;
 public class filemanager {
 
     private static void log(String zLog){
-        Log.v("SpartacusRex","BinaryManager : "+zLog);
+        Log.v("ZShaolin","BinaryManager : "+zLog);
     }
 
     private static void copyFile(InputStream in, OutputStream out) throws IOException {

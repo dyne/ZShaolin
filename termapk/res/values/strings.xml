@@ -107,8 +107,8 @@
    <string name="default_value_controlkey_preference">7</string>
    <string name="default_value_fnkey_preference">7</string>
    <string name="default_value_ime_preference">0</string>
-   <string name="default_value_shell_preference">/system/bin/sh -</string>
-   <string name="default_value_initialcommand_preference">export HOME=/data/data/com.spartacusrex.spartacuside/files;cd $HOME</string>
+   <string name="default_value_shell_preference">/system/bin/zsh -</string>
+   <string name="default_value_initialcommand_preference">export HOME=/data/data/org.dyne/zshaolin/files; cd $HOME</string>
    
    <string name="control_key_dialog_title">Control and Function Keys</string>
    <!-- The word CTRLKEY should be left un-translated. It will be replaced at run-time with the
