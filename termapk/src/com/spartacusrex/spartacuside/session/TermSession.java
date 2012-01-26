@@ -171,7 +171,7 @@ public class TermSession {
         File initf  = new File(home,"system/etc/zlogin");
         if(shellf.exists()){
             //Start Bash
-            shell = shellf.getPath() + initf.getPath();
+            shell = shellf.getPath() + " " + initf.getPath();
         }
 
         //Now start it..

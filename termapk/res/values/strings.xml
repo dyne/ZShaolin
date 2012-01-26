@@ -26,7 +26,7 @@
     <string name="label_next_key">Next</string>
     <string name="label_send_key">Send</string>
     
-   <string name="application_terminal">Terminal IDE</string>
+   <string name="application_terminal">ZShaolin</string>
    <string name="preferences">Preferences</string>
    <string name="new_window">New window</string>
    <string name="close_window">Close window</string>
