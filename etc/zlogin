@@ -9,19 +9,14 @@ if ! [ -z $ZHOME ]; then
   export HOME=$ZHOME/sysroot
 else
   export HOME=/data/data/org.dyne.zshaolin/files
+  export SYS=$HOME/system
   export PATH=$SYS/bin:$SYS/bin/bbdir:$PATH
   export SHELL="$SYS/bin/zsh"
 fi
 
-export SYS=$HOME/system
 export MANPATH=$SYS/share/man
 export TERMINFO=$SYS/share/terminfo
 export TERM=xterm
-
-fpath=(
-    $SYS/share/zsh/4.3.15/functions
-    $SYS/share/zsh/site-functions
-)
 
 cd $HOME
 echo "Welcome to ZShaolin"

@@ -1463,7 +1463,7 @@ then
     #a1# List files, append qualifier to filenames \\&\quad(\kbd{/} for directories, \kbd{@} for symlinks ...)
     alias l='ls -lF --color=auto'
 else
-    alias ls='ls -b -CF'
+    alias ls='ls -CF'
     alias la='ls -la'
     alias ll='ls -l'
     alias lh='ls -hAl'

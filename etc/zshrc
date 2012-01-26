@@ -1,6 +1,12 @@
 # ZShaolin user configuration
 # put your tweaks in this file
 
+# setup zsh modules path
+fpath=(
+    $SYS/share/zsh/4.3.15/functions
+    $SYS/share/zsh/site-functions
+)
+
 # GRML configuration - grml.org/zsh
 source $SYS/etc/grmlrc
 source ~/.grml.conf
