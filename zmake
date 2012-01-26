@@ -28,6 +28,9 @@
 TARGET=arm-dyne-linux-gnueabi
 # same value should be the bootstrap target
 
+# the location inside android
+APKPATH=/data/data/org.dyne.zshaolin
+
 # where are we
 ZHOME=`pwd`
 
@@ -38,7 +41,7 @@ TOOLCHAIN=$ZHOME/bootstrap/x-tools
 PREFIX=$ZHOME/sysroot
 
 # configure the compile flags
-CFLAGS="-Os -O2 -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8 -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
+CFLAGS="-Os -O2 -static -static-libgcc -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8 -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
 CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
 LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
@@ -62,7 +65,7 @@ echo "LDFLAGS:   $LDFLAGS"
 
 echo "Command:   $@"
 
-PATH="$PATH:$TOOLCHAIN/bin"
+PATH="$TOOLCHAIN/bin:$TOOLCHAIN/$TARGET/bin:$PATH"
 
 enter() {
     if ! [ -r $1/conf.zsh ]; then
@@ -86,38 +89,39 @@ compile() {
 	return 1
     fi
     cd $1
-    if ! [ -r configure ]; then
-	echo "error: no autoconf build environment found for $1"
-	return 1
-    fi
 
-    case $2 in
-	default)
-	    confflags="--host=$TARGET --prefix=$PREFIX"
-	    ;;
-	check)
-	    return 0
-	    ;;
-	*)
-	    confflags="$2"
-	    echo "configure = $confflags"
-    esac
+    if [ -r configure ]; then
 
-    extraflags="$3"
-    if [ "$extraflags" != "" ]; then
-	echo "extra flags = $extraflags"
-    fi
+	case $2 in
+	    default)
+		confflags="--host=$TARGET --prefix=$PREFIX"
+		;;
+	    check)
+		return 0
+		;;
+	    *)
+		confflags="$2"
+		echo "configure = $confflags"
+	esac
+	
+	extraflags="$3"
+	if [ "$extraflags" != "" ]; then
+	    echo "extra flags = $extraflags"
+	fi
 
-    CFLAGS="$CFLAGS $extracflags" \
-	CPPFLAGS="$CPPFLAGS" \
-	CXXFLAGS="$CXXFLAGS" \
-	LDFLAGS="$LDFLAGS" \
-	./configure ${=confflags} ${=extraflags} >> ../$LOGS
-
-    if [ $? != 0 ]; then
-	echo "error: $1 cannot configure, skipping compilation"
-	cd -
-	return 1
+	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	    CFLAGS="$CFLAGS $extracflags" \
+	    CPPFLAGS="$CPPFLAGS" \
+	    CXXFLAGS="$CXXFLAGS" \
+	    LDFLAGS="$LDFLAGS" \
+	    ./configure ${=confflags} ${=extraflags} >> ../$LOGS
+	
+	if [ $? != 0 ]; then
+	    echo "error: $1 cannot configure, skipping compilation"
+	    cd -
+	    return 1
+	fi
+	
     fi
 
     CFLAGS="$CFLAGS $extracflags" \
@@ -131,15 +135,18 @@ compile() {
 	return 1
     fi
 
-    CFLAGS="$CFLAGS $extracflags" \
-	CPPFLAGS="$CPPFLAGS" \
-	CXXFLAGS="$CXXFLAGS" \
-	LDFLAGS="$LDFLAGS" \
-	make install >> ../$LOGS
+    echo $@ | grep noinstall > /dev/null
     if [ $? != 0 ]; then
-	echo "error: $1 cannot make install, check permissions"
-	cd -
-	return 1
+	CFLAGS="$CFLAGS $extracflags" \
+	    CPPFLAGS="$CPPFLAGS" \
+	    CXXFLAGS="$CXXFLAGS" \
+	    LDFLAGS="$LDFLAGS" \
+	    make install >> ../$LOGS
+	if [ $? != 0 ]; then
+	    echo "error: $1 cannot make install, check permissions"
+	    cd -
+	    return 1
+	fi
     fi
 
     echo "done compiling $1"

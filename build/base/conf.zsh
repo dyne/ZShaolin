@@ -37,5 +37,12 @@ compile grep-2.9 default
 ## diff
 compile diffutils-3.2 default
 
+## zlib
+cp Makefile.zlib zlib-1.2.5/Makefile.in
+compile zlib-1.2.5 "--prefix=$PREFIX --static"
+
+## openssl
+cp Makefile.openssl openssl-1.0.0g/Makefile
+compile openssl-1.0.0g
 
 return 0
