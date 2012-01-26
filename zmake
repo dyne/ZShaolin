@@ -38,10 +38,10 @@ TOOLCHAIN=$ZHOME/bootstrap/x-tools
 PREFIX=$ZHOME/sysroot
 
 # configure the compile flags
-CFLAGS="-Os -I$PREFIX/include"
+CFLAGS="-Os -O2 -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8 -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
 CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
-LDFLAGS="-static -static-libgcc -L$PREFIX/lib -L$ZHOME/bootstrap/x-tools/$TARGET/sysroot/usr/lib"
+LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 
 # }}}
 
@@ -169,7 +169,8 @@ case "$1" in
 	enter etc $@
 	;;
     pack)
-	enter sysroot
+	enter etc $@
+	enter sysroot $@
 	;;
     clean)
 	enter build $@

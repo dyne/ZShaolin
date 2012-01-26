@@ -27,6 +27,6 @@ tar cfz $ZHOME/system-$VER.tar.gz system
 cd $ZHOME
 stat system-$VER.tar.gz
 cp system-$VER.tar.gz termapk/assets/system-$VER.tar.gz.mp3
-cp sysroot/pack/bin/busybox termapk/assets/busybox.mp3
+cp sysroot/system/bin/busybox termapk/assets/busybox.mp3
 chmod -x termapk/assets/busybox.mp3
 

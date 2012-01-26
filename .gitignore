@@ -1,3 +1,4 @@
+*~
 *.tar.gz
 *.tar.bz2
 *.done
@@ -9,13 +10,16 @@ bootstrap/x-tools
 bootstrap/kconfig
 bootstrap/config*
 bootstrap/.config.*
+sysroot/.*
 sysroot/bin
 sysroot/include
 sysroot/lib
 sysroot/libexec
 sysroot/man
-sysroot/pack
+sysroot/system
 sysroot/sbin
 sysroot/share
 termapk/gen
 termapk/bin
+termapk/assets/busybox*
+termapk/assets/system*
