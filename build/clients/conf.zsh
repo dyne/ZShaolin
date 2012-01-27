@@ -38,7 +38,3 @@ compile $pkg[htop] default "--disable-native-affinity --enable-unicode"
 ## netcat
 compile $pkg[netcat] default
 
-## mtr
-compile $pkg[mtr] default
-
-## TODO: netcat mtr

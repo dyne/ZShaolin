@@ -1,8 +1,5 @@
 # ZShaolin initialization
 
-# fundamental paths
-
-
 # detect if we are running in a debugging mode from zmake
 # if yes, set to use system-wide zsh binary on dev machine
 if ! [ -z $ZHOME ]; then
@@ -10,7 +7,7 @@ if ! [ -z $ZHOME ]; then
 else
   export HOME=/data/data/org.dyne.zshaolin/files
   export SYS=$HOME/system
-  export PATH=$SYS/bin:$SYS/bin/bbdir:$PATH
+  export PATH=$SYS/bin:$SYS/ruby/bin:$PATH
   export SHELL="$SYS/bin/zsh"
 fi
 

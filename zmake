@@ -46,6 +46,9 @@ CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
 LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 
+PATH="$PATH:$TOOLCHAIN/bin"
+# PATH="$TOOLCHAIN/bin:$PATH"
+
 # }}}
 
 
@@ -65,11 +68,10 @@ echo "LDFLAGS:   $LDFLAGS"
 
 echo "Command:   $@"
 
-PATH="$TOOLCHAIN/bin:$PATH"
 
 enter() {
-    if ! [ -r $1conf.zsh ]; then
-	echo "error: build directory misses configuration file: $1conf.zsh"
+    if ! [ -r $1/conf.zsh ]; then
+	echo "error: build directory misses configuration file: $1/conf.zsh"
 	return 1
     fi
     cd $1; echo "Entered `pwd`"
@@ -83,7 +85,7 @@ compile() {
 	echo "$1.done :: already built, skipping compilation"
 	return 1
     fi
-    echo "Compiling $1"
+    echo "Compiling $1" | tee -a ../$LOGS
     if ! [ -r $1 ]; then
     	echo "source directory $1 not found, skipping compilation"
     	return 1
@@ -109,7 +111,7 @@ compile() {
 	    echo "extra flags = $extraflags"
 	fi
 
-	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" LD="$TARGET-ld" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
@@ -123,30 +125,35 @@ compile() {
 	
     fi
 
-    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
-	CFLAGS="$CFLAGS $extracflags" \
-	CPPFLAGS="$CPPFLAGS" \
-	CXXFLAGS="$CXXFLAGS" \
-	LDFLAGS="$LDFLAGS" \
-	make V=1 >> ../$LOGS
+    # check nomake flag
+    echo $@ | grep nomake > /dev/null
     if [ $? != 0 ]; then
-	echo "error: $1 cannot make, aborted compilation"; cd -
-	return 1
-    fi
-
-    echo $@ | grep noinstall > /dev/null
-    if [ $? != 0 ]; then
-	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" LD="$TARGET-ld" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make install >> ../$LOGS
+	    make V=1 >> ../$LOGS
 	if [ $? != 0 ]; then
-	    echo "error: $1 cannot make install, check permissions"; cd -
+	    echo "error: $1 cannot make, aborted compilation"; cd -
 	    return 1
 	fi
-    fi
+	
+    # check noinstall flag
+	echo $@ | grep noinstall > /dev/null
+	if [ $? != 0 ]; then
+	    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+		CFLAGS="$CFLAGS $extracflags" \
+		CPPFLAGS="$CPPFLAGS" \
+		CXXFLAGS="$CXXFLAGS" \
+		LDFLAGS="$LDFLAGS" \
+		make install >> ../$LOGS
+	    if [ $? != 0 ]; then
+		echo "error: $1 cannot make install, check permissions"; cd -
+		return 1
+	    fi
+	fi # noinstall
+    fi # nomake
 
     echo "done compiling $1"
     cd -
@@ -186,6 +193,8 @@ case "$1" in
 	zsh
 	return
 	;;
+    source)
+	return ;;
     help|-h)
 	echo "No help. We're all on our own, for now."
 	;;

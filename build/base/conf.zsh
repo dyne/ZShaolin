@@ -18,6 +18,7 @@ pkg=(
     grep grep-2.9
     diffutils diffutils-3.2
     openssl openssl-1.0.0g
+    libogg  libogg-1.3.0
 )
 
 
@@ -38,15 +39,6 @@ compile $pkg[zlib] "--prefix=$PREFIX --static"
 cp Makefile.openssl openssl-1.0.0g/Makefile
 compile $pkg[openssl]
 
-# busybox
-if ! [ -r $pkg[busybox].done ]; then
-    cp -v $pkg[busybox].conf $pkg[busybox]/.config
-    echo "Compiling $pkg[busybox]"; cd $pkg[busybox]
-    CFLAGS="$CFLAGS $extracflags" CPPFLAGS="$CPPFLAGS" \
-	CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
-	make oldconfig && make && make install
-    cd -; touch $pkg[busybox].done
-fi
     
 ## ncurses
 compile $pkg[ncurses] default "--enable-widec --enable-ext-colors --enable-ext-mouse"
@@ -67,3 +59,15 @@ compile $pkg[grep] default
 ## diff
 compile $pkg[diffutils] default
 
+## libogg
+compile $pkg[libogg] default "--disable-shared --enable-static --with-pic=no"
+
+# TODO busybox by hand for now
+# if ! [ -r $pkg[busybox].done ]; then
+#     cp -v $pkg[busybox].conf $pkg[busybox]/.config
+#     echo "Compiling $pkg[busybox]"; cd $pkg[busybox]
+#     CFLAGS="$CFLAGS $extracflags" CPPFLAGS="$CPPFLAGS" \
+# 	CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
+# 	make oldconfig && make && make install
+#     cd -; touch $pkg[busybox].done
+# fi
