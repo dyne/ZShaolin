@@ -50,7 +50,7 @@ public class sockethandler implements Runnable {
     webserver mServer;
 
     public void log(String zLog){
-        Log.v("SpartacusRex", "SocketHandler - "+mStartTime+" "+zLog);
+        Log.v("ZShaolin", "SocketHandler - "+mStartTime+" "+zLog);
     }
 
     public sockethandler(Socket zSocket, Context zContext, webserver zServer){

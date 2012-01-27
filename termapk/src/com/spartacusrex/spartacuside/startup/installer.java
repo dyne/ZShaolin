@@ -38,8 +38,8 @@ public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
     public static int      CURRENT_INSTALL_SYSTEM_NUM  = 1;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.2";
-    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.2.tar.gz.mp3";
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.3";
+    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.3.tar.gz.mp3";
 
     private ProgressDialog mInstallProgress;
     
@@ -142,7 +142,7 @@ public class installer extends Activity implements OnClickListener{
                         }
 
                         //Working directory
-                        File worker = new File(tmp,"WORK_"+System.currentTimeMillis());
+                        File worker = new File(tmp,"sys_install_"+System.currentTimeMillis());
                         if(!worker.exists()){
                             worker.mkdirs();
                         }
@@ -166,8 +166,8 @@ public class installer extends Activity implements OnClickListener{
                         env[1] = "LD_LIBRARY_PATH=/vendor/lib:/system/lib";
 
                         //Set executable
-//                        Process pp = Runtime.getRuntime().exec("chmod 770 "+busytar.getPath());
-                        Process pp = Runtime.getRuntime().exec("chmod 770 "+busytar.getPath(),env,home);
+                        Process pp = Runtime.getRuntime().exec
+			    ("chmod 770 "+busytar.getPath(),env,home);
 
                         pp.waitFor();
 
@@ -190,37 +190,18 @@ public class installer extends Activity implements OnClickListener{
                         msg.getData().putString("info", "Extracting the new system..");
                         mInstallHandler.sendMessage(msg);
                         
+
+			File bins = new File(system,"bin");
+
                         //Now run the extract command
-//                        pp = Runtime.getRuntime().exec(busytar.getPath()+" tar -C "+home.getPath()+" -xzf "+systar.getPath());
-                        pp = Runtime.getRuntime().exec(busytar.getPath()+" tar -C "+home.getPath()+" -xzf "+systar.getPath(),env,home);
-                        pp.waitFor();
-
-/*                        msg = new Message();
-                        msg.getData().putString("info", "Running system setup..");
-                        mInstallHandler.sendMessage(msg);
-                        pp = Runtime.getRuntime().exec(system.getPath()+"/setup.sh",env,home);
-                        pp.waitFor();*/
-                        
-                        //Now run the extract command
-/*                        File bindir   = new File(system,"bin");
-                        File bbindir  = new File(bindir,"bbdir");
-                        if(!bbindir.exists()){
-                            bbindir.mkdirs();
-                        }
-
-                        File busybox  = new File(bindir,"busybox");
-*/
-//                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath());
-//                        pp = Runtime.getRuntime().exec(busybox.getPath()+" --install -s "+bbindir.getPath(),env,home);
-//                        pp.waitFor();
-
-                        //Now delete the SU link.. too much confusion..
-//                        File su = new File(bbindir,"su");
-//                        su.delete();
+                        pp = Runtime.getRuntime().exec
+			    (busytar.getPath()+
+			     " tar -C "+home.getPath()+" -xzf "+systar.getPath(),env,home);
+                        pp.waitFor();                        
 
                         //Now copy some initial files..
                         msg = new Message();
-                        msg.getData().putString("info", "Copying startup files..");
+                        msg.getData().putString("info", "Initializing the environment..");
                         mInstallHandler.sendMessage(msg);
 
                         File etc = new File(system,"etc");
@@ -229,7 +210,9 @@ public class installer extends Activity implements OnClickListener{
                         File zshrc   = new File(etc,"zshrc");
                         File zshrcu  = new File(home,".zshrc");
                         if(!zshrcu.exists()  || mOverwriteAll){
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+zshrc.getPath()+" "+zshrcu.getPath(),env,home);
+                            pp = Runtime.getRuntime().exec
+				(busytar.getPath()+
+				 " cp -f "+zshrc.getPath()+" "+zshrcu.getPath(),env,home);
                             pp.waitFor();
                         }
 
@@ -237,78 +220,24 @@ public class installer extends Activity implements OnClickListener{
                         File grml   = new File(etc,"grml.conf");
                         File grmlu  = new File(home,".grml.conf");
                         if(!grmlu.exists()  || mOverwriteAll){
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+grml.getPath()+" "+grmlu.getPath(),env,home);
+                            pp = Runtime.getRuntime().exec
+				(busytar.getPath()+
+				 " cp -f "+grml.getPath()+" "+grmlu.getPath(),env,home);
                             pp.waitFor();
                         }
 
-                        //TMUX
-/*                        File tmuxrc   = new File(system,"tmux.conf");
-                        File tmuxrcu  = new File(home,".tmux.conf");
-                        if(!tmuxrcu.exists()  || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+tmuxrc.getPath()+" "+tmuxrcu.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+tmuxrc.getPath()+" "+tmuxrcu.getPath(),env,home);
-                            pp.waitFor();
-                        }
-
-                        //Midnight
-                        File ini     = new File(system,"mc.ini");
-                        File conf    = new File(home,".config");
-                        File confmc  = new File(conf,"mc");
-                        if(!confmc.exists()){
-                            confmc.mkdirs();
-                        }
-                        File mcini  = new File(confmc,"ini");
-                        if(!mcini.exists() || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+ini.getPath()+" "+mcini.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+ini.getPath()+" "+mcini.getPath(),env,home);
-                            pp.waitFor();
-                        }
-
-                        //The Inputrc is always over-ridden.. ?
-                        File inputrc  = new File(system,"inputrc");
-                        File inputrcu = new File(home,".inputrc");
-//                        pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+inputrc.getPath()+" "+inputrcu.getPath());
-                        pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+inputrc.getPath()+" "+inputrcu.getPath(),env,home);
-                        pp.waitFor();
-
-                        File vimrc   = new File(system,"vimrc");
-                        File vimrcu  = new File(home,".vimrc");
-                        if(!vimrcu.exists() || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+vimrc.getPath()+" "+vimrcu.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -f "+vimrc.getPath()+" "+vimrcu.getPath(),env,home);
-                            pp.waitFor();
-                        }
-
-                        //Check the home vim folder
-                        File vimh   = new File(system,"etc/default_vim");
-                        File vimhu  = new File(home,".vim");
-                        if(!vimhu.exists()  || mOverwriteAll){
-//                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -rf "+vimh.getPath()+" "+vimhu.getPath());
-                            pp = Runtime.getRuntime().exec(busytar.getPath()+" cp -rf "+vimh.getPath()+" "+vimhu.getPath(),env,home);
-                            pp.waitFor();
-                        }
-*/
                         //Create a link to the sdcard
                         File sdcard  = Environment.getExternalStorageDirectory();
                         File lnsdcard = new File(home,"sdcard");
                         String func = busytar.getPath()+" ln -s "+sdcard.getPath()+" "+lnsdcard.getPath();
-                        Log.v("SpartacusRex", "SDCARD ln : "+func);
+                        Log.v("ZShaolin", "SDCARD ln : "+func);
 //                        pp = Runtime.getRuntime().exec(func);
                         pp = Runtime.getRuntime().exec(func,env,home);
                         pp.waitFor();
 
- /*                       //Make a few initial folders
-                        File bin = new File(home,"bin");
-                        if(!bin.exists()){bin.mkdirs();}
-
-                        bin = new File(home,"lib");
-                        if(!bin.exists()){bin.mkdirs();}
-
-                        bin = new File(home,"tmp");
-                        if(!bin.exists()){bin.mkdirs();}
-
-                        bin = new File(home,"projects");
-                        if(!bin.exists()){bin.mkdirs();}*/
+			//Make a few initial folders
+                        //File public_html = new File(home,"public_html");
+                        //if(!.exists()){public_html.mkdirs();}
 
                         msg = new Message();
                         msg.getData().putString("info", "Cleaning up..");
@@ -322,7 +251,7 @@ public class installer extends Activity implements OnClickListener{
                         editor.commit();
                         
                     } catch (Exception iOException) {
-                        Log.v("SpartacusRex", "INSTALL SYSTEM EXCEPTION : "+iOException);
+                        Log.v("ZShaolin", "INSTALL SYSTEM EXCEPTION : "+iOException);
 
                         msg = new Message();
                         msg.getData().putString("error", iOException.toString());
@@ -343,7 +272,7 @@ public class installer extends Activity implements OnClickListener{
                     msg.getData().putString("close_install", "1");
                     mInstallHandler.sendMessage(msg);
 
-                    Log.v("SpartacusRex", "Finished Binary Install");
+                    Log.v("ZShaolin", "Finished Binary Install");
                 }
             };
             tt.start();
@@ -353,6 +282,6 @@ public class installer extends Activity implements OnClickListener{
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);   
-        Log.v("SpartacusRex","Installer onConfigurationChanged!!!!");
+        Log.v("ZShaolin","Installer onConfigurationChanged!!!!");
     }
 }

@@ -175,7 +175,7 @@ public class TerminalKeyboard extends InputMethodService
      */
     @Override
     public void onInitializeInterface() {
-//        Log.v("SpartacusRex", "Keyboard :  onInitializeInterface() orient : "+getResources().getConfiguration().orientation);
+//        Log.v("ZShaolin", "Keyboard :  onInitializeInterface() orient : "+getResources().getConfiguration().orientation);
         
         //Orientation
         mCurrentOrientation = getResources().getConfiguration().orientation;
@@ -451,7 +451,7 @@ public class TerminalKeyboard extends InputMethodService
      * PROCESS_HARD_KEYS option.
      */
     private boolean translateKeyDown(int keyCode, KeyEvent event) {
-//        Log.v("SpartacusRex","SOFT : translateKeyDown "+keyCode);
+//        Log.v("ZShaolin","SOFT : translateKeyDown "+keyCode);
 
         mMetaState = MetaKeyKeyListener.handleKeyDown(mMetaState,
                 keyCode, event);
@@ -490,7 +490,7 @@ public class TerminalKeyboard extends InputMethodService
      * continue to the app.
      */
     @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Log.v("SpartacusRex","SOFT : onKeyDown "+ keyCode+" "+event.getMetaState());
+//        Log.v("ZShaolin","SOFT : onKeyDown "+ keyCode+" "+event.getMetaState());
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 // The InputMethodService already takes care of the back
@@ -558,7 +558,7 @@ public class TerminalKeyboard extends InputMethodService
      * continue to the app.
      */
     @Override public boolean onKeyUp(int keyCode, KeyEvent event) {
-//        Log.v("SpartacusRex","SOFT : onKeyUp "+keyCode +" "+event.getMetaState());
+//        Log.v("ZShaolin","SOFT : onKeyUp "+keyCode +" "+event.getMetaState());
 
         // If we want to do transformations on text being entered with a hard
         // keyboard, we need to process the up events to update the meta key
@@ -660,7 +660,7 @@ public class TerminalKeyboard extends InputMethodService
     // Implementation of KeyboardViewListener
     public int mLastPrimCode=-87687;
     public void onKey(int primaryCode, int[] keyCodes) {
-        //Log.v("SpartacusRex","MAIN SOFT ENTRY : onKey "+primaryCode);
+        //Log.v("ZShaolin","MAIN SOFT ENTRY : onKey "+primaryCode);
 
         if(mInputView == null){
             return;
@@ -946,7 +946,7 @@ public class TerminalKeyboard extends InputMethodService
 
     //When the Preference Activity is finished..
     public void onSharedPreferenceChanged(SharedPreferences zPrefs, String zKey) {
-//        Log.v("SpartacusRex","Pref Change "+zKey);
+//        Log.v("ZShaolin","Pref Change "+zKey);
         if(zKey.equals("keyboard-port-size")){
             String value = zPrefs.getString(zKey, "0");
             int ival     = Integer.parseInt(value);
@@ -1011,7 +1011,7 @@ public class TerminalKeyboard extends InputMethodService
     }
 
     public void onText(CharSequence text) {
-//        Log.v("SpartacusRex","SOFT : onText "+text.toString());
+//        Log.v("ZShaolin","SOFT : onText "+text.toString());
 
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;

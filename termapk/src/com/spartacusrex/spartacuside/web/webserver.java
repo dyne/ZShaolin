@@ -41,7 +41,7 @@ public class webserver implements Runnable{
     }
 
     public void log(String zLog){
-        Log.v("SpartacusRex", "AppServer - "+zLog);
+        Log.v("ZShaolin", "AppServer - "+zLog);
     }
 
     public void start(){

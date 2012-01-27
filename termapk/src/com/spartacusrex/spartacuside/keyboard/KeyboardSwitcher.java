@@ -38,7 +38,7 @@ public class KeyboardSwitcher {
     boolean mALT;
     
     private void log(String zLog){
-        Log.v("SpartacusRex", zLog);
+        Log.v("ZShaolin", zLog);
     }
 
     public KeyboardSwitcher(){

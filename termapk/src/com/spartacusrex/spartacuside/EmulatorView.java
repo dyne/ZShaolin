@@ -337,7 +337,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             private void mapAndSend(int c) throws IOException {
                 int result = mKeyListener.mapControlChar(c);
                 if (result < TermKeyListener.KEYCODE_OFFSET) {
-//                    Log.v("SpartacusRex","EMVIEW : 1) mapAndSend "+c+" "+result);
+//                    Log.v("ZShaolin","EMVIEW : 1) mapAndSend "+c+" "+result);
                     
                     //Check for ALT
                     //if(mAl)
@@ -345,7 +345,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
                     mTermOut.write(result);
                 } else {
                     int code = result - TermKeyListener.KEYCODE_OFFSET;
-//                    Log.v("SpartacusRex","EMVIEW : 2) mapAndSend "+c+" "+code);
+//                    Log.v("ZShaolin","EMVIEW : 2) mapAndSend "+c+" "+code);
                     mKeyListener.handleKeyCode(result - TermKeyListener.KEYCODE_OFFSET, mTermOut, getKeypadApplicationMode());
                 }
             }
@@ -841,7 +841,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (LOG_KEY_EVENTS) {
-            Log.v("SpartacusRex", "EmulatorView onKeyDown " + keyCode + " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
+            Log.v("ZShaolin", "EmulatorView onKeyDown " + keyCode + " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
         }
         
         if (handleControlKey(keyCode, true)) {
@@ -860,7 +860,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
         }
 
         // Translate the keyCode into an ASCII character.
-        //Log.v("SpartacusRex","pass it on..");
+        //Log.v("ZShaolin","pass it on..");
 
         try {
             mKeyListener.keyDown(keyCode, event, mTermOut,getKeypadApplicationMode());
@@ -1891,7 +1891,7 @@ class TermKeyListener {
     }
 
     public void handleControlKey(boolean down) {
-        Log.v("SpartacusRex","handleControlKey "+down);
+        Log.v("ZShaolin","handleControlKey "+down);
 
         if (down) {
             mControlKey.onPress();
@@ -1913,7 +1913,7 @@ class TermKeyListener {
     public int mapControlChar(int ch) {
         int result = ch;
         if (mControlKey.isActive()) {
-//            Log.v("SpartacusRex","mapControlChar CONTROL ON ");
+//            Log.v("ZShaolin","mapControlChar CONTROL ON ");
             
             // Search is the control key.
             if (result >= 'a' && result <= 'z') {
@@ -1942,13 +1942,13 @@ class TermKeyListener {
 
             //Check if this is a one off
             if(mCTRLfromMETA){
-//                Log.v("SpartacusRex","mapControlChar RELEASE CTRL from META");
+//                Log.v("ZShaolin","mapControlChar RELEASE CTRL from META");
                mCTRLfromMETA = false;
                mControlKey.onRelease();
             }
 
         } else if (mFnKey.isActive()) {
-//            Log.v("SpartacusRex","mapControlChar mFnKey.isActive() ");
+//            Log.v("ZShaolin","mapControlChar mFnKey.isActive() ");
 
 /*            if (result == 'w' || result == 'W') {
                 result = KEYCODE_OFFSET + KeyEvent.KEYCODE_DPAD_UP;
@@ -1996,7 +1996,7 @@ class TermKeyListener {
             mFnKey.adjustAfterKeypress();
         }*/
 
-//        Log.v("SpartacusRex","mapControlChar "+ch+" --> "+result);
+//        Log.v("ZShaolin","mapControlChar "+ch+" --> "+result);
 
         return result;
     }
@@ -2009,21 +2009,21 @@ class TermKeyListener {
      */
     public boolean mCTRLfromMETA = false;
     public void keyDown(int keyCode, KeyEvent event, OutputStream out, boolean appMode) throws IOException {
-//        Log.v("SpartacusRex","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
+//        Log.v("ZShaolin","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
 
         if (handleKeyCode(keyCode, out, appMode)) {
-//            Log.v("SpartacusRex","EMVIEW : Easy handle..");
+//            Log.v("ZShaolin","EMVIEW : Easy handle..");
             return;
         }
 
         boolean CTRL = (event.getMetaState() & 8) != 0;
         if(CTRL){
-//            Log.v("SpartacusRex","EMVIEW : CONTROL PRESSED AND META SET!");
+//            Log.v("ZShaolin","EMVIEW : CONTROL PRESSED AND META SET!");
             mControlKey.onPress();
             mCTRLfromMETA = true;
         }else if(mCTRLfromMETA){
             mCTRLfromMETA = false;
-//            Log.v("SpartacusRex","EMVIEW : NO CONTROL PRESSED AND META NOT SET!");
+//            Log.v("ZShaolin","EMVIEW : NO CONTROL PRESSED AND META NOT SET!");
             mControlKey.onRelease();
         }
 
@@ -2031,14 +2031,14 @@ class TermKeyListener {
         switch (keyCode) {
         case -100:
             //it's a forward delete..
-//            Log.v("SpartacusRex","EMVIEW : FORW DELETE");
+//            Log.v("ZShaolin","EMVIEW : FORW DELETE");
             result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_FORWARD_DEL;
             break;
 
             case -98:
         case KeyEvent.KEYCODE_ALT_RIGHT:
         case KeyEvent.KEYCODE_ALT_LEFT:
-//            Log.v("SpartacusRex","EMVIEW : ALT ON");
+//            Log.v("ZShaolin","EMVIEW : ALT ON");
             mAltKey.onPress();
             break;
 
@@ -2050,7 +2050,7 @@ class TermKeyListener {
         case -99:
         case KEYCODE_CTRL_LEFT:
         case KEYCODE_CTRL_RIGHT:
-//            Log.v("SpartacusRex","EMVIEW : CTRL ON");
+//            Log.v("ZShaolin","EMVIEW : CTRL ON");
             mControlKey.onPress();
             break;
 
@@ -2074,7 +2074,7 @@ class TermKeyListener {
             int con = mstate & 8;
             //Meta
             int mon = mstate & 16;
-            Log.v("SpartacusRex","EMVIEW : keyDown DEFAULT "+result+" "+son+" "+aon+" "+yon+" "+con+" "+mon);
+            Log.v("ZShaolin","EMVIEW : keyDown DEFAULT "+result+" "+son+" "+aon+" "+yon+" "+con+" "+mon);
             */
 
             break;
@@ -2086,13 +2086,13 @@ class TermKeyListener {
         if (result >= KEYCODE_OFFSET) {
             handleKeyCode(result - KEYCODE_OFFSET, out, appMode);
         } else if (result >= 0) {
-//            Log.v("SpartacusRex","TERM : write code:"+keyCode+" result:"+result);
+//            Log.v("ZShaolin","TERM : write code:"+keyCode+" result:"+result);
             out.write(result);
         }
     }
 
     public boolean handleKeyCode(int keyCode, OutputStream out, boolean appMode) throws IOException {
-//        Log.v("SpartacusRex","handleKeyCode "+keyCode);
+//        Log.v("ZShaolin","handleKeyCode "+keyCode);
 
         //Special handling -19 >> -22
         String code = null;
@@ -2126,7 +2126,7 @@ class TermKeyListener {
                 int length = code.length();
                 for (int i = 0; i < length; i++) {
                     char cc = code.charAt(i);
-//                    Log.v("SpartacusRex","TERM : handleKeyCode internal "+keyCode+" "+i+") "+(int)cc+" : "+cc);
+//                    Log.v("ZShaolin","TERM : handleKeyCode internal "+keyCode+" "+i+") "+(int)cc+" : "+cc);
                     out.write(cc);
                 }
                 return true;
@@ -2141,14 +2141,14 @@ class TermKeyListener {
      * @param keyCode the keyCode of the keyUp event
      */
     public void keyUp(int keyCode) {
-//        Log.v("SpartacusRex","EMVIEW : keyup "+keyCode);
+//        Log.v("ZShaolin","EMVIEW : keyup "+keyCode);
         
         switch (keyCode) {
 
         case -98:
         case KeyEvent.KEYCODE_ALT_LEFT:
         case KeyEvent.KEYCODE_ALT_RIGHT:
-//            Log.v("SpartacusRex","EMVIEW : ALT OFF");
+//            Log.v("ZShaolin","EMVIEW : ALT OFF");
             mAltKey.onRelease();
             break;
         case KeyEvent.KEYCODE_SHIFT_LEFT:
@@ -2159,7 +2159,7 @@ class TermKeyListener {
         case -99:
         case KEYCODE_CTRL_LEFT:
         case KEYCODE_CTRL_RIGHT:
-//            Log.v("SpartacusRex","EMVIEW : CTRL OFF");
+//            Log.v("ZShaolin","EMVIEW : CTRL OFF");
             mControlKey.onRelease();
             break;
 

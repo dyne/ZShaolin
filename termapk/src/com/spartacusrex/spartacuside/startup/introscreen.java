@@ -148,6 +148,6 @@ public class introscreen extends Activity implements OnClickListener{
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Log.v("SpartacusRex","IntroScreen onConfigurationChanged!!!!");
+        Log.v("ZShaolin","IntroScreen onConfigurationChanged!!!!");
     }
 }
