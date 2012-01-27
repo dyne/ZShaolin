@@ -6,43 +6,64 @@
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
 
+# packages
+typeset -A pkg
+pkg=(
+    zlib zlib-1.2.5
+    busybox busybox-1.19.3
+    ncurses ncurses-5.9
+    zsh zsh-4.3.15
+    gawk gawk-4.0.0
+    sed sed-4.2.1
+    grep grep-2.9
+    diffutils diffutils-3.2
+    openssl openssl-1.0.0g
+)
+
+
 if [ "$1" = "clean" ]; then
-    clean ncurses-5.9
-    clean zsh-4.3.15
-    clean gawk-4.0.0
-    clean sed-4.2.1
-    clean grep-2.9
-    clean diffutils-3.2
+    for p in $pkg; do
+	clean $p
+    done
     return 0
 fi
 
 ###########################################
 ## COMPILE PACKAGES:
 
-## ncurses
-compile ncurses-5.9 default "--enable-widec --enable-ext-colors --enable-ext-mouse"
-
-## zsh
-compile zsh-4.3.15 default # "--disable-locale"
-
-## awk
-compile gawk-4.0.0 default
-
-## sed
-compile sed-4.2.1 default
-
-## grep
-compile grep-2.9 default
-
-## diff
-compile diffutils-3.2 default
-
 ## zlib
-cp Makefile.zlib zlib-1.2.5/Makefile.in
-compile zlib-1.2.5 "--prefix=$PREFIX --static"
+compile $pkg[zlib] "--prefix=$PREFIX --static"
 
 ## openssl
 cp Makefile.openssl openssl-1.0.0g/Makefile
-compile openssl-1.0.0g
+compile $pkg[openssl]
 
-return 0
+# busybox
+if ! [ -r $pkg[busybox].done ]; then
+    cp -v $pkg[busybox].conf $pkg[busybox]/.config
+    echo "Compiling $pkg[busybox]"; cd $pkg[busybox]
+    CFLAGS="$CFLAGS $extracflags" CPPFLAGS="$CPPFLAGS" \
+	CXXFLAGS="$CXXFLAGS" LDFLAGS="$LDFLAGS" \
+	make oldconfig && make && make install
+    cd -; touch $pkg[busybox].done
+fi
+    
+## ncurses
+compile $pkg[ncurses] default "--enable-widec --enable-ext-colors --enable-ext-mouse"
+ln -sf $PREFIX/include/ncursesw/* $PREFIX/include/
+
+## zsh
+compile $pkg[zsh] default
+
+## awk
+compile $pkg[gawk] default
+
+## sed
+compile $pkg[sed] default
+
+## grep
+compile $pkg[grep] default
+
+## diff
+compile $pkg[diffutils] default
+

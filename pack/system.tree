@@ -25,6 +25,7 @@
 ./bin/cpio
 ./bin/cut
 ./bin/date
+./bin/dbclient
 ./bin/dd
 ./bin/df
 ./bin/dgawk
@@ -33,6 +34,8 @@
 ./bin/dnsdomainname
 ./bin/dos2unix
 ./bin/dpkg
+./bin/dropbearconvert
+./bin/dropbearkey
 ./bin/du
 ./bin/dumpleases
 ./bin/echo
@@ -142,10 +145,7 @@
 ./bin/sort
 ./bin/split
 ./bin/ssh
-./bin/ssh-add
-./bin/ssh-agent
 ./bin/ssh-keygen
-./bin/ssh-keyscan
 ./bin/stat
 ./bin/strings
 ./bin/stty
@@ -203,6 +203,7 @@
 ./sbin/chroot
 ./sbin/dhcprelay
 ./sbin/dnsd
+./sbin/dropbear
 ./sbin/fakeidentd
 ./sbin/ifconfig
 ./sbin/ifdown
@@ -228,3 +229,7 @@
 ./share/tabset
 ./share/terminfo
 ./share/zsh
+./bin/htop
+./bin/jwhois
+./bin/curl
+./bin/nano

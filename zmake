@@ -65,14 +65,14 @@ echo "LDFLAGS:   $LDFLAGS"
 
 echo "Command:   $@"
 
-PATH="$TOOLCHAIN/bin:$TOOLCHAIN/$TARGET/bin:$PATH"
+PATH="$TOOLCHAIN/bin:$PATH"
 
 enter() {
-    if ! [ -r $1/conf.zsh ]; then
-	echo "error: build directory misses configuration file: $1/conf.zsh"
+    if ! [ -r $1conf.zsh ]; then
+	echo "error: build directory misses configuration file: $1conf.zsh"
 	return 1
     fi
-    cd $1
+    cd $1; echo "Entered `pwd`"
     shift
     source conf.zsh
     cd -
@@ -85,8 +85,8 @@ compile() {
     fi
     echo "Compiling $1"
     if ! [ -r $1 ]; then
-	echo "source directory $1 not found, skipping compilation"
-	return 1
+    	echo "source directory $1 not found, skipping compilation"
+    	return 1
     fi
     cd $1
 
@@ -117,34 +117,33 @@ compile() {
 	    ./configure ${=confflags} ${=extraflags} >> ../$LOGS
 	
 	if [ $? != 0 ]; then
-	    echo "error: $1 cannot configure, skipping compilation"
-	    cd -
+	    echo "error: $1 cannot configure, skipping compilation"; cd -
 	    return 1
 	fi
 	
     fi
 
-    CFLAGS="$CFLAGS $extracflags" \
+    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	CFLAGS="$CFLAGS $extracflags" \
 	CPPFLAGS="$CPPFLAGS" \
 	CXXFLAGS="$CXXFLAGS" \
 	LDFLAGS="$LDFLAGS" \
 	make V=1 >> ../$LOGS
     if [ $? != 0 ]; then
-	echo "error: $1 cannot make, aborted compilation"
-	cd -
+	echo "error: $1 cannot make, aborted compilation"; cd -
 	return 1
     fi
 
     echo $@ | grep noinstall > /dev/null
     if [ $? != 0 ]; then
-	CFLAGS="$CFLAGS $extracflags" \
+	CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
 	    make install >> ../$LOGS
 	if [ $? != 0 ]; then
-	    echo "error: $1 cannot make install, check permissions"
-	    cd -
+	    echo "error: $1 cannot make install, check permissions"; cd -
 	    return 1
 	fi
     fi
@@ -156,10 +155,7 @@ compile() {
 }
 
 clean() {
-    if ! [ -r $1 ]; then
-	echo "source directory $1 not found, skipping compilation"
-	return 1
-    fi
+    if ! [ -r $1 ]; then return 0; fi
     echo "Cleaning $1"
     rm -f $1.done
     cd $1
@@ -170,33 +166,25 @@ clean() {
 
 case "$1" in
     build)
-	enter build $@
-	;;
-    conf)
-	enter etc $@
-	;;
+	enter build/ $@
+       	;;
     pack)
-	enter etc $@
-	enter sysroot $@
+	enter etc/ $@
+	enter pack/ $@
 	;;
     clean)
-	enter build $@
+	enter build/ $@
 	;;
     test)
 	ZHOME=$ZHOME zsh etc/zlogin
 	;;
     env)
 	echo "initializing env"
-	export ZHOME
-	export TARGET
-	export TOOLCHAIN
-	export PREFIX
-	export PATH
-	export CFLAGS
-	export CPPFLAGS
-	export CXXFLAGS
-	export LDFLAGS
+	export ZHOME TARGET TOOLCHAIN
+	export PREFIX PATH CFLAGS
+	export CPPFLAGS CXXFLAGS LDFLAGS
 	zsh
+	return
 	;;
     help|-h)
 	echo "No help. We're all on our own, for now."
@@ -205,5 +193,4 @@ case "$1" in
 	echo "Command not found: $@"
 
 esac
-
 

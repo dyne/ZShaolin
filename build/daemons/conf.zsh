@@ -6,20 +6,44 @@
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
 
+typeset -A pkg
+pkg=(
+    dropbear dropbear-2011.54
+)
+
 if [ "$1" = "clean" ]; then
-    clean shellinabox-2.10
+    for p in $pkg; do
+	clean $p
+    done
     return 0
 fi
 
 ###########################################
 ## COMPILE PACKAGES:
 
-compile openssh-5.9p1 "--host=$TARGET --prefix=$APKPATH/system" "--disable-libutil --disable-utmp --disable-utmpx --with-sandbox=no --without-shadow --with-default-path=$APKPATH/system/bin --with-pid-dir=$APKPATH/system/var --with-privsep-path=$APKPATH/system/var " noinstall
-# install by hand
-{ test -r openssh-5.9p1.done } && cd openssh-5.9p1 && cp scp sftp \
-    sftp-server ssh ssh-add ssh-agent sshd ssh-keygen ${PREFIX}/bin
+compile $pkg[dropbear] default "" noinstall
+# manual install
+if [ -r $pkg[dropbear].done ]; then
+    cd $pkg[dropbear]; cp dropbear $PREFIX/sbin
+    cp dbclient dropbearconvert dropbearkey $PREFIX/bin
+    cp dbclient.1 $PREFIX/share/man/man1;
+    cd $PREFIX/share/man/man1; ln -sf dbclient.1 ssh.1
+    cd $PREFIX/sbin; ln -sf dropbear sshd
+    cd ../bin; ln -sf dbclient ssh; ln -sf dropbearkey ssh-keygen
+    cd $ZHOME; fi
 
-compile shellinabox-2.10 default "--disable-pam --enable-static"
 
 
-return 0
+
+## deactivated packages below
+
+
+# compile openssh-5.9p1 "--host=$TARGET --prefix=$APKPATH/system" "--disable-libutil --disable-utmp --disable-utmpx --with-sandbox=no --without-shadow --with-default-path=$APKPATH/system/bin --with-pid-dir=$APKPATH/system/var --with-privsep-path=$APKPATH/system/var " noinstall
+# # install by hand
+# if [ -r openssh-5.9p1.done ]; then
+#     cd openssh-5.9p1
+#     cp scp sftp sftp-server ssh ssh-add ssh-agent sshd ssh-keygen ${PREFIX}/bin
+#     cd -
+# fi
+
+# compile shellinabox-2.10 default "--disable-pam --enable-static"
