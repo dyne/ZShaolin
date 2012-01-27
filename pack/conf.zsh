@@ -2,31 +2,70 @@
 # (C) 2012 Denis Roio - GNU GPL v3
 # refer to zmake for license details
 
-rm -rf $ZHOME/system
-mkdir -p $ZHOME/system
+# just one module for now
 
-rsync -dar --files-from=system.tree --delete sysroot/ system/
-
-for i in `find $ZHOME/system`; do
-    file $i | grep 'executable, ARM' > /dev/null
-    if [ $? = 0 ]; then
-	$TOOLCHAIN/bin/$TARGET-strip $i
+check_module() {
+    if ! [ -r $1.tree ]; then
+	echo "error packing $1 module: tree not found"
+	return 1
     fi
-done
+    return 0
+}
 
-cd $ZHOME/system/bin
-# symlink shells
-ln -s zsh sh
-ln -s zsh ash
-ln -s zsh bash
-cd ../..
+pack_module() {
+    { check_module $1 } || { return 1 }; module=$1
+    
+    echo "Packing module $module"
+    rm -rf $module
+    mkdir -p $module
+    
+    rsync -dar --files-from=$module.tree $ZHOME/sysroot/ $module/
+}
 
-cd $ZHOME
-VER=`cat VERSION`
-tar cfz system-$VER.tar.gz system
+strip_module() {
+    { check_module $1 } || { return 1 }; module=$1
 
-stat system-$VER.tar.gz
-cp system-$VER.tar.gz termapk/assets/system-$VER.tar.gz.mp3
-cp sysroot/system/bin/busybox termapk/assets/busybox.mp3
-chmod -x termapk/assets/busybox.mp3
+    echo "Stripping binaries in module $module"
+    for i in `find $module`; do
+	file $i | grep -e 'ELF.*executable' > /dev/null
+	if [ $? = 0 ]; then
+	    echo "strip executable $i"
+	    $TOOLCHAIN/bin/$TARGET-strip $i
+	fi
+    done
+}
+
+alias_module() {
+    { check_module $1 } || { return 1 }; module=$1
+
+    echo "Setting aliases for module $module"
+    if [ -r $ZHOME/pack/$module.aliases ]; then
+	aa=`cat $module.aliases`
+	cd $ZHOME/pack/$module
+	for a in ${(f)aa}; do
+	    dir=`dirname ${a}`
+	    { test -r $dir } || continue
+	    cd $ZHOME/pack/$module/$dir; a=($a)
+#	    echo "($dir) ln -vf `basename ${a[1]}` ${a[2]}"
+	    ln -vsf `basename ${a[1]}` ${a[2]}
+	    cd $ZHOME/pack/$module
+	done
+	cd $ZHOME/pack
+    fi
+#    cd $ZHOME/pack
+}
+
+pack_module system
+strip_module system
+alias_module system
+
+
+# cd $ZHOME
+# VER=`cat VERSION`
+# tar cfz system-$VER.tar.gz system
+
+# stat system-$VER.tar.gz
+# cp system-$VER.tar.gz termapk/assets/system-$VER.tar.gz.mp3
+# cp sysroot/system/bin/busybox termapk/assets/busybox.mp3
+# chmod -x termapk/assets/busybox.mp3
 

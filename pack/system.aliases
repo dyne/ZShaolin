@@ -1,0 +1,16 @@
+sbin/dropbear sshd
+bin/dbclient ssh
+bin/dropbearkey ssh-keygen
+bin/htop top
+bin/netcat nc
+bin/zsh sh
+bin/zsh ash
+bin/zsh bash
+bin/gawk awk
+bin/jwhois whois
+share/man/man1/dbclient.1 ssh.1
+share/man/man1/gawk.1 awk.1
+share/man/man1/htop.1 top.1
+share/man/man1/jwhois.1 whois.1
+
+
