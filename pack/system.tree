@@ -6,7 +6,7 @@
 ./etc/zlogin
 ./etc/init.d
 ./share/nano
-./share/fortune
+./share/fortunes
 ./share/terminfo
 ./share/man/man1/zshmisc.1
 ./share/man/man1/nano.1

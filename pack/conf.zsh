@@ -56,8 +56,8 @@ alias_module() {
 
 pack_module() {
     { check_module $1 } || { return 1 }; module=$1
-
     ver=`cat $module.version`
+
     echo "Packing module $module $ver"
     tar cfz $module-$ver.tar.gz $module
     echo "ready to be included in assets:"
@@ -66,11 +66,12 @@ pack_module() {
 
 install_module() {
     { check_module $1 } || { return 1 }; module=$1
+    ver=`cat $module.version`
 
-    cp $module-$VER.tar.gz $ZHOME/termapk/assets/$module-$VER.tar.gz.mp3
+    cp $ZHOME/pack/$module-$ver.tar.gz $ZHOME/termapk/assets/$module-$ver.tar.gz.mp3
     # special case: for system install also busybox
     { test $module = system } && { 
-	cp $ZHOME/build/system/busybox/busybox \
+	cp $ZHOME/build/busybox/busybox \
 	    $ZHOME/termapk/assets/busybox.mp3 }
 }
 

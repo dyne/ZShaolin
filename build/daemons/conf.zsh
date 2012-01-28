@@ -9,6 +9,8 @@ rm -f $LOGS; touch $LOGS
 typeset -A pkg
 pkg=(
     dropbear dropbear-2011.54
+    libshout libshout-2.2.2
+    icecast icecast--2.3.2
 )
 
 if [ "$1" = "clean" ]; then
@@ -33,6 +35,9 @@ if [ -r $pkg[dropbear].done ]; then
     cd $ZHOME; fi
 
 
+compile $pkg[libshout] default  "--disable-shared --enable-static --with-pic=no"
+
+compile $pkg[icecast] default  "--disable-shared --enable-static --with-pic=no"
 
 
 ## deactivated packages below
