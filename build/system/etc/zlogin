@@ -7,7 +7,7 @@ if ! [ -z $ZHOME ]; then
 else
   export HOME=/data/data/org.dyne.zshaolin/files
   export SYS=$HOME/system
-  export PATH=$SYS/bin:$SYS/ruby/bin:$PATH
+  export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:$SYS/ruby/bin:$PATH
   export SHELL="$SYS/bin/zsh"
 fi
 

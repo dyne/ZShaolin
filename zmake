@@ -59,7 +59,7 @@ if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
 #    return 1
 fi
 
-echo "Compiling ZShaolin system root"
+echo "Compiling ZShaolin system"
 echo "Target:    $TARGET"
 echo "Toolchain: $TOOLCHAIN"
 echo "Install:   $PREFIX"
@@ -138,26 +138,33 @@ compile() {
 	    echo "error: $1 cannot make, aborted compilation"; cd -
 	    return 1
 	fi
-	
-    # check noinstall flag
-	echo $@ | grep noinstall > /dev/null
-	if [ $? != 0 ]; then
-	    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
-		CFLAGS="$CFLAGS $extracflags" \
-		CPPFLAGS="$CPPFLAGS" \
-		CXXFLAGS="$CXXFLAGS" \
-		LDFLAGS="$LDFLAGS" \
-		make install >> ../$LOGS
-	    if [ $? != 0 ]; then
-		echo "error: $1 cannot make install, check permissions"; cd -
-		return 1
-	    fi
-	fi # noinstall
     fi # nomake
 
     echo "done compiling $1"
     cd -
     touch $1.done
+    return 0
+}
+
+zinstall() {	
+    { test ! -r $1.done } && {
+	echo "$1 not yet built, skipping installation"
+	return 1 }
+
+    echo "Installing $1" | tee -a ../$LOGS
+
+    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
+	CFLAGS="$CFLAGS $extracflags" \
+	CPPFLAGS="$CPPFLAGS" \
+	CXXFLAGS="$CXXFLAGS" \
+	LDFLAGS="$LDFLAGS" \
+	make -C $1 install >> ../$LOGS
+    if [ $? != 0 ]; then
+	echo "error: $1 cannot make install, check permissions"; cd -
+	return 1
+    fi
+
+    echo "done installing $1"
     return 0
 }
 
@@ -176,11 +183,11 @@ case "$1" in
 	enter build/ $@
        	;;
     pack)
-	enter etc/ $@
 	enter pack/ $@
 	;;
     clean)
 	enter build/ $@
+	rm -rf $ZHOME/sysroot
 	;;
     test)
 	ZHOME=$ZHOME zsh etc/zlogin

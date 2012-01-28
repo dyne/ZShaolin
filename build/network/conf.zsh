@@ -11,8 +11,6 @@ typeset -A pkg
 pkg=(
     jwhois jwhois-4.0
     curl curl-7.24.0
-    htop htop-1.0
-    netcat netcat-0.7.1
 )
 
 
@@ -31,10 +29,4 @@ compile $pkg[jwhois] default
 
 ## curl
 compile $pkg[curl] default
-
-## htop
-compile $pkg[htop] default "--disable-native-affinity --enable-unicode"
-
-## netcat
-compile $pkg[netcat] default
 

@@ -4,14 +4,10 @@
 
 # build packages in order
 pkgs=(
-    base
-    clients
-    editors
+    system
     lang
-#    image
-#    audio
-#    video
-    daemons
+#    media
+#    daemons
 )
 
 if ! [ $2 ]; then
@@ -20,8 +16,12 @@ if ! [ $2 ]; then
     	cd $ZHOME/build
 	enter $i $@
     done
+    { test $1 = clean } && return 0
     echo "Build completed, summary:"
-    find $ZHOME -name "*.done"
+    for i in $pkgs; do
+	find $i -name "*.done" | sort
+    done
+
     return 0
 fi
 

@@ -12,10 +12,10 @@ check_module() {
     return 0
 }
 
-pack_module() {
+sync_module() {
     { check_module $1 } || { return 1 }; module=$1
     
-    echo "Packing module $module"
+    echo "Syncing module $module from sysroot"
     rm -rf $module
     mkdir -p $module
     
@@ -52,13 +52,33 @@ alias_module() {
 	done
 	cd $ZHOME/pack
     fi
-#    cd $ZHOME/pack
 }
 
-pack_module system
+pack_module() {
+    { check_module $1 } || { return 1 }; module=$1
+
+    ver=`cat $module.version`
+    echo "Packing module $module $ver"
+    tar cfz $module-$ver.tar.gz $module
+    echo "ready to be included in assets:"
+    ls -lh $module-$ver.tar.gz
+}
+
+install_module() {
+    { check_module $1 } || { return 1 }; module=$1
+
+    cp $module-$VER.tar.gz $ZHOME/termapk/assets/$module-$VER.tar.gz.mp3
+    # special case: for system install also busybox
+    { test $module = system } && { 
+	cp $ZHOME/build/system/busybox/busybox \
+	    $ZHOME/termapk/assets/busybox.mp3 }
+}
+
+sync_module system
 strip_module system
 alias_module system
-
+pack_module system
+install_module system
 
 # cd $ZHOME
 # VER=`cat VERSION`

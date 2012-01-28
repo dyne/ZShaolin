@@ -3,6 +3,8 @@
 *.tar.bz2
 *.done
 *.log
+!.config
+!conf.zsh
 bootstrap/crosstool-ng*
 bootstrap/build*
 bootstrap/src
@@ -13,5 +15,5 @@ bootstrap/.config.*
 sysroot
 termapk/gen
 termapk/bin
-termapk/assets/busybox*
-termapk/assets/system*
+termapk/assets/*
+build/busybox/*
