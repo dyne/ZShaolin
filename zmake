@@ -40,16 +40,26 @@ TOOLCHAIN=$ZHOME/bootstrap/x-tools
 # configure the install prefix
 PREFIX=$ZHOME/sysroot
 
-# configure the compile flags
-CFLAGS="-Os -O2 -static -static-libgcc -mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8 -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
-CPPFLAGS="-I$PREFIX/include"
-CXXFLAGS=$CFLAGS
-LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
+OPTIMIZATIONS="-Os -O2"
+
+## Architecture compiler flags 
+
+# safest for most devices
+# ARCH="-marm -march=armv5 -mfloat-abi=softfp"
+# more recent cortex-8:
+ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 
 PATH="$PATH:$TOOLCHAIN/bin"
 # PATH="$TOOLCHAIN/bin:$PATH"
 
 # }}}
+
+
+# configure the compile flags
+CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
+CPPFLAGS="-I$PREFIX/include"
+CXXFLAGS=$CFLAGS
+LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 
 
 # make sure the toolchain exists in /usr
@@ -153,11 +163,7 @@ zinstall() {
 
     echo "Installing $1" | tee -a ../$LOGS
 
-    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" \
-	CFLAGS="$CFLAGS $extracflags" \
-	CPPFLAGS="$CPPFLAGS" \
-	CXXFLAGS="$CXXFLAGS" \
-	LDFLAGS="$LDFLAGS" \
+    PREFIX="$PREFIX" \
 	make -C $1 install >> ../$LOGS
     if [ $? != 0 ]; then
 	echo "error: $1 cannot make install, check permissions"; cd -
@@ -187,7 +193,6 @@ case "$1" in
 	;;
     clean)
 	enter build/ $@
-	rm -rf $ZHOME/sysroot
 	;;
     test)
 	ZHOME=$ZHOME zsh etc/zlogin

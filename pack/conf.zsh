@@ -57,27 +57,38 @@ alias_module() {
 
 pack_module() {
     { check_module $1 } || { return 1 }; module=$1
-    ver=`cat $module.version`
+    ver=${ver:-`cat $module.version`}
 
     echo "Packing module $module $ver"
-    tar cfz $module-$ver.tar.gz $module
+    tar cf $module-$ver.tar $module
+    lzma -z -7 $module-$ver.tar
     echo "ready to be included in assets:"
-    ls -lh $module-$ver.tar.gz
+    ls -lh $module-$ver.tar.lzma
 }
 
 install_module() {
     { check_module $1 } || { return 1 }; module=$1
-    ver=`cat $module.version`
+    ver=${ver:-`cat $module.version`}
+    
+    if [ $module = all ]; then
+	cp $ZHOME/pack/all-$ver.tar.lzma $ZHOME/termapk/assets/system-$ver.tar.lzma.mp3
+    else
+	cp $ZHOME/pack/$module-$ver.tar.lzma $ZHOME/termapk/assets/$module-$ver.tar.lzma.mp3
+    fi
 
-    cp $ZHOME/pack/$module-$ver.tar.gz $ZHOME/termapk/assets/$module-$ver.tar.gz.mp3
     # special case: for system install also busybox
     { test $module = system } && { 
 	cp $ZHOME/build/busybox/busybox \
 	    $ZHOME/termapk/assets/busybox.mp3 }
 }
 
-module=system
+module=all
 { test $2 } && { module=$2 }
+
+{ test $module = all } && {
+  cat system.tree media.tree | sort > all.tree 
+  ver=`cat system.version`
+}
 
 sync_module $module
 strip_module $module

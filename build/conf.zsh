@@ -7,6 +7,7 @@ pkgs=(
     system
     games
     media
+    lang
 #    daemons
 )
 
