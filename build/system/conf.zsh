@@ -95,7 +95,8 @@ zinstall $pkg[openssl]
 }
 zinstall $pkg[shellinabox]
 
-compile $pkg[dropbear] default # "" noinstall
+compile $pkg[dropbear] default # "" noinstal
+zinstall $pkg[dropbear]
 # # manual install
 # { test -r $pkg[dropbear].done } && {
 #     cp $pkg[dropbear]/dropbear        $PREFIX/sbin/

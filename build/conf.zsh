@@ -5,8 +5,8 @@
 # build packages in order
 pkgs=(
     system
-    lang
-#    media
+    games
+    media
 #    daemons
 )
 
@@ -19,7 +19,7 @@ if ! [ $2 ]; then
     { test $1 = clean } && return 0
     echo "Build completed, summary:"
     for i in $pkgs; do
-	find $i -name "*.done" | sort
+	find $ZHOME/build/$i -name "*.done" | sort
     done
 
     return 0

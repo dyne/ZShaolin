@@ -4,6 +4,7 @@
 
 # just one module for now
 
+
 check_module() {
     if ! [ -r $1.tree ]; then
 	echo "error packing $1 module: tree not found"
@@ -75,11 +76,14 @@ install_module() {
 	    $ZHOME/termapk/assets/busybox.mp3 }
 }
 
-sync_module system
-strip_module system
-alias_module system
-pack_module system
-install_module system
+module=system
+{ test $2 } && { module=$2 }
+
+sync_module $module
+strip_module $module
+alias_module $module
+pack_module $module
+install_module $module
 
 # cd $ZHOME
 # VER=`cat VERSION`
