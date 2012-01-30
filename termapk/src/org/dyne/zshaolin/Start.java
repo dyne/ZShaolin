@@ -5,7 +5,7 @@
 
 package org.dyne.zshaolin;
 
-import com.spartacusrex.spartacuside.startup.introscreen;
+import org.dyne.zshaolin.startup.introscreen;
 import org.dyne.zshaolin.R;
 
 
