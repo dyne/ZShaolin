@@ -45,11 +45,14 @@ fi
 
 
 ## imagemagick
-if ! [ -r $pkg[imagemagick].done ]; then
+{ test ! -r $pkg[imagemagick].done } && {
     cp $pkg[imagemagick].Makefile.am $pkg[imagemagick]/Makefile.am
     cd $pkg[imagemagick]; autoreconf -i; cd -
     compile $pkg[imagemagick] default "--disable-shared --disable-deprecated"
-fi
+}
+{ test -r $pkg[imagemagick].done } && { zinstall $pkg[imagemagick] }
+
+
 
 
 ########
@@ -57,39 +60,45 @@ fi
 
 ## libogg
 compile $pkg[libogg] default "--disable-shared --enable-static --with-pic=no"
+zinstall $pkg[libogg]
 
 ## libvorbis
 compile $pkg[libvorbis] default "--disable-shared --enable-static --with-pic=no"
+zinstall $pkg[libvorbis]
 
 ## flac
-if ! [ -r $pkg[flac].done ]; then
+{ test ! -r $pkg[flac].done } && {
     echo "Applying makefile fix to flac"
     cp $pkg[flac].Makefile.am $pkg[flac]/Makefile.am
     cp $pkg[flac].configure.in $pkg[flac]/configure.in
     cd $pkg[flac] && autoreconf -i && cd -
     compile $pkg[flac] default \
 	"--disable-shared --enable-static --with-pic=no --disable-asm-optimizations"
-fi
+}
+{ test -r $pkg[flac].done } && { zinstall $pkg[flac] }
+    
 
 ## speex
 compile $pkg[speex] default "--disable-shared --enable-static --with-pic=no"
+zinstall $pkg[speex]
 
 # oggz
 compile $pkg[oggz] default "--disable-shared --enable-static --with-pic=no"
+zinstall $pkg[oggz]
 
 ## sox
 compile $pkg[sox] default "--disable-shared --with-distro=ZShaolin"
-
+zinstall $pkg[sox]
 
 ########
 ## VIDEO
 
 
 compile $pkg[x264] default "--disable-shared --enable-static --cross-prefix=$TARGET-"
-
+zinstall $pkg[x264]
 
 compile $pkg[ffmpeg] "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=$TOOLCHAIN/bin/$TARGET- --target-os=linux --cc=$TARGET-gcc --host-cc=$TARGET-gcc --arch=armv7-a --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
-
+zinstall $pkg[ffmpeg]
 
 
 # TODO: theora broken
