@@ -135,7 +135,7 @@ public class introscreen extends Activity implements OnClickListener{
 
         }else if(zButton == findViewById(R.id.main_help)){
             //Open the Help Section
-        	String url = "http://www.zshaolin.org/help";
+        	String url = "http://www.zshaolin.org";
         	Intent i = new Intent(Intent.ACTION_VIEW);
         	i.setData(Uri.parse(url));
         	startActivity(i);
