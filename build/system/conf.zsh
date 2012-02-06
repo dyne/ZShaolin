@@ -90,7 +90,10 @@ zinstall nano
 
 echo "Copying scripts and configurations..."
 { test -r bin }   && { echo -n " bin";   rsync -dar bin $PREFIX/ }
-{ test -r etc }   && { echo -n " etc";   rsync -dar etc $PREFIX/ }
+{ test -r etc }   && {
+    echo -n " etc";   rsync -dar etc $PREFIX/
+    # zcompile the grmlrc script to gain loading speed
+    zcompile $PREFIX/etc/grmlrc }
 { test -r var }   && { echo -n " var";   rsync -dar var $PREFIX/ }
 { test -r share } && { echo -n " share"; rsync -dar share $PREFIX/ }
 echo
