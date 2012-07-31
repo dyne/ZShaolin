@@ -12,13 +12,13 @@ pkgs=(
 )
 
 if ! [ $2 ]; then
-    echo "Target all sources with $1"
+    notice "Target all sources with $1"
     for i in $pkgs; do
     	cd $ZHOME/build
-	enter $i $@
+	enter $i ${=@}
     done
     { test $1 = clean } && return 0
-    echo "Build completed, summary:"
+    notice "Build completed, summary:"
     for i in $pkgs; do
 	find $ZHOME/build/$i -name "*.done" | sort
     done
@@ -28,8 +28,8 @@ fi
 
 
 if [ -r $2/conf.zsh ]; then
-    echo "target module '$2'"
-    enter $2 $@
+    act "Target module '$2'"
+    enter $2 ${=@}
 else   
-    echo "nothing to build in $2"
+    act "nothing to build in $2"
 fi
