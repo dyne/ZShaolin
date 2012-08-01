@@ -5,17 +5,17 @@
 # build packages in order
 pkgs=(
     system
-    games
     media
-    lang
+#    lang
 #    daemons
 )
 
 if ! [ $2 ]; then
     notice "Target all sources with $1"
     for i in $pkgs; do
-    	cd $ZHOME/build
+    	pushd $ZHOME/build
 	enter $i ${=@}
+	popd
     done
     { test $1 = clean } && return 0
     notice "Build completed, summary:"
@@ -30,6 +30,6 @@ fi
 if [ -r $2/conf.zsh ]; then
     act "Target module '$2'"
     enter $2 ${=@}
-else   
+else
     act "nothing to build in $2"
 fi

@@ -135,7 +135,8 @@ prepare_sources() {
 	# download the file
 	{ test -r ${file} } || {
 	    act "downloading ${file}"
-	    wget ${REPO}/${file} }
+	    wget ${REPO}/${file} >> $LOGS
+	}
 	# decompress the file
 	{ test -r ${name} } || {
 	    act "decompressing in ${name}"
@@ -155,14 +156,14 @@ compile() {
 	act "$1 already built, skipping compilation"
 	return 1
     fi
-    notice "Compiling $1" | tee -a ../$LOGS
+    act "compiling $1" | tee -a ../$LOGS
     if ! [ -r $1 ]; then
     	error "source directory $1 not found, skipping compilation"
     	return 1
     fi
     pushd $1
 
-    if [ -r configure ]; then
+    { test -r configure } && {
 
 	case $2 in
 	    default)
@@ -194,7 +195,7 @@ compile() {
 	    return 1
 	fi
 	
-    fi
+    }
 
     # check nomake flag
     echo $@ | grep nomake > /dev/null
@@ -212,7 +213,7 @@ compile() {
 	fi
     fi # nomake
 
-    notice "done compiling $1"
+    notice "$1 compiled"
     popd
     touch $1.done
     return 0
@@ -223,7 +224,7 @@ zinstall() {
 	error "$1 not yet built, skipping installation"
 	return 1 }
 
-    notice "Installing $1" | tee -a ../$LOGS
+    act "installing $1" | tee -a ../$LOGS
 
     PREFIX="$PREFIX" \
 	make -C $1 install >> ../$LOGS
@@ -232,16 +233,17 @@ zinstall() {
 	return 1
     fi
 
-    notice "done installing $1"
+    notice "$1 installed"
     return 0
 }
 
 clean() {
     if ! [ -r $1 ]; then return 0; fi
-    act "Cleaning $1"
+    act "cleaning $1"
     rm -f $1.done
     make -C $1 clean >> ../$LOGS
     rm -f $1.done
+    notice "$1 cleaned"
 }
 
 
