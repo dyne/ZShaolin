@@ -6,97 +6,73 @@
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
 
-# packages
-typeset -A pkg
-pkg=(
-    zlib zlib-1.2.5
-    ncurses ncurses-5.9
-    zsh zsh-4.3.15
-    gawk gawk-4.0.0
-    sed sed-4.2.1
-    grep grep-2.9
-    diffutils diffutils-3.2
-    htop htop-1.0
-    netcat netcat-0.7.1
-    nano nano-2.2.6
-    openssl openssl-1.0.0g
-    shellinabox shellinabox-2.10
-    dropbear dropbear-2011.54
-)
 
+# download and decompress all sources
+prepare_sources
 
-if [ "$1" = "clean" ]; then
-    for p in $pkg; do
-	clean $p
-    done
-    return 0
-fi
-
-## make sure basic directories exist
-mkdir -p $PREFIX/sbin
-mkdir -p $PREFIX/bin
 
 ###########################################
 ## COMPILE PACKAGES:
 
 ## zlib
-compile $pkg[zlib] "--prefix=$PREFIX --static"
-zinstall $pkg[zlib]
+compile zlib "--prefix=$PREFIX --static"
+zinstall zlib
 
 ## ncurses
-compile $pkg[ncurses] default "--enable-widec --enable-ext-colors --enable-ext-mouse"
-zinstall $pkg[ncurses]
+compile ncurses default \
+	"--enable-widec --enable-ext-colors --enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core"
+zinstall ncurses
 ln -sf $PREFIX/include/ncursesw/* $PREFIX/include/
 
 ## zsh
-compile $pkg[zsh] default
-zinstall $pkg[zsh]
+compile zsh default
+zinstall zsh
 
 ## awk
-compile $pkg[gawk] default
-zinstall $pkg[gawk]
+compile gawk default
+zinstall gawk
 
 ## sed
-compile $pkg[sed] default
-zinstall $pkg[sed]
+compile sed default
+zinstall sed
 
 ## grep
-compile $pkg[grep] default
-zinstall $pkg[grep]
+compile grep default
+zinstall grep
 
 ## diff
-compile $pkg[diffutils] default
-zinstall $pkg[diffutils]
+compile diffutils default
+zinstall diffutils
 
 ## htop
-compile $pkg[htop] default "--disable-native-affinity --enable-unicode"
-zinstall $pkg[htop]
+compile htop default "--disable-native-affinity --enable-unicode"
+zinstall htop
 
 ## netcat
-compile $pkg[netcat] default
-zinstall $pkg[netcat]
+compile netcat default
+zinstall netcat
 
 ## nano
-compile $pkg[nano] default 
-zinstall $pkg[nano]
+compile nano default 
+zinstall nano
 
 ## openssl
-cp $pkg[openssl].Makefile $pkg[openssl]/Makefile
-compile $pkg[openssl] default
-zinstall $pkg[openssl]
+# cp $pkg[openssl].Makefile $pkg[openssl]/Makefile
+# compile $pkg[openssl] default
+# zinstall $pkg[openssl]
 
-## shellinabox
-{ test ! -r $pkg[shellinabox].done } && {
-    cp $pkg[shellinabox].configure.ac $pkg[shellinabox]/configure.ac
-    cp $pkg[shellinabox].Makefile.am $pkg[shellinabox]/Makefile.am
-    cd $pkg[shellinabox] && autoreconf -i && cd ..
-    compile $pkg[shellinabox] default \
-	"--disable-pam --enable-static --with-objcopy=$TARGET-objcopy"
-}
-zinstall $pkg[shellinabox]
+# ## shellinabox
+# { test ! -r $pkg[shellinabox].done } && {
+#     cp $pkg[shellinabox].configure.ac $pkg[shellinabox]/configure.ac
+#     cp $pkg[shellinabox].Makefile.am $pkg[shellinabox]/Makefile.am
+#     cd $pkg[shellinabox] && autoreconf -i && cd ..
+#     compile $pkg[shellinabox] default \
+# 	"--disable-pam --enable-static --with-objcopy=$TARGET-objcopy"
+# }
+# zinstall $pkg[shellinabox]
 
-compile $pkg[dropbear] default # "" noinstal
-zinstall $pkg[dropbear]
+# compile $pkg[dropbear] default # "" noinstal
+# zinstall $pkg[dropbear]
 # # manual install
 # { test -r $pkg[dropbear].done } && {
 #     cp $pkg[dropbear]/dropbear        $PREFIX/sbin/

@@ -91,13 +91,17 @@ if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
 #    return 1
 fi
 
-notice "Compiling ZShaolin system"
+notice "ZShaolin build system"
 act "Target:    $TARGET"
 act "Toolchain: $TOOLCHAIN"
 act "Install:   $PREFIX"
 func "CFLAGS:    $CFLAGS"
 func "LDFLAGS:   $LDFLAGS"
 func "Command:   ${=@}"
+
+## make sure basic directories exist
+mkdir -p $PREFIX/sbin
+mkdir -p $PREFIX/bin
 
 
 enter() {
@@ -111,10 +115,44 @@ enter() {
     source conf.zsh
     popd
 }
-    
+
+# TODO: clean_sources
+prepare_sources() {
+    # look for a file names "Sources", download and decompress entries
+    # format of file: name version compression (complete filename when merged)
+    { test -r Sources } || {
+	error "Sources not found, nothing to build here"
+	return 1
+    }
+    for src in `cat Sources | awk '
+/^#/ {next}
+/^./ { print $1 ";" $2 ";" $3 }'`; do
+	name="${src[(ws:;:)1]}"
+	ver="${src[(ws:;:)2]}"
+	arch="${src[(ws:;:)3]}"
+	file="${name}${ver}${arch}"
+	act "preparing source for ${name}${ver}"
+	# download the file
+	{ test -r ${file} } || {
+	    act "downloading ${file}"
+	    wget ${REPO}/${file} }
+	# decompress the file
+	{ test -r ${name} } || {
+	    act "decompressing in ${name}"
+	    case $arch in
+		.tar.gz)  tar xfz ${file} ;;
+		.tar.bz2) tar xfj ${file} ;;
+		*) error "compression not supported: $arch"
+	    esac
+	    mv ${name}${ver} ${name}
+	}
+	notice "${name} ready"
+    done
+}
+
 compile() {
     if [ -r $1.done ]; then
-	error "$1.done :: already built, skipping compilation"
+	act "$1 already built, skipping compilation"
 	return 1
     fi
     notice "Compiling $1" | tee -a ../$LOGS
@@ -151,7 +189,8 @@ compile() {
 	    ./configure ${=confflags} ${=extraflags} >> ../$LOGS
 	
 	if [ $? != 0 ]; then
-	    error "error: $1 cannot configure, skipping compilation"; cd -
+	    error "error: $1 cannot configure, skipping compilation"
+	    popd
 	    return 1
 	fi
 	
@@ -167,7 +206,8 @@ compile() {
 	    LDFLAGS="$LDFLAGS" \
 	    make V=1 >> ../$LOGS
 	if [ $? != 0 ]; then
-	    error "error: $1 cannot make, aborted compilation"; cd -
+	    error "error: $1 cannot make, aborted compilation"
+	    popd
 	    return 1
 	fi
     fi # nomake
@@ -183,12 +223,12 @@ zinstall() {
 	error "$1 not yet built, skipping installation"
 	return 1 }
 
-    echo "Installing $1" | tee -a ../$LOGS
+    notice "Installing $1" | tee -a ../$LOGS
 
     PREFIX="$PREFIX" \
 	make -C $1 install >> ../$LOGS
     if [ $? != 0 ]; then
-	error "error: $1 cannot make install, check permissions"; cd -
+	error "error: $1 cannot make install, check permissions"
 	return 1
     fi
 
@@ -200,9 +240,8 @@ clean() {
     if ! [ -r $1 ]; then return 0; fi
     act "Cleaning $1"
     rm -f $1.done
-    pushd $1
-    make clean >> ../$LOGS
-    popd
+    make -C $1 clean >> ../$LOGS
+    rm -f $1.done
 }
 
 
@@ -232,8 +271,10 @@ case "$1" in
     help|-h)
 	error "No help. We're all on our own, for now."
 	;;
+    "")
+	error "No command specified, see help" ;;
     *)
-	error "Command not found: $@"
+	error "Command not found: $@" ;;
 
 esac
 
