@@ -6,38 +6,31 @@
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
 
-# packages
-typeset -A pkg
-pkg=(
-    ruby ruby-1.9.2-p290
-    lua lua-5.2.0
-)
-
-
-if [ "$1" = "clean" ]; then
-    for p in $pkg; do
-	clean $p
-    done
-    return 0
-fi
-
 ###########################################
 ## COMPILE PACKAGES:
 
+prepare_sources
 
 ## lua
-{ test ! -r $pkg[lua].done } && {
-    echo "Compiling $pkg[lua]" | tee -a ../$LOGS
-    make -C $pkg[lua] posix TARGET=$TARGET MYCFLAGS="$CFLAGS" MYLDFLAGS="$LDFLAGS" \
+{ test ! -r lua.done } && {
+    act "compiling lua" | tee -a ../$LOGS
+    cp Makefile.lua lua/Makefile
+    cp Makefile.lua.src lua/src/Makefile 
+    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" LD="$TARGET-ld" \
+	make -C lua posix TARGET=$TARGET MYCFLAGS="$CFLAGS" MYLDFLAGS="$LDFLAGS" \
 	>> $LOGS
-    { test $? = 0 } && { touch $pkg[lua].done }
+    { test $? = 0 } && { 
+	touch lua.done
+	notice "lua compiled"
+    }
 }
-{ test -f $pkg[lua].done } && {
-    echo "Installing $pkg[lua]" | tee -a ../$LOGS
-    cp $pkg[lua]/src/lua $PREFIX/bin/
-    cp $pkg[lua]/src/luac $PREFIX/bin/
-    cp $pkg[lua]/doc/lua.1 $PREFIX/share/man/man1
-    cp $pkg[lua]/doc/luac.1 $PREFIX/share/man/man1
+{ test -f lua.done } && {
+    act "installing lua" | tee -a ../$LOGS
+    cp lua/src/lua $PREFIX/bin/
+    cp lua/src/luac $PREFIX/bin/
+    cp lua/doc/lua.1 $PREFIX/share/man/man1
+    cp lua/doc/luac.1 $PREFIX/share/man/man1
+    notice "lua installed"
 }
 
 ## ruby

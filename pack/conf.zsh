@@ -7,7 +7,7 @@
 
 check_module() {
     if ! [ -r $1.tree ]; then
-	echo "error packing $1 module: tree not found"
+	error "error packing $1 module: tree not found"
 	return 1
     fi
     return 0
@@ -16,7 +16,7 @@ check_module() {
 sync_module() {
     { check_module $1 } || { return 1 }; module=$1
     
-    echo "Syncing module $module from sysroot"
+    notice "Syncing module $module from sysroot"
     rm -rf $module
     mkdir -p $module
     
@@ -26,11 +26,11 @@ sync_module() {
 strip_module() {
     { check_module $1 } || { return 1 }; module=$1
 
-    echo "Stripping binaries in module $module"
+    notice "Stripping binaries in module $module"
     for i in `find $module`; do
 	file $i | grep -e 'ELF.*executable' > /dev/null
 	if [ $? = 0 ]; then
-	    echo "strip executable $i"
+	    act "strip executable $i"
 	    $TOOLCHAIN/bin/$TARGET-strip $i
 	fi
     done
@@ -39,19 +39,19 @@ strip_module() {
 alias_module() {
     { check_module $1 } || { return 1 }; module=$1
 
-    echo "Setting aliases for module $module"
+    notice "Setting aliases for module $module"
     if [ -r $ZHOME/pack/$module.aliases ]; then
 	aa=`cat $module.aliases`
-	cd $ZHOME/pack/$module
+	pushd $module
 	for a in ${(f)aa}; do
 	    dir=`dirname ${a}`
 	    { test -r $dir } || continue
-	    cd $ZHOME/pack/$module/$dir; a=($a)
+	    pushd $dir; a=($a)
 #	    echo "($dir) ln -vf `basename ${a[1]}` ${a[2]}"
 	    ln -vsf `basename ${a[1]}` ${a[2]}
-	    cd $ZHOME/pack/$module
+	    popd
 	done
-	cd $ZHOME/pack
+	popd
     fi
 }
 
@@ -59,10 +59,10 @@ pack_module() {
     { check_module $1 } || { return 1 }; module=$1
     ver=${ver:-`cat $module.version`}
 
-    echo "Packing module $module $ver"
+    notice "Packing module $module $ver"
     tar cf $module-$ver.tar $module
     lzma -z -7 $module-$ver.tar
-    echo "ready to be included in assets:"
+    act "ready to be included in assets:"
     ls -lh $module-$ver.tar.lzma
 }
 
