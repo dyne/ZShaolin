@@ -29,6 +29,7 @@ DEBUG=0
 
 # configure the target
 TARGET=arm-dyne-linux-gnueabi
+#TARGET=arm-linux-androideabi
 # same value should be the bootstrap target
 
 # the location inside android
@@ -38,7 +39,8 @@ APKPATH=/data/data/org.dyne.zshaolin
 ZHOME=`pwd`
 
 # toolchain full path
-TOOLCHAIN=$ZHOME/bootstrap/x-tools
+#TOOLCHAIN=$ZHOME/toolchains/google-ndk
+TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
 
 # configure the install prefix
 PREFIX=$ZHOME/sysroot
@@ -48,23 +50,30 @@ OPTIMIZATIONS="-Os -O2"
 ## Architecture compiler flags 
 
 # safest for most devices
-# ARCH="-marm -march=armv5 -mfloat-abi=softfp"
+ARCH="-marm -march=armv5 -mfloat-abi=softfp"
 # more recent cortex-8:
-ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
+# ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 
-PATH="$PATH:$TOOLCHAIN/bin"
-# PATH="$TOOLCHAIN/bin:$PATH"
 
 REPO="http://files.dyne.org/zshaolin/sources"
 # }}}
 
+ANDROID_NDK="/srv/android/android-ndk-r8b"
+ANDROID_PLATFORM="android-8/arch-arm"
+ANDROID_TOOLCHAIN="arm-linux-androideabi-4.6/prebuilt/linux-x86"
+ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-enums -fgcse-after-reload -frename-registers"
+ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
 # configure the compile flags
 CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
+#CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
 CPPFLAGS="-I$PREFIX/include"
 CXXFLAGS=$CFLAGS
 LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
-
+# LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
+# LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
+# PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
+PATH="$TOOLCHAIN/bin:$PATH"
 
 autoload colors; colors
 # standard output message routines
@@ -86,7 +95,7 @@ act()    {
 
 # make sure the toolchain exists in /usr
 if ! [ -r $TOOLCHAIN/bin/$TARGET-gcc ]; then
-    error "error: toolchain not found: $TARGET"
+    error "error: toolchain not found: $TOOLCHAIN/bin/$TARGET-gcc"
     error "first you need to bootstrap."
 #    return 1
 fi
@@ -131,7 +140,7 @@ prepare_sources() {
 	ver="${src[(ws:;:)2]}"
 	arch="${src[(ws:;:)3]}"
 	file="${name}${ver}${arch}"
-	act "preparing source for ${name}${ver}"
+	func "preparing source for ${name}${ver}"
 	# download the file
 	{ test -r ${file} } || {
 	    act "downloading ${file}"
@@ -224,6 +233,10 @@ zinstall() {
 	error "$1 not yet built, skipping installation"
 	return 1 }
 
+    { test -r $1.installed } && {
+	error "$1 is already installed, skipping"
+	return 1 }
+
     act "installing $1" | tee -a ../$LOGS
 
     PREFIX="$PREFIX" \
@@ -234,15 +247,14 @@ zinstall() {
     fi
 
     notice "$1 installed"
+    touch ${1}.installed
     return 0
 }
 
 clean() {
     if ! [ -r $1 ]; then return 0; fi
     act "cleaning $1"
-    rm -f $1.done
-    make -C $1 clean >> ../$LOGS
-    rm -f $1.done
+    rm -f *.done *.installed
     notice "$1 cleaned"
 }
 
@@ -255,7 +267,9 @@ case "$1" in
 	enter pack/ ${=@}
 	;;
     clean)
-	enter build/ ${=@}
+	pushd build/${2}
+	clean
+	popd
 	;;
     test)
 	ZHOME=$ZHOME zsh etc/zlogin
@@ -265,8 +279,9 @@ case "$1" in
 	export ZHOME TARGET TOOLCHAIN
 	export PREFIX PATH CFLAGS
 	export CPPFLAGS CXXFLAGS LDFLAGS
-	zsh
-	return
+	act "PATH: $PATH"
+	act "CFLAGS: $CFLAGS"
+	act "LDFLAGS: $LDFLAGS"
 	;;
     source)
 	return ;;

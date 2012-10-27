@@ -1,2 +1,2 @@
 all:
-	$(env zsh) ./zmake help
+	@$(env zsh) ./zmake help
