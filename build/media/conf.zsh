@@ -43,17 +43,17 @@ compile libvorbis default "--disable-shared --enable-static --with-pic=no"
 zinstall libvorbis
 
 ## flac
-{ test ! -r flac.done } && {
-    echo "Applying makefile fix to flac"
-    cp flac.Makefile.am flac/Makefile.am
-    cp flac.configure.in flac/configure.in
-    pushd flac
-    autoreconf -i
-    popd
-    compile flac default \
-	"--disable-shared --enable-static --with-pic=no --disable-asm-optimizations"
-}
-{ test -r flac.done } && { zinstall flac }
+# { test ! -r flac.done } && {
+#     echo "Applying makefile fix to flac"
+#     cp flac.Makefile.am flac/Makefile.am
+#     cp flac.configure.in flac/configure.in
+#     pushd flac
+#     autoreconf -i
+#     popd
+#     compile flac default \
+# 	"--disable-shared --enable-static --with-pic=no --disable-asm-optimizations"
+# }
+# { test -r flac.done } && { zinstall flac }
     
 
 ## speex
