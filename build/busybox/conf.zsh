@@ -1,6 +1,6 @@
 # ZShaolin busybox build
 
-bbox="busybox-1.19.3"
+bbox="busybox-git"
 
 bboxtar="${bbox}.tar.bz2"
 
@@ -9,9 +9,15 @@ bboxtar="${bbox}.tar.bz2"
    tar xfj ${bboxtar}
 }
 
-cp .config ${bbox}/.config
+# cp .config ${bbox}/.config
 
-pushd ${bbox}
-make
-popd
+#pushd ${bbox}
+notice "Compiling Busybox"
+make -C ${bbox}
+act "Installing Busybox"
+make -C ${bbox} install
+cp ${bbox}/busybox .
+cp -ra ${bbox}/_install $PREFIX/busybox
+notice "-- Busybox done."
+#popd
 
