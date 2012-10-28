@@ -60,10 +60,11 @@ pack_module() {
     ver=${ver:-`cat $module.version`}
 
     notice "Packing module $module $ver"
-    tar cf $module-$ver.tar $module
-    lzma -z -7 $module-$ver.tar
+    rm ${module}-${ver}.tar*
+    tar cf ${module}-${ver}.tar $module
+    lzma -z -7 ${module}-${ver}.tar
     act "ready to be included in assets:"
-    ls -lh $module-$ver.tar.lzma
+    ls -lh ${module}-${ver}.tar.lzma
 }
 
 install_module() {
@@ -77,16 +78,26 @@ install_module() {
     fi
 
     # special case: for system install also busybox
-    { test $module = system } && { 
-	cp $ZHOME/build/busybox/busybox \
-	    $ZHOME/termapk/assets/busybox.mp3 }
+    case $module in
+	all|system)
+		act "Including busybox binary:"
+		ls -l $ZHOME/build/busybox/busybox
+		cp $ZHOME/build/busybox/busybox \
+	    		$ZHOME/termapk/assets/busybox.mp3 
+		;;
+    esac
 }
 
 module=all
 { test $2 } && { module=$2 }
 
 { test $module = all } && {
-  cat system.tree media.tree | sort > all.tree 
+  rm -f all.tree && touch all.tree
+  rm -f all.aliases && touch all.aliases
+  for t in `find . -name '*.tree$'`; do
+	cat $t | sort >> all.tree; done
+  for a in `find . -name '*.aliases$'`; do
+	cat $a | sort >> all.aliases; done
   ver=`cat system.version`
 }
 
