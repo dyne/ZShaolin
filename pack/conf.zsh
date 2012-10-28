@@ -5,29 +5,17 @@
 # just one module for now
 
 
-check_module() {
-    if ! [ -r $1.tree ]; then
-	error "error packing $1 module: tree not found"
-	return 1
-    fi
-    return 0
-}
-
 sync_module() {
-    { check_module $1 } || { return 1 }; module=$1
+    notice "Syncing from sysroot"
+    rm -rf system
+    mkdir -p system
     
-    notice "Syncing module $module from sysroot"
-    rm -rf $module
-    mkdir -p $module
-    
-    rsync -dar --files-from=$module.tree $ZHOME/sysroot/ $module/
+    rsync -dar --files-from=all.tree $ZHOME/sysroot/ system/
 }
 
 strip_module() {
-    { check_module $1 } || { return 1 }; module=$1
-
-    notice "Stripping binaries in module $module"
-    for i in `find $module`; do
+    notice "Stripping binaries"
+    for i in `find system -type f`; do
 	file $i | grep -e 'ELF.*executable' > /dev/null
 	if [ $? = 0 ]; then
 	    act "strip executable $i"
@@ -37,12 +25,10 @@ strip_module() {
 }
 
 alias_module() {
-    { check_module $1 } || { return 1 }; module=$1
-
-    notice "Setting aliases for module $module"
-    if [ -r $ZHOME/pack/$module.aliases ]; then
-	aa=`cat $module.aliases`
-	pushd $module
+    notice "Setting aliases"
+    if [ -r $ZHOME/pack/all.aliases ]; then
+	aa=`cat all.aliases`
+	pushd system
 	for a in ${(f)aa}; do
 	    dir=`dirname ${a}`
 	    { test -r $dir } || continue
@@ -56,56 +42,37 @@ alias_module() {
 }
 
 pack_module() {
-    { check_module $1 } || { return 1 }; module=$1
-    ver=${ver:-`cat $module.version`}
-
-    notice "Packing module $module $ver"
-    rm ${module}-${ver}.tar*
-    tar cf ${module}-${ver}.tar $module
-    lzma -z -7 ${module}-${ver}.tar
+    ver=${ver:-`cat system.version`}
+    notice "Packing system version $ver"
+    tar cf system-${ver}.tar system
+    { test -r system-${ver}.tar.lzma } && { rm -f system-${ver}.tar.lzma }
+    lzma -z -7 system-${ver}.tar
     act "ready to be included in assets:"
-    ls -lh ${module}-${ver}.tar.lzma
+    ls -lh system-${ver}.tar.lzma
 }
 
 install_module() {
-    { check_module $1 } || { return 1 }; module=$1
-    ver=${ver:-`cat $module.version`}
-    
-    if [ $module = all ]; then
-	cp $ZHOME/pack/all-$ver.tar.lzma $ZHOME/termapk/assets/system-$ver.tar.lzma.mp3
-    else
-	cp $ZHOME/pack/$module-$ver.tar.lzma $ZHOME/termapk/assets/$module-$ver.tar.lzma.mp3
-    fi
-
-    # special case: for system install also busybox
-    case $module in
-	all|system)
-		act "Including busybox binary:"
-		ls -l $ZHOME/build/busybox/busybox
-		cp $ZHOME/build/busybox/busybox \
-	    		$ZHOME/termapk/assets/busybox.mp3 
-		;;
-    esac
+    ver=${ver:-`cat system.version`}
+    cp $ZHOME/pack/system-$ver.tar.lzma $ZHOME/termapk/assets/system-$ver.tar.lzma.mp3
+    act "Including busybox binary:"
+    ls -l $ZHOME/build/busybox/busybox
+    cp $ZHOME/build/busybox/busybox \
+	$ZHOME/termapk/assets/busybox.mp3 
 }
 
-module=all
-{ test $2 } && { module=$2 }
-
-{ test $module = all } && {
-  rm -f all.tree && touch all.tree
-  rm -f all.aliases && touch all.aliases
-  for t in `find . -name '*.tree$'`; do
+rm -f all.tree && touch all.tree
+rm -f all.aliases && touch all.aliases
+for t in `find . -name '*.tree'`; do
 	cat $t | sort >> all.tree; done
-  for a in `find . -name '*.aliases$'`; do
+for a in `find . -name '*.aliases'`; do
 	cat $a | sort >> all.aliases; done
-  ver=`cat system.version`
-}
+ver=`cat system.version`
 
-sync_module $module
-strip_module $module
-alias_module $module
-pack_module $module
-install_module $module
+sync_module
+strip_module
+alias_module
+pack_module
+install_module
 
 # cd $ZHOME
 # VER=`cat VERSION`
