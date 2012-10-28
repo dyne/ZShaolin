@@ -13,23 +13,23 @@ prepare_sources
 
 ## lua
 { test ! -r lua.done } && {
-    act "compiling lua" | tee -a ../$LOGS
-    cp Makefile.lua lua/Makefile
-    cp Makefile.lua.src lua/src/Makefile 
-    CC="$TARGET-gcc" AR="$TARGET-ar" RANLIB="$TARGET-ranlib" LD="$TARGET-ld" \
-	make -C lua posix TARGET=$TARGET MYCFLAGS="$CFLAGS" MYLDFLAGS="$LDFLAGS" \
-	>> $LOGS
+    act "compiling lua" | tee -a $LOGS
+    pushd lua/src
+    for s in `find . -name '*.c'`; do
+        { test -r ${s%.*}.o } || {
+	${TARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
+    luas=`find . -name '*.o' | grep -v luac.o`
+    ${TARGET}-gcc -o lua ${=CFLAGS} ${=luas} ${=LDFLAGS} -lncursesw -lm
     { test $? = 0 } && { 
-	touch lua.done
+	touch ../../lua.done
 	notice "lua compiled"
     }
+    popd
 }
 { test -f lua.done } && {
     act "installing lua" | tee -a ../$LOGS
     cp lua/src/lua $PREFIX/bin/
-    cp lua/src/luac $PREFIX/bin/
     cp lua/doc/lua.1 $PREFIX/share/man/man1
-    cp lua/doc/luac.1 $PREFIX/share/man/man1
     notice "lua installed"
 }
 
