@@ -272,6 +272,14 @@ zinstall() {
     return 0
 }
 
+list_sources() {
+	touch /tmp/zshaolin.list
+	for i in `find ${ZHOME}/build -type f -name Sources`; do
+		cat $i | awk '!/^#/ { print $1 $2 }' >> /tmp/zshaolin.list
+	done
+	cat /tmp/zshaolin.list | sort | uniq
+	rm -f /tmp/zshaolin.list
+}
 
 typeset -h operation
 typeset -h module
@@ -296,17 +304,11 @@ case "$1" in
     test)
 	ZHOME=$ZHOME zsh sysroot/etc/zlogin
 	;;
-    env)
-	notice "Initializing env"
-	export ZHOME TARGET TOOLCHAIN
-	export PREFIX PATH CFLAGS
-	export CPPFLAGS CXXFLAGS LDFLAGS
-	act "PATH: $PATH"
-	act "CFLAGS: $CFLAGS"
-	act "LDFLAGS: $LDFLAGS"
-	;;
     source)
 	return ;;
+    list)
+	list_sources
+	;;
     help|-h)
 	error "No help. We're all on our own, for now."
 	;;
