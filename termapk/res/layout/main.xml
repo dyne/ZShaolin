@@ -67,7 +67,7 @@
                         android:gravity="center"
                         android:textColor="#ffffff"
                         android:textSize="12dip"
-                        android:text="ZShaolin.org ver.0.4\n
+                        android:text="ZShaolin.org\n
 by Jaromil @ dyne.org (2012)"/>
 
         </LinearLayout>

@@ -39,8 +39,8 @@ public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
     public static int      CURRENT_INSTALL_SYSTEM_NUM  = 1;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.4";
-    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.4.tar.lzma.mp3";
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.5";
+    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.5.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
     

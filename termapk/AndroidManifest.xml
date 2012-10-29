@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.dyne.zshaolin"
-      android:versionName="0.4"
-      android:versionCode="1">
+      android:versionName="0.5"
+      android:versionCode="2">
 
 <!--android:installLocation="preferExternal" -->
    <uses-permission android:name="android.permission.INTERNET" />
