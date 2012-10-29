@@ -4,32 +4,40 @@
 
 # build packages in order
 pkgs=(
+    busybox
     system
     media
-#    lang
+    lang
+    toys
 #    daemons
 )
 
-if ! [ $2 ]; then
-    notice "Target all sources with $1"
-    for i in $pkgs; do
-    	pushd $ZHOME/build
-	enter $i ${=@}
-	popd
-    done
-    { test $1 = clean } && return 0
-    notice "Build completed, summary:"
-    for i in $pkgs; do
-	find $ZHOME/build/$i -name "*.done" | sort
-    done
 
-    return 0
-fi
+{ test "$module" = "all" } || { pkgs=("$module") }
 
-
-if [ -r $2/conf.zsh ]; then
-    act "Target module '$2'"
-    enter $2 ${=@}
-else
-    act "nothing to build in $2"
-fi
+case $operation in
+	clean)
+	for i in $pkgs; do
+            notice "Cleaning module: $i"
+	    pushd $i
+	    for s in `cat Sources | awk '!/^#/ { print $1 }'`; do
+                act "clean $s"
+                rm -rf ${s} ${s}.done ${s}.installed
+            done
+            popd
+        done
+        notice "All clean now."
+	;;
+	*)
+    		notice "Building module: $module"
+    		for i in $pkgs; do
+    			pushd $ZHOME/build
+			enter $i ${=@}
+			popd
+    		done
+    		notice "Build completed, summary:"
+    		for i in $pkgs; do
+			find $ZHOME/build/$i -name "*.done" | sort
+    		done
+	;;
+esac
