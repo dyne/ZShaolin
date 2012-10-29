@@ -1,0 +1,7 @@
+#!/bin/zsh
+
+QUIET=1 source $ZHOME/zmake source
+PATH=${PATH} /usr/bin/install ${=@}
+{ test "$?" = "0" } || { error "Install error on: ${@}"; return 1 }
+return 0
+

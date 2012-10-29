@@ -24,8 +24,10 @@
 
 # ZShaolin system build and basic configuration
 
+FORCE=${FORCE:-0}
 QUIET=${QUIET:-0}
 DEBUG=${DEBUG:-0}
+
 
 # configure the target
 TARGET=arm-dyne-linux-gnueabi
@@ -65,12 +67,13 @@ ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-
 ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
 # configure the compilers
-CC=${ZHOME}/static-cc
-CXX=${ZHOME}/static-c++
-LD=${ZHOME}/static-ld
+CC=${ZHOME}/wrap/static-cc
+CXX=${ZHOME}/wrap/static-c++
+LD=${ZHOME}/wrap/static-ld
 AR=${TOOLCHAIN}/bin/${TARGET}-ar
 RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
 OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
+STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
 
 # configure the compile flags
 CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
@@ -81,7 +84,7 @@ LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$T
 # LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 # LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
 # PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
-PATH="$TOOLCHAIN/bin:$PATH"
+PATH="$TOOLCHAIN/bin:$ZHOME/wrap:$PATH"
 
 autoload colors; colors
 # standard output message routines
@@ -130,6 +133,7 @@ enter() {
     pushd $1
     act "Enter `pwd`"
     shift
+    { test -r $LOGS } && { rm -f $LOGS && touch $LOGS }
     source conf.zsh
     popd
 }
@@ -153,7 +157,7 @@ prepare_sources() {
 	# download the file
 	{ test -r ${file} } || {
 	    act "downloading ${file}"
-	    wget ${REPO}/${file} >> $LOGS
+	    wget ${REPO}/${file} >> ${ZHOME}/build/${module}/$LOGS
 	}
 	# decompress the file
 	{ test -r ${name} } || {
@@ -174,7 +178,7 @@ compile() {
 	act "$1 already built, skipping compilation"
 	return 1
     fi
-    act "compiling $1" | tee -a ../$LOGS
+    notice "compiling $1" | tee -a ${ZHOME}/build/${module}/$LOGS
     if ! [ -r $1 ]; then
     	error "source directory $1 not found, skipping compilation"
     	return 1
@@ -205,13 +209,13 @@ compile() {
 	fi
 
 	PATH=${PATH} \
-	CC="${CC}" CXX="${CXX}" LD="${LD}" \
+	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${AR}" RANLIB="${RANLIB}" OBJCOPY="${OBJCOPY}" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    ./configure ${=confflags} ${=extraflags} >> ../$LOGS
+	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${module}/$LOGS
 	
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot configure, skipping compilation"
@@ -225,13 +229,13 @@ compile() {
     echo $@ | grep nomake > /dev/null
     if [ $? != 0 ]; then
 	PATH=${PATH} \
-	CC="${CC}" CXX="${CXX}" LD="${LD}" \
+	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 >> ../$LOGS
+	    make V=1 >> ${ZHOME}/build/${module}/$LOGS
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot make, aborted compilation"
 	    popd
@@ -250,14 +254,14 @@ zinstall() {
 	error "$1 not yet built, skipping installation"
 	return 1 }
 
-#    { test -r $1.installed } && {
-#	error "$1 is already installed, skipping"
-#	return 1 }
+    { test -r $1.installed } && { test "$FORCE" = "0" } && {
+	error "$1 is already installed, skipping"
+	return 1 }
 
-    act "installing $1" | tee -a ../$LOGS
+    act "installing $1" | tee -a ${ZHOME}/build/${module}/$LOGS
 
-    PREFIX="$PREFIX" \
-	make -C $1 install >> ../$LOGS
+    PATH="${PATH}" PREFIX="$PREFIX" \
+	make -C $1 install >> ${ZHOME}/build/${module}/$LOGS
     if [ $? != 0 ]; then
 	error "error: $1 cannot make install, check permissions"
 	return 1

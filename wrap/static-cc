@@ -42,7 +42,6 @@ esac
 
 libdirs+=${PREFIX}/lib
 cflags+=(${=CFLAGS} ${=CPPFLAGS})
-cppflags+=(${=CPPFLAGS})
 ldflags+=(${=LDFLAGS})
 
 libraries+=(ld-linux-x86 skip)
@@ -154,8 +153,7 @@ echo $arguments | grep -i ' -l' > /dev/null
 
     # check if full static
     { test -z $isshared } && { cflags+=(-static) }
-    cflags+=(${=ldflags})
-    cppflags+=(${=ldflags})
+    cflags=(${=cflags} ${=ldflags})
 }
 
 # remove duplicate arguments
