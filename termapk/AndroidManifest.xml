@@ -43,16 +43,9 @@
 
 	<service android:name="com.spartacusrex.spartacuside.TermService" />
 
-	<service android:name="com.spartacusrex.spartacuside.keyboard.TerminalKeyboard" android:permission="android.permission.BIND_INPUT_METHOD">
-	    <intent-filter>
-		<action android:name="android.view.InputMethod" />
-	    </intent-filter>
-	    <meta-data android:name="android.view.im" android:resource="@xml/method" />
-	</service>
-
     </application>
 
-    <uses-sdk android:minSdkVersion="8"/>
+    <uses-sdk android:minSdkVersion="4"/>
 <!--    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />-->
 
 </manifest>
