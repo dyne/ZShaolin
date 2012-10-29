@@ -2,6 +2,10 @@
 # (C) 2012 Denis Roio - GNU GPL v3
 # refer to zmake for license details
 
+# configure the compile flags
+OPTIMIZATIONS="-O3"
+ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
+
 # configure the logfile
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
@@ -71,10 +75,10 @@ zinstall sox
 ########
 ## VIDEO
 
-compile x264 default "--disable-shared --enable-static --cross-prefix=$TARGET-"
+compile x264 default "--enable-static --cross-prefix=${TARGET}-"
 zinstall x264
 
-compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=$TOOLCHAIN/bin/$TARGET- --target-os=linux --cc=$TARGET-gcc --host-cc=$TARGET-gcc --arch=armv7-a --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
+compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${TARGET}- --target-os=linux --cc=$TARGET-gcc --host-cc=$TARGET-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
 zinstall ffmpeg
 
 

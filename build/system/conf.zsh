@@ -16,7 +16,11 @@ prepare_sources
 
 ## zlib
 compile zlib "--prefix=$PREFIX --static"
-zinstall zlib
+#zinstall zlib
+act "Installing ZLib"
+mkdir -p $PREFIX/lib $PREFIX/include
+cp zlib/libz.a $PREFIX/lib/
+cp zlib/zlib.h zlib/zconf.h $PREFIX/include
 
 ## ncurses
 compile ncurses default \
@@ -55,6 +59,20 @@ zinstall netcat
 ## nano
 compile nano default 
 zinstall nano
+
+## wipe
+compile	wipe default
+{ test -r wipe.installed } || { test $FORCE = 1 } && {
+  act "Installing wipe"
+  cp wipe/wipe ${PREFIX}/bin/
+  cp wipe/wipe.1 ${PREFIX}/share/man/man1/
+  touch wipe.installed
+  act "Wipe installed."
+}
+
+## manual page browser
+#compile man default
+#zinstall man
 
 ## openssl
 # cp $pkg[openssl].Makefile $pkg[openssl]/Makefile

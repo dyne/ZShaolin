@@ -11,6 +11,9 @@ diffutils 	-3.2		.tar.gz
 htop 		-1.0		.tar.gz
 netcat 		-0.7.1		.tar.gz
 nano 		-2.2.6		.tar.gz
+wipe		-2.3.1		.tar.bz2
+
+# man		-1.6g		.tar.gz
 # openssl 	-1.0.0g		.tar.gz
 # shellinabox 	-2.10		.tar.gz
 # dropbear 	-2011.54	.tar.gz
