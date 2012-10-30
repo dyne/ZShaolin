@@ -7,6 +7,7 @@ pkgs=(
     busybox
     system
     media
+    sound
     lang
     toys
 #    daemons
