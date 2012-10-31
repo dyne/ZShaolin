@@ -67,9 +67,9 @@ ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-
 ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
 # configure the compilers
-CC=${ZHOME}/wrap/cc
-CXX=${ZHOME}/wrap/c++
-LD=${ZHOME}/wrap/ld
+CC=${ZHOME}/wrap/static-cc
+CXX=${ZHOME}/wrap/static-c++
+LD=${ZHOME}/wrap/static-ld
 AR=${TOOLCHAIN}/bin/${TARGET}-ar
 RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
 OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
@@ -157,7 +157,7 @@ prepare_sources() {
 	# download the file
 	{ test -r ${file} } || {
 	    act "downloading ${file}"
-	    wget ${REPO}/${file} >> ${ZHOME}/build/${module}/$LOGS
+	    wget ${REPO}/${file}
 	}
 	# decompress the file
 	{ test -r ${name} } || {
@@ -178,7 +178,13 @@ compile() {
 	act "$1 already built, skipping compilation"
 	return 1
     fi
-    notice "compiling $1" | tee -a ${ZHOME}/build/${module}/$LOGS
+
+    if [ "$module" = "all" ]; then
+	modpath=`pwd`
+	modpath=`basename $modpath`
+    else modpath="$module"; fi
+
+    notice "compiling $1" | tee -a ${ZHOME}/build/${modpath}/$LOGS
     if ! [ -r $1 ]; then
     	error "source directory $1 not found, skipping compilation"
     	return 1
@@ -189,7 +195,7 @@ compile() {
     CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
     CXXFLAGS=$CFLAGS
 
-    { test -r configure } && {
+    if [ -r configure ]; then
 
 	case $2 in
 	    default)
@@ -215,15 +221,23 @@ compile() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${module}/$LOGS
+	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${modpath}/$LOGS
 	
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot configure, skipping compilation"
 	    popd
 	    return 1
 	fi
-	
-    }
+
+	make V=1 >> ${ZHOME}/build/${modpath}/$LOGS
+
+	if [ $? != 0 ]; then
+	    error "error: $1 cannot make, aborted compilation"
+	    popd
+	    return 1
+	fi
+
+    else
 
     # check nomake flag
     echo $@ | grep nomake > /dev/null
@@ -239,13 +253,15 @@ compile() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 ${=args} >> ${ZHOME}/build/${module}/$LOGS
+	    make V=1 ${=args} >> ${ZHOME}/build/${modpath}/$LOGS
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot make, aborted compilation"
 	    popd
 	    return 1
 	fi
     fi # nomake
+
+    fi # configure or makefile only
 
     notice "$1 compiled"
     popd
@@ -262,10 +278,15 @@ zinstall() {
 	error "$1 is already installed, skipping"
 	return 1 }
 
-    act "installing $1" | tee -a ${ZHOME}/build/${module}/$LOGS
+    if [ "$module" = "all" ]; then
+	modpath=`pwd`
+	modpath=`basename $modpath`
+    else modpath="$module"; fi
+
+    act "installing $1" | tee -a ${ZHOME}/build/${modpath}/$LOGS
 
     PATH="${PATH}" PREFIX="$PREFIX" \
-	make -C $1 install >> ${ZHOME}/build/${module}/$LOGS
+	make -C $1 install >> ${ZHOME}/build/${modpath}/$LOGS
     if [ $? != 0 ]; then
 	error "error: $1 cannot make install, check permissions"
 	return 1

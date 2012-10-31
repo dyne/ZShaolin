@@ -32,8 +32,8 @@ typeset -h argc
 QUIET=1 source ${ZHOME}/zmake source
 
 case `basename $0`; in
-	static-cc|cc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;
-	static-c++|c++) cc=${TOOLCHAIN}/bin/${TARGET}-g++ ;;
+	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;
+	static-c++|c++|g++) cc=${TOOLCHAIN}/bin/${TARGET}-g++ ;;
 	static-ld|ld) cc=${TOOLCHAIN}/bin/${TARGET}-ld ;;
 	*)
 	echo "Error: unknown command to static wrapper: $0"
@@ -41,13 +41,16 @@ case `basename $0`; in
 esac
 
 libdirs+=${PREFIX}/lib
-cflags+=(${=CFLAGS} ${=CPPFLAGS})
+cflags=(${=CFLAGS})
 ldflags+=(${=LDFLAGS})
 
 libraries+=(ld-linux-x86 skip)
 libraries+=(linux-vdso   skip)
 libraries+=(c            skip)
 libraries+=(rt           skip)
+libraries+=(gcc		 skip)
+libraries+=(gcc_s	 skip)
+
 #	libraries+=(pthread      shared)
 #	libraries+=(dl           shared)
 #	libraries+=(m            shared)
@@ -73,7 +76,7 @@ linkdep() {
     { test "${libraries[$dep]}" = "shared" } && {
 	# force shared
 	arguments+=("-l${dep}")
-	isshared=1
+	isshared=true
 	print "$dep :: shared"
 	return 1
     }
@@ -152,7 +155,7 @@ echo $arguments | grep -i ' -l' > /dev/null
     done
 
     # check if full static
-    { test -z $isshared } && { cflags+=(-static) }
+    { test -z $isshared } && { cflags+=(-static -static-libgcc) }
     cflags=(${=cflags} ${=ldflags})
 }
 
@@ -162,7 +165,7 @@ typeset -U arguments
 # execute
 print "$cc ${=cflags} ${=arguments}"
 $cc ${=cflags} ${=arguments}
-
+return $?
 
 
 
