@@ -70,6 +70,10 @@ compile	wipe default
   act "Wipe installed."
 }
 
+## Opkg
+compile opkg default "--disable-curl --disable-gpg --disable-shave"
+zinstall opkg
+
 ## manual page browser
 #compile man default
 #zinstall man
@@ -128,4 +132,3 @@ echo
 # fi
 
 # OpenSSL works but not needed for now
-
