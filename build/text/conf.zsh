@@ -25,11 +25,12 @@ compile mdocml preconv mandoc demandoc
   cp mdocml/preconv.1 mdocml/mandoc.1 mdocml/demandoc.1 ${PREFIX}/share/man/man1
 }
 
-
 ## doctools (for man pages)
 cp mk.config.heirloom-doctools heirloom-doctools/mk.config
-cat << EOF > heirloom-doctools/mk.config
+cat << EOF >> heirloom-doctools/mk.config
 PREFIX=${PREFIX}
+CC=static-cc
+C++=static-c++
 CFLAGS="${OPTIMIZATIONS}"
 LDFLAGS="${LDFLAGS}"
 EOF

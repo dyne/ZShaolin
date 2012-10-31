@@ -28,7 +28,7 @@ prepare_sources
     pushd ImageMagick
     autoreconf -i
     popd
-    compile ImageMagick default "--disable-shared --disable-deprecated"
+    compile ImageMagick default "--disable-shared --disable-deprecated --without-fontconfig --without-x"
 }
 { test -r ImageMagick.done } && { zinstall ImageMagick }
 
@@ -82,6 +82,7 @@ compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl -
 pushd ffmpeg
 make doc/ffmpeg.1
 make doc/ffprobe.1
+popd
 zinstall ffmpeg
 
 
