@@ -79,6 +79,9 @@ compile x264 default "--enable-static --cross-prefix=${TARGET}-"
 zinstall x264
 
 compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${TARGET}- --target-os=linux --cc=$TARGET-gcc --host-cc=$TARGET-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
+pushd ffmpeg
+make doc/ffmpeg.1
+make doc/ffprobe.1
 zinstall ffmpeg
 
 
