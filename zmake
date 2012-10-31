@@ -228,6 +228,10 @@ compile() {
     # check nomake flag
     echo $@ | grep nomake > /dev/null
     if [ $? != 0 ]; then
+	# pass extra arguments to make (for instance targets)
+	typeset -a args
+	args=(${=@})
+	shift args
 	PATH=${PATH} \
 	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
@@ -235,7 +239,7 @@ compile() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 >> ${ZHOME}/build/${module}/$LOGS
+	    make V=1 ${=args} >> ${ZHOME}/build/${module}/$LOGS
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot make, aborted compilation"
 	    popd
