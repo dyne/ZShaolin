@@ -1,23 +1,19 @@
 # ZShaolin busybox build
+# ZShaolin build script
+# (C) 2012 Denis Roio - GNU GPL v3
+# refer to zmake for license details
 
-bbox="busybox-git"
+# configure the logfile
+LOGS=build.log
+rm -f $LOGS; touch $LOGS
 
-bboxtar="${bbox}.tar.bz2"
 
-{ test -r ${bbox} } || {
-   { test -r ${bboxtar} } || { wget ${REPO}/${bboxtar} }
-   tar xfj ${bboxtar}
-}
+# download and decompress all sources
+prepare_sources
 
-# cp .config ${bbox}/.config
-
-#pushd ${bbox}
-notice "Compiling Busybox"
-make -C ${bbox}
-act "Installing Busybox"
-make -C ${bbox} install
-cp ${bbox}/busybox .
-cp -ra ${bbox}/_install $PREFIX/busybox
-notice "-- Busybox done."
-#popd
+cp .config.full busybox/.config
+notice "Proceed compiling busybox by hand:"
+act "cd build/busybox/busybox && make && make install"
+act "cp busybox ../busybox.bin"
+act "cp -ra _install $ZHOME/sysroot/busybox"
 
