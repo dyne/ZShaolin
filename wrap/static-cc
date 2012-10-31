@@ -32,9 +32,9 @@ typeset -h argc
 QUIET=1 source ${ZHOME}/zmake source
 
 case `basename $0`; in
-	static-cc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;
-	static-c++) cc=${TOOLCHAIN}/bin/${TARGET}-g++ ;;
-	static-ld) cc=${TOOLCHAIN}/bin/${TARGET}-ld ;;
+	static-cc|cc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;
+	static-c++|c++) cc=${TOOLCHAIN}/bin/${TARGET}-g++ ;;
+	static-ld|ld) cc=${TOOLCHAIN}/bin/${TARGET}-ld ;;
 	*)
 	echo "Error: unknown command to static wrapper: $0"
 	exit 1
@@ -126,7 +126,7 @@ echo $arguments | grep -i ' -l' > /dev/null
 	# is it a new library path?
 	{ test "$i[1,2]" = "-L" } && {
 	    lib=${i/-L/}
-	    libdirs=($lib $libdirs)
+	    libdirs=($libdirs $lib)
 	    continue
 	}
 

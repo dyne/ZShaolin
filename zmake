@@ -67,9 +67,9 @@ ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-
 ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
 # configure the compilers
-CC=${ZHOME}/wrap/static-cc
-CXX=${ZHOME}/wrap/static-c++
-LD=${ZHOME}/wrap/static-ld
+CC=${ZHOME}/wrap/cc
+CXX=${ZHOME}/wrap/c++
+LD=${ZHOME}/wrap/ld
 AR=${TOOLCHAIN}/bin/${TARGET}-ar
 RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
 OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
