@@ -37,25 +37,14 @@ TARGET=arm-dyne-linux-gnueabi
 # the location inside android
 APKPATH=/data/data/org.dyne.zshaolin
 
-# where are we (configure accordingly)
-ZHOME=${ZHOME:-/srv/zshaolin}
 
 
 LOGS=build.log
 
-# toolchain full path
-#TOOLCHAIN=$ZHOME/toolchains/google-ndk
-TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
-
-# configure the install prefix
-PREFIX=$ZHOME/sysroot
-
-
-## Architecture compiler flags 
+## Architecture compiler flags
 OPTIMIZATIONS="-Os -O2"
 ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 # very old devices: ARCH="-march=armv5 -mfloat-abi=softfp"
-
 
 REPO="http://files.dyne.org/zshaolin/sources"
 # }}}
@@ -66,25 +55,6 @@ ANDROID_TOOLCHAIN="arm-linux-androideabi-4.6/prebuilt/linux-x86"
 ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-enums -fgcse-after-reload -frename-registers"
 ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
-# configure the compilers
-CC=${ZHOME}/wrap/static-cc
-CXX=${ZHOME}/wrap/static-c++
-LD=${ZHOME}/wrap/static-ld
-AR=${TOOLCHAIN}/bin/${TARGET}-ar
-RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
-OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
-STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
-
-# configure the compile flags
-CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
-#CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
-CPPFLAGS="-I$PREFIX/include"
-CXXFLAGS=$CFLAGS
-LDFLAGS="-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
-# LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
-# LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
-# PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
-PATH="$TOOLCHAIN/bin:$ZHOME/wrap:$PATH"
 
 autoload colors; colors
 # standard output message routines
@@ -101,6 +71,47 @@ act()    {
 	fi
     fi
 }
+
+typeset ZHOME TOOLCHAIN PREFIX
+typeset CC CXX LD AR RANLIB OBJCOPY STRIP
+
+
+{ test "$ZHOME" = "" } && {
+    error "Set ZHOME environment to Zshaolin path"
+    # where are we (configure accordingly)
+#    ZHOME=${ZHOME:-/srv/zshaolin}
+#   act "using default: $ZHOME"
+    return 1
+}
+
+
+# toolchain full path
+#TOOLCHAIN=$ZHOME/toolchains/google-ndk
+TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
+# configure the install prefix
+PREFIX=$ZHOME/sysroot
+# configure the compilers
+CC=${ZHOME}/wrap/static-cc
+CXX=${ZHOME}/wrap/static-c++
+LD=${ZHOME}/wrap/static-ld
+AR=${TOOLCHAIN}/bin/${TARGET}-ar
+RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
+OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
+STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
+
+
+# configure the compile flags
+CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include)
+#CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
+CPPFLAGS=(-I$PREFIX/include)
+CXXFLAGS=$CFLAGS
+LDFLAGS=(-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
+# LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
+# LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
+# PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
+PATH=$TOOLCHAIN/bin:$ZHOME/wrap:$PATH
+
+
 
 
 
@@ -133,8 +144,6 @@ enter() {
     pushd $1
     act "Enter `pwd`"
     shift
-    LOGS="`pwd`/build.log"
-    { test -r $LOGS } && { rm -f $LOGS && touch $LOGS }
     source conf.zsh
     popd
 }
@@ -170,8 +179,10 @@ prepare_sources() {
 	    esac
 	    mv ${name}${ver} ${name}
 	}
-	notice "${name} ready"
+	act "${name} source ready"
     done
+    LOGS="`pwd`/build.log"
+    { test -r $LOGS } && { rm -f $LOGS && touch $LOGS }
 }
 
 # array of args shifted around by compile()
@@ -180,97 +191,117 @@ typeset -a compile_args
 
 zconfigure() {
     func "zconfigure() : $@"
-    # reconfigure the compile flags
-    CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
-    CXXFLAGS=$CFLAGS
+    args=(${=@})
+
+    # configure the compile flags defaults
+#    CFLAGS=${CFLAGS:-"-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"}
+#    CXXFLAGS=${CXXFLAGS:-$CFLAGS}
 
     { test -r configure } || {
 	error "configure not found in `pwd`"
 	return 1 }
 
-    case $1 in
-	    default)
-		confflags="--host=$TARGET --prefix=$PREFIX"
-		;;
-	    check)
-		return 0
-		;;
-	    *)
-		confflags="$1"
-		act "configure = $confflags"
-    esac
+    confflags=($=@)
 
-    shift compile_args
-	
-	{ test "$2" = "nomake" } || {
-	  extraflags="$2" }
-	{ test "$extraflags" = "" } || {
-	    act "extra flags = $extraflags"
-	    shift compile_args
-	 }
-
-	PATH=${PATH} \
-	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
-	    AR="${AR}" RANLIB="${RANLIB}" OBJCOPY="${OBJCOPY}" \
-	    CFLAGS="$CFLAGS $extracflags" \
-	    CPPFLAGS="$CPPFLAGS" \
-	    CXXFLAGS="$CXXFLAGS" \
-	    LDFLAGS="$LDFLAGS" \
-	    ./configure ${=confflags} ${=extraflags}
-	return $?
-}
-	
-compile() {
-    func "compile() : $@"
-    if [ -r $1.done ]; then
-	act "$1 already built, skipping compilation"
-	return 1
-    fi
-
-
-    notice "Compiling $1" | tee -a ${LOGS}
-    if ! [ -r $1 ]; then
-    	error "source directory $1 not found, skipping compilation"
-    	return 1
-    fi
-    pushd $1
-
-    # eliminate path element from args
-    compile_args=(${=@}) && shift compile_args
-
-    { test -r configure } && {
-
-        zconfigure ${=compile_args} >> ${LOGS}
-
-	if [ $? != 0 ]; then
-	    error "error: $1 cannot configure, skipping compilation"
-	    popd
-	    return 1
-	fi
+    { test "$args[1]" = "default" } && {
+	# expunge an array element
+	confflags=${confflags:#default}
+	confflags=(--host=$TARGET --prefix=$PREFIX $confflags)
     }
 
-#    shift compile_args
-    # check nomake flag
-    echo $compile_args | grep nomake > /dev/null
-    { test $? != 0 } && {
-	# pass extra arguments to make (for instance targets)
+    func "CFLAGS = $CFLAGS"
+    func "configure = $confflags"
+
+     PATH=${PATH} \
+	 CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
+	 AR="${AR}" RANLIB="${RANLIB}" OBJCOPY="${OBJCOPY}" \
+	 CFLAGS="$CFLAGS $extracflags" \
+	 CPPFLAGS="$CPPFLAGS" \
+	 CXXFLAGS="$CXXFLAGS" \
+	 LDFLAGS="$LDFLAGS" \
+	 ./configure ${=confflags} >> $LOGS
+     return $?
+}
+
+zmake() {
+
+    # pass extra arguments to make (for instance targets)
+    # check if logs don't exist print out to streen
+    if [ -r $LOGS ]; then
 	PATH=${PATH} \
-	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
+	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 ${=compile_args} >> ${LOGS}
-	if [ $? != 0 ]; then
-	    error "error: $1 cannot make, aborted compilation"
-	    popd
-	    return 1
-	fi
+	    make V=1 ${=@} >> ${LOGS}
+    else
+	PATH=${PATH} \
+	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
+	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
+	    CFLAGS="$CFLAGS $extracflags" \
+	    CPPFLAGS="$CPPFLAGS" \
+	    CXXFLAGS="$CXXFLAGS" \
+	    LDFLAGS="$LDFLAGS" \
+	    make V=1 ${=@}
+    fi
+    { test $? != 0 } && {
+	error "error: make returns error value $?"
+	return 1
+    }
+    act "make was successful"
+    return 0
+}
+
+compile() {
+    notice "Building $1" | tee -a ${LOGS}
+    func "compile() : $@"
+    { test -r $1.done } && {
+	act "$1 already built, skipping compilation"
+	return 1 }
+
+
+    { test -r $1 } || {
+    	error "source directory $1 not found, skipping compilation"
+    	return 1 }
+
+    pushd $1
+
+    # eliminate path element from args
+    compile_args=(${=@}) && shift compile_args
+    # fancy search in array by zsh
+
+    { test "${compile_args[(r)nomake]}" -ge 1 } && {
+    # returns 1 if element with value nomake is found
+	compile_args=${compile_args:#nomake}
+       # eliminates element with value nomake from array
+	nomake=1
     }
 
 
-    notice "$1 compiled"
+    { test -r configure } && {
+	func "launching configure ${compile_args}"
+	zconfigure ${compile_args} >> ${LOGS}
+
+	{ test $? = 0 } || {
+	    error "error: $1 cannot configure, build left incomplete"
+	    popd; return 1 }
+    }
+
+    { test "$nomake" = "1" } || {
+
+	{ test -r Makefile } && {
+	    zmake # no arguments, use zmake directly from script if a
+	# customization is needed
+
+	    { test $? = 0 } || {
+		error "error: make on $1 failed, build left incomplete"
+		popd; return 1 }
+	}
+
+    }
+    act "Build completed successfully for $1"
     popd
     touch $1.done
     return 0
@@ -283,7 +314,7 @@ zinstall() {
 	return 1 }
 
     { test -r $1.installed } && { test "$FORCE" = "0" } && {
-	error "$1 is already installed, skipping"
+	act "$1 is already installed, skipping"
 	return 1 }
 
     target=install
@@ -298,7 +329,7 @@ zinstall() {
 	return 1
     fi
 
-    notice "$1 installed"
+    notice "$1 installed in sysroot"
     touch ${1}.installed
     return 0
 }
@@ -354,4 +385,3 @@ case "$1" in
 	error "Command not found: $@" ;;
 
 esac
-
