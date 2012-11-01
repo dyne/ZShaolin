@@ -28,11 +28,17 @@ compile ncurses default \
 zinstall ncurses
 ln -sf $PREFIX/include/ncursesw/* $PREFIX/include/
 
+## s-lang
+compile slang default nomake --disable-static
+pushd slang/src && make static >> $LOGS
+popd
+zinstall slang install-static
+
 ## zsh
 compile zsh default
 zinstall zsh
 
-## awk
+# awk
 compile gawk default
 zinstall gawk
 
@@ -59,6 +65,15 @@ zinstall netcat
 ## nano
 compile nano default 
 zinstall nano
+
+## most
+compile most default nomake
+pushd most
+gcc -c src/chkslang.c -o src/objs/chkslang.o
+gcc src/objs/chkslang.o -o src/objs/chkslang
+make
+popd
+zinstall most
 
 ## wipe
 compile	wipe default
