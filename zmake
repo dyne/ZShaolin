@@ -133,6 +133,7 @@ enter() {
     pushd $1
     act "Enter `pwd`"
     shift
+    LOGS="`pwd`/build.log"
     { test -r $LOGS } && { rm -f $LOGS && touch $LOGS }
     source conf.zsh
     popd
@@ -173,8 +174,12 @@ prepare_sources() {
     done
 }
 
+# array of args shifted around by compile()
+typeset -a compile_args
+
+
 zconfigure() {
-    func "zconfigure $@"
+    func "zconfigure() : $@"
     # reconfigure the compile flags
     CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
     CXXFLAGS=$CFLAGS
@@ -191,15 +196,18 @@ zconfigure() {
 		return 0
 		;;
 	    *)
-		confflags="$2"
+		confflags="$1"
 		act "configure = $confflags"
     esac
-	
-	extraflags="$2"
-	if [ "$extraflags" != "" ]; then
-	    act "extra flags = $extraflags"
-	fi
 
+    shift compile_args
+	
+	{ test "$2" = "nomake" } || {
+	  extraflags="$2" }
+	{ test "$extraflags" = "" } || {
+	    act "extra flags = $extraflags"
+	    shift compile_args
+	 }
 
 	PATH=${PATH} \
 	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
@@ -208,55 +216,44 @@ zconfigure() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${modpath}/$LOGS
+	    ./configure ${=confflags} ${=extraflags}
 	return $?
 }
 	
 compile() {
+    func "compile() : $@"
     if [ -r $1.done ]; then
 	act "$1 already built, skipping compilation"
 	return 1
     fi
 
-    if [ "$module" = "all" ]; then
-	modpath=`pwd`
-	modpath=`basename $modpath`
-    else modpath="$module"; fi
 
-    notice "compiling $1" | tee -a ${ZHOME}/build/${modpath}/$LOGS
+    notice "Compiling $1" | tee -a ${LOGS}
     if ! [ -r $1 ]; then
     	error "source directory $1 not found, skipping compilation"
     	return 1
     fi
     pushd $1
 
-    if [ -r configure ]; then
+    # eliminate path element from args
+    compile_args=(${=@}) && shift compile_args
 
-        zconfigure ${=@}
+    { test -r configure } && {
+
+        zconfigure ${=compile_args} >> ${LOGS}
 
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot configure, skipping compilation"
 	    popd
 	    return 1
 	fi
+    }
 
-	make V=1 >> ${ZHOME}/build/${modpath}/$LOGS
-
-	if [ $? != 0 ]; then
-	    error "error: $1 cannot make, aborted compilation"
-	    popd
-	    return 1
-	fi
-
-    else
-
+#    shift compile_args
     # check nomake flag
-    echo $@ | grep nomake > /dev/null
-    if [ $? != 0 ]; then
+    echo $compile_args | grep nomake > /dev/null
+    { test $? != 0 } && {
 	# pass extra arguments to make (for instance targets)
-	typeset -a args
-	args=(${=@})
-	shift args
 	PATH=${PATH} \
 	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
@@ -264,15 +261,14 @@ compile() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 ${=args} >> ${ZHOME}/build/${modpath}/$LOGS
+	    make V=1 ${=compile_args} >> ${LOGS}
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot make, aborted compilation"
 	    popd
 	    return 1
 	fi
-    fi # nomake
+    }
 
-    fi # configure or makefile only
 
     notice "$1 compiled"
     popd
@@ -280,7 +276,8 @@ compile() {
     return 0
 }
 
-zinstall() {	
+zinstall() {
+	func "zinstall() : $@"
     { test ! -r $1.done } && {
 	error "$1 not yet built, skipping installation"
 	return 1 }
@@ -289,15 +286,13 @@ zinstall() {
 	error "$1 is already installed, skipping"
 	return 1 }
 
-    if [ "$module" = "all" ]; then
-	modpath=`pwd`
-	modpath=`basename $modpath`
-    else modpath="$module"; fi
+    target=install
+    { test "$2" = "" } || { target="$2" }
 
-    act "installing $1" | tee -a ${ZHOME}/build/${modpath}/$LOGS
+    act "installing $1 (target ${target})" | tee -a ${LOGS}
 
     PATH="${PATH}" PREFIX="$PREFIX" \
-	make -C $1 install >> ${ZHOME}/build/${modpath}/$LOGS
+	make -C $1 ${target} >> ${LOGS}
     if [ $? != 0 ]; then
 	error "error: $1 cannot make install, check permissions"
 	return 1
