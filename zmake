@@ -173,6 +173,45 @@ prepare_sources() {
     done
 }
 
+zconfigure() {
+    func "zconfigure $@"
+    # reconfigure the compile flags
+    CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
+    CXXFLAGS=$CFLAGS
+
+    { test -r configure } || {
+	error "configure not found in `pwd`"
+	return 1 }
+
+    case $1 in
+	    default)
+		confflags="--host=$TARGET --prefix=$PREFIX"
+		;;
+	    check)
+		return 0
+		;;
+	    *)
+		confflags="$2"
+		act "configure = $confflags"
+    esac
+	
+	extraflags="$2"
+	if [ "$extraflags" != "" ]; then
+	    act "extra flags = $extraflags"
+	fi
+
+
+	PATH=${PATH} \
+	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
+	    AR="${AR}" RANLIB="${RANLIB}" OBJCOPY="${OBJCOPY}" \
+	    CFLAGS="$CFLAGS $extracflags" \
+	    CPPFLAGS="$CPPFLAGS" \
+	    CXXFLAGS="$CXXFLAGS" \
+	    LDFLAGS="$LDFLAGS" \
+	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${modpath}/$LOGS
+	return $?
+}
+	
 compile() {
     if [ -r $1.done ]; then
 	act "$1 already built, skipping compilation"
@@ -191,38 +230,10 @@ compile() {
     fi
     pushd $1
 
-    # reconfigure the compile flags
-    CFLAGS="-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"
-    CXXFLAGS=$CFLAGS
-
     if [ -r configure ]; then
 
-	case $2 in
-	    default)
-		confflags="--host=$TARGET --prefix=$PREFIX"
-		;;
-	    check)
-		return 0
-		;;
-	    *)
-		confflags="$2"
-		act "configure = $confflags"
-	esac
-	
-	extraflags="$3"
-	if [ "$extraflags" != "" ]; then
-	    act "extra flags = $extraflags"
-	fi
+        zconfigure ${=@}
 
-	PATH=${PATH} \
-	CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
-	    AR="${AR}" RANLIB="${RANLIB}" OBJCOPY="${OBJCOPY}" \
-	    CFLAGS="$CFLAGS $extracflags" \
-	    CPPFLAGS="$CPPFLAGS" \
-	    CXXFLAGS="$CXXFLAGS" \
-	    LDFLAGS="$LDFLAGS" \
-	    ./configure ${=confflags} ${=extraflags} >> ${ZHOME}/build/${modpath}/$LOGS
-	
 	if [ $? != 0 ]; then
 	    error "error: $1 cannot configure, skipping compilation"
 	    popd
@@ -325,6 +336,11 @@ case "$1" in
 	module=${2:-all}
 	{ test $module = all } && { rm -rf $PREFIX }
 	enter build/ ${=@}
+	;;
+    compile)
+	args=($@) && shift args
+	operation=compile
+	zconfigure ${args}
 	;;
     test)
 	ZHOME=$ZHOME zsh sysroot/etc/zlogin
