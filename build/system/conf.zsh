@@ -17,10 +17,13 @@ prepare_sources
 ## zlib
 compile zlib "--prefix=$PREFIX --static"
 #zinstall zlib
+{ test -r zlib.installed } || {
 act "Installing ZLib"
 mkdir -p $PREFIX/lib $PREFIX/include
 cp zlib/libz.a $PREFIX/lib/
 cp zlib/zlib.h zlib/zconf.h $PREFIX/include
+touch zlib.installed
+}
 
 ## ncurses
 compile ncurses default \
@@ -68,16 +71,19 @@ zinstall nano
 
 ## most
 compile most default nomake
+{ test -r most.done } || {
 pushd most
 gcc -c src/chkslang.c -o src/objs/chkslang.o
 gcc src/objs/chkslang.o -o src/objs/chkslang
-make
+make >> $LOGS
+{ test $? = 0 } && { touch most.done }
 popd
+}
 zinstall most
 
 ## wipe
 compile	wipe default
-{ test -r wipe.installed } || { test $FORCE = 1 } && {
+{ test -r wipe.installed } || {
   act "Installing wipe"
   cp wipe/wipe ${PREFIX}/bin/
   cp wipe/wipe.1 ${PREFIX}/share/man/man1/

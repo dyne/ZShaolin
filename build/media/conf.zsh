@@ -6,11 +6,6 @@
 OPTIMIZATIONS="-O3"
 ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 
-# configure the logfile
-LOGS=build.log
-rm -f $LOGS; touch $LOGS
-
-
 ###########################################
 ## COMPILE PACKAGES:
 
@@ -23,14 +18,18 @@ prepare_sources
 
 
 ## imagemagick
-{ test ! -r ImageMagick.done } && {
-    cp ImageMagick.Makefile.am ImageMagick/Makefile.am
-    pushd ImageMagick
-    autoreconf -i
-    popd
-    compile ImageMagick default "--disable-shared --disable-deprecated --without-fontconfig --without-x"
-}
-{ test -r ImageMagick.done } && { zinstall ImageMagick }
+# { test ! -r ImageMagick.done } && {
+#     cp Makefile.am.ImageMagick ImageMagick/Makefile.am
+#     pushd ImageMagick
+#     autoreconf -i >> $LOGS
+#     popd
+# }
+
+compile ImageMagick default \
+    --disable-shared --disable-deprecated --without-fontconfig --without-x \
+    --without-pango --without-openexr
+
+zinstall ImageMagick
 
 
 
