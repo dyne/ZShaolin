@@ -60,7 +60,7 @@
             <Button android:id="@+id/main_help"
                     android:layout_width="200dip"
                     android:layout_height="wrap_content"
-                    android:text="Documentation"/>
+                    android:text="Website"/>
 
             <TextView   android:layout_width="fill_parent"
                         android:layout_height="wrap_content"

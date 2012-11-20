@@ -1,3 +1,4 @@
+#!env sh
 # ZShaolin initialization
 
 # detect if we are running in a debugging mode from zmake

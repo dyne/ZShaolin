@@ -1,6 +1,7 @@
 *~
 *.tar.gz
 *.tar.bz2
+*.opk
 *.done
 *.log
 *.installed

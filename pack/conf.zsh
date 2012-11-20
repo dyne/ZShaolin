@@ -6,11 +6,18 @@
 
 
 sync_module() {
-    notice "Syncing from sysroot"
+    notice "Syncing from system"
     rm -rf system
     mkdir -p system
+
+    rm -f all.tree && touch all.tree
+    rm -f all.aliases && touch all.aliases
+    for t in `find . -name '*.tree'`; do
+	cat $t | sort >> all.tree; done
+    for a in `find . -name '*.aliases'`; do
+	cat $a | sort >> all.aliases; done
     
-    rsync -dar --files-from=all.tree $ZHOME/sysroot/ system/
+    rsync -dar --files-from=all.tree $ZHOME/system/ system/
 }
 
 strip_module() {
@@ -22,6 +29,11 @@ strip_module() {
 	    $TOOLCHAIN/bin/$TARGET-strip $i
 	fi
     done
+}
+
+zcompile_module() {
+    notice "Zcompiling zsh scripts"
+    zcompile system/etc/grmlrc
 }
 
 alias_module() {
@@ -42,8 +54,8 @@ alias_module() {
 }
 
 pack_module() {
-    ver=${ver:-`cat system.version`}
-    notice "Packing system version $ver"
+    ver=${ver:-`cat ${ZHOME}/VERSION`}
+    notice "Packing system version: $ver"
     tar cf system-${ver}.tar system
     { test -r system-${ver}.tar.lzma } && { rm -f system-${ver}.tar.lzma }
     lzma -z -7 system-${ver}.tar
@@ -52,24 +64,22 @@ pack_module() {
 }
 
 install_module() {
-    ver=${ver:-`cat system.version`}
+    ver=${ver:-`cat ${ZHOME}/VERSION`}
     cp $ZHOME/pack/system-$ver.tar.lzma $ZHOME/termapk/assets/system-$ver.tar.lzma.mp3
     act "Including busybox binary:"
-    ls -l $ZHOME/build/busybox/busybox
-    cp $ZHOME/build/busybox/busybox \
+    ls -l $ZHOME/build/busybox/busybox.bin && \
+    cp $ZHOME/build/busybox/busybox.bin \
 	$ZHOME/termapk/assets/busybox.mp3 
 }
 
-rm -f all.tree && touch all.tree
-rm -f all.aliases && touch all.aliases
-for t in `find . -name '*.tree'`; do
-	cat $t | sort >> all.tree; done
-for a in `find . -name '*.aliases'`; do
-	cat $a | sort >> all.aliases; done
-ver=`cat system.version`
+
+ver=`cat ${ZHOME}/VERSION`
+
+notice "Packing system version $ver"
 
 sync_module
 strip_module
+zcompile_module
 alias_module
 pack_module
 install_module

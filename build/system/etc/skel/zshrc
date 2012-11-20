@@ -1,5 +1,7 @@
-# ZShaolin user configuration
-# put your tweaks in this file
+# ZShaolin shell configuration
+
+# Distributed configuration
+# put your tweaks in ~/.profile instead of here
 
 # setup zsh modules path
 fpath=(
@@ -9,5 +11,12 @@ fpath=(
 
 # GRML configuration - grml.org/zsh
 source $SYS/etc/grmlrc
-source ~/.grml.conf
+{ test -r ~/.grml.conf } && { source ~/.grml.conf }
 
+# Vim configuration
+export VIMRUNTIME=${SYS}/share/vim/vim73
+
+# Custom user configuration
+{ test -r ~/.profile } && { source ~/.profile }
+
+return 0

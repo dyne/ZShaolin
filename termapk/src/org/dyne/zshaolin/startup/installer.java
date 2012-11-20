@@ -38,9 +38,9 @@ import org.dyne.zshaolin.startup.setup.filemanager;
 public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
-    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 1;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.5";
-    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.5.tar.lzma.mp3";
+    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 4;
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.6.1";
+    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.6.1.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
     
@@ -206,9 +206,10 @@ public class installer extends Activity implements OnClickListener{
                         mInstallHandler.sendMessage(msg);
 
                         File etc = new File(system,"etc");
-
+			File skel = new File(etc, "skel");
                         // zshrc
-                        File zshrc   = new File(etc,"zshrc");
+			
+                        File zshrc   = new File(skel,"zshrc");
                         File zshrcu  = new File(home,".zshrc");
                         if(!zshrcu.exists()  || mOverwriteAll){
                             pp = Runtime.getRuntime().exec
@@ -218,7 +219,7 @@ public class installer extends Activity implements OnClickListener{
                         }
 
                         // grml.conf
-                        File grml   = new File(etc,"grml.conf");
+                        File grml   = new File(skel,"grml.conf");
                         File grmlu  = new File(home,".grml.conf");
                         if(!grmlu.exists()  || mOverwriteAll){
                             pp = Runtime.getRuntime().exec

@@ -16,6 +16,10 @@ pkgs=(
 
 { test "$module" = "all" } || { pkgs=("$module") }
 
+{ test -r $module } || { 
+  error "Module not found: $module"
+  return 1 }
+
 case $operation in
     clean)
 	for i in $pkgs; do
@@ -24,6 +28,7 @@ case $operation in
 	    for s in `cat Sources | awk '!/^#/ { print $1 }'`; do
 		act "clean $s"
 		rm -rf ${s} ${s}.done ${s}.installed
+		{ test -r extract } && { rm -rf extract }
 	    done
 	    popd
 	done
@@ -35,7 +40,14 @@ case $operation in
     	    pushd $ZHOME/build
 	    enter $i ${=@}
 	    popd
+	    notice "Copying scripts and configurations present in module $i"
+	    { test -r ${i}/bin }   && { rsync -dar ${i}/bin   $PREFIX/ }
+	    { test -r ${i}/etc }   && { rsync -dar ${i}/etc   $PREFIX/ }
+	    { test -r ${i}/var }   && { rsync -dar ${i}/var   $PREFIX/ }
+	    { test -r ${i}/share } && { rsync -dar ${i}/share $PREFIX/ }
     	done
+
+
     	notice "Build completed, summary:"
     	for i in $pkgs; do
 	    notice "$i module"

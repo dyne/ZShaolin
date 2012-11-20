@@ -32,14 +32,23 @@ zinstall ncurses
 ln -sf $PREFIX/include/ncursesw/* $PREFIX/include/
 
 ## s-lang
-compile slang default nomake --disable-static
-pushd slang/src && make static >> $LOGS
-popd
+notice "Building S-Lang"
+{ test -r slang.done } || {
+    pushd slang
+    zconfigure default --disable-static
+    { test $? = 0 } && { 
+	pushd src && make static >> $LOGS
+	{ test $? = 0 } && { touch ../../slang.done }
+	popd }
+    popd }
 zinstall slang install-static
 
 ## zsh
 compile zsh default
 zinstall zsh
+{test $? = 0 } && {
+    # zcompile the grmlrc script to gain loading speed
+    zcompile $PREFIX/etc/grmlrc }
 
 # awk
 compile gawk default
@@ -61,23 +70,22 @@ zinstall diffutils
 compile htop default "--disable-native-affinity --enable-unicode"
 zinstall htop
 
-## netcat
-compile netcat default
-zinstall netcat
-
 ## nano
 compile nano default 
 zinstall nano
 
 ## most
-compile most default nomake
+notice "Building most"
 { test -r most.done } || {
-pushd most
-gcc -c src/chkslang.c -o src/objs/chkslang.o
-gcc src/objs/chkslang.o -o src/objs/chkslang
-make >> $LOGS
-{ test $? = 0 } && { touch most.done }
-popd
+    pushd most
+    zconfigure default
+    { test $? = 0 } && {
+	gcc -Isrc -c src/chkslang.c -o src/objs/chkslang.o
+	gcc src/objs/chkslang.o -o src/objs/chkslang
+	zmake
+	{ test $? = 0 } && { touch ../most.done }
+    }
+    popd
 }
 zinstall most
 
@@ -91,9 +99,13 @@ compile	wipe default
   act "Wipe installed."
 }
 
+## file
+compile file default
+zinstall file
+
 ## Opkg
-compile opkg default "--disable-curl --disable-gpg --disable-shave"
-zinstall opkg
+# compile opkg default "--disable-curl --disable-gpg --disable-shave"
+# zinstall opkg
 
 ## manual page browser
 #compile man default
@@ -131,15 +143,6 @@ zinstall opkg
 ###########################################
 ## COPY CONFIGURATIONS AND SCRIPTS
 
-echo "Copying scripts and configurations..."
-{ test -r bin }   && { echo -n " bin";   rsync -dar bin $PREFIX/ }
-{ test -r etc }   && {
-    echo -n " etc";   rsync -dar etc $PREFIX/
-    # zcompile the grmlrc script to gain loading speed
-    zcompile $PREFIX/etc/grmlrc }
-{ test -r var }   && { echo -n " var";   rsync -dar var $PREFIX/ }
-{ test -r share } && { echo -n " share"; rsync -dar share $PREFIX/ }
-echo
 
 
 # TODO busybox by hand for now

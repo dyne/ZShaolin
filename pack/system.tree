@@ -1,10 +1,10 @@
 ./var/pid
 ./var/log
-./etc/grml.conf
 ./etc/grmlrc
-./etc/zshrc
 ./etc/zlogin
+./etc/zinit
 ./etc/init.d
+./etc/skel
 ./share/nano
 ./share/terminfo
 ./share/awk

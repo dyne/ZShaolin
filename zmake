@@ -89,7 +89,7 @@ typeset CC CXX LD AR RANLIB OBJCOPY STRIP
 #TOOLCHAIN=$ZHOME/toolchains/google-ndk
 TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
 # configure the install prefix
-PREFIX=$ZHOME/sysroot
+PREFIX=$ZHOME/system
 # configure the compilers
 CC=${ZHOME}/wrap/static-cc
 CXX=${ZHOME}/wrap/static-c++
@@ -171,13 +171,46 @@ prepare_sources() {
 	}
 	# decompress the file
 	{ test -r ${name} } || {
-	    act "decompressing in ${name}"
+	    act "decompressing ${name}"
 	    case $arch in
-		.tar.gz)  tar xfz ${file} ;;
-		.tar.bz2) tar xfj ${file} ;;
+		## OPK
+		.opk)
+		    mkdir -p extract
+		    pushd extract
+		    ln -sf ../${file} .
+		    ar x ${file}
+		    if [ -r data.tar.gz ]; then
+			tar xfz data.tar.gz
+			if [ $? = 0 ]; then
+			    touch ../${name}.done
+			    touch ../${name}.installed
+			else error "error decompressing tarred package"; fi
+		    else error "data not found in package"; fi
+		    popd
+		    ;;
+
+		## IPK
+		.ipk)
+		    mkdir -p extract
+		    pushd extract
+		    ln -sf ../${file} ${name}${ver}.tar.gz
+		    tar xfz ${name}${ver}.tar.gz
+		    if [ -r data.tar.gz ]; then
+			tar xfz data.tar.gz
+			if [ $? = 0 ]; then
+			    touch ../${name}.done
+			    touch ../${name}.installed
+			else error "error decompressing tarred package"; fi
+		    else error "data not found in package"; fi
+		    popd
+		    ;;
+
+		## BARE SOURCE
+		.tar.gz)  tar xfz ${file}; mv ${name}${ver} ${name} ;;
+		.tar.bz2) tar xfj ${file}; mv ${name}${ver} ${name} ;;
 		*) error "compression not supported: $arch"
 	    esac
-	    mv ${name}${ver} ${name}
+	    
 	}
 	act "${name} source ready"
     done
@@ -329,17 +362,24 @@ zinstall() {
 	return 1
     fi
 
-    notice "$1 installed in sysroot"
+    notice "$1 installed"
     touch ${1}.installed
     return 0
 }
 
 list_sources() {
 	touch /tmp/zshaolin.list
-	for i in `find ${ZHOME}/build -type f -name Sources`; do
+	typeset -a modules
+	if [ "${#@}" = "0" ]; then modules=(`find ${ZHOME}/build -type f -name Sources`)
+	else
+	    shift
+	    for m in ${=@}; do
+		modules+=(${ZHOME}/build/${m}/Sources); done
+	fi
+	for i in  $modules; do
 		cat $i | awk '!/^#/ { print $1 $2 }' >> /tmp/zshaolin.list
 	done
-	cat /tmp/zshaolin.list | sort | uniq
+	cat /tmp/zshaolin.list | sort | uniq | sed 's/_arm//;s/eabi//'
 	rm -f /tmp/zshaolin.list
 }
 
@@ -369,12 +409,12 @@ case "$1" in
 	zconfigure ${args}
 	;;
     test)
-	ZHOME=$ZHOME zsh sysroot/etc/zlogin
+	ZHOME=$ZHOME zsh system/etc/zlogin
 	;;
     source)
 	return ;;
     list)
-	list_sources
+	list_sources ${=@}
 	;;
     help|-h)
 	error "No help. We're all on our own, for now."
