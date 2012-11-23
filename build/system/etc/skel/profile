@@ -1,0 +1,5 @@
+# Custom user settings
+# this file is processed at shell start
+# and is not overwritten by new installs
+
+# add here your custom shell settings

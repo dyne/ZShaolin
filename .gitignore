@@ -17,6 +17,8 @@ sysroot
 termapk/gen
 termapk/bin
 termapk/assets/*
+termapk/build.properties
+termapk/local.properties
 build/media/ffmpeg
 build/media/speex
 build/media/flac
@@ -38,3 +40,4 @@ build/system/zsh
 build/system/netcat
 build/system/htop
 build/lang/lua
+
