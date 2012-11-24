@@ -29,7 +29,12 @@ touch zlib.installed
 compile ncurses default \
 	"--enable-widec --enable-ext-colors --enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core"
 zinstall ncurses
-ln -sf $PREFIX/include/ncursesw/* $PREFIX/include/
+pushd $PREFIX/include
+ln -sf ncursesw/* .
+popd
+pushd $PREFIX/lib
+ln -sf libncursesw.a libncurses.a 
+popd
 
 ## s-lang
 notice "Building S-Lang"

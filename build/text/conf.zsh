@@ -10,6 +10,18 @@ rm -f $LOGS; touch $LOGS
 # download and decompress all sources
 prepare_sources
 
+vim_cv_toupper_broken=no \
+vim_cv_terminfo=yes \
+vim_cv_tty_group=world \
+vim_cv_getcwd_broken=no \
+vim_cv_stat_ignores_slash=yes \
+vim_cv_memmove_handles_overlap=yes \
+ac_cv_sizeof_int=4 \
+compile vim default "--without-x --without-gnome --with-tlib=ncurses --disable-xsmp --disable-sysmouse --disable-gpm --disable-acl --disable-xim --disable-gui"
+zinstall vim
+
+#compile emacs default "--with-x-toolkit=no --without-x --without-sound --without-xml2 --without-gnutls --without-dbus --with-crt-dir=$ZHOME/toolchains/crosstool-ng/x-tools/arm-dyne-linux-gnueabi/sysroot/usr/lib"
+
 
 # mandoc
 compile mdocml preconv mandoc demandoc

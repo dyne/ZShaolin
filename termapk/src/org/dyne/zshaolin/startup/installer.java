@@ -38,9 +38,9 @@ import org.dyne.zshaolin.startup.setup.filemanager;
 public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
-    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 4;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.6.1";
-    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.6.1.tar.lzma.mp3";
+    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 6;
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.6.2";
+    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.6.2.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
     
@@ -207,8 +207,8 @@ public class installer extends Activity implements OnClickListener{
 
                         File etc = new File(system,"etc");
 			File skel = new File(etc, "skel");
+
                         // zshrc
-			
                         File zshrc   = new File(skel,"zshrc");
                         File zshrcu  = new File(home,".zshrc");
                         if(!zshrcu.exists()  || mOverwriteAll){
@@ -227,6 +227,18 @@ public class installer extends Activity implements OnClickListener{
 				 " cp -f "+grml.getPath()+" "+grmlu.getPath(),env,home);
                             pp.waitFor();
                         }
+
+                        // vimrc
+                        File vimrc   = new File(skel,"vimrc");
+                        File vimrcu  = new File(home,".vimrc");
+                        if(!vimrcu.exists()  || mOverwriteAll){
+                            pp = Runtime.getRuntime().exec
+				(busytar.getPath()+
+				 " cp -f "+vimrc.getPath()+" "+vimrcu.getPath(),env,home);
+                            pp.waitFor();
+                        }
+
+
 
                         //Create a link to the sdcard
                         File sdcard  = Environment.getExternalStorageDirectory();

@@ -13,6 +13,7 @@ else
 fi
 
 export MANPATH=$SYS/share/man
+export MANPAGER=most
 export TERMINFO=$SYS/share/terminfo
 export TERM=xterm
 

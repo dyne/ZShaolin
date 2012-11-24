@@ -13,6 +13,7 @@
 ./share/doc
 ./bin/sed
 ./bin/htop
+./bin/most
 ./bin/nano
 ./bin/gawk
 ./bin/netcat
