@@ -11,6 +11,10 @@
 ./share/zsh
 ./share/tabset
 ./share/doc
+./share/man/man1
+./share/man/man4
+./share/man/man5
+./share/man/man7
 ./bin/sed
 ./bin/htop
 ./bin/most
