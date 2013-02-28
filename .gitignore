@@ -19,6 +19,7 @@ termapk/bin
 termapk/assets/*
 termapk/build.properties
 termapk/local.properties
+termapk/project.properties
 build/media/ffmpeg
 build/media/speex
 build/media/flac

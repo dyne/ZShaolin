@@ -33,6 +33,23 @@ prepare_sources
     notice "lua installed"
 }
 
+## Perl
+{ test -r perl.done } || {
+    act "downloading PerlAPK" | tee -a $LOGS
+    mkdir -p perl
+    curl -q http://perl-android-apk.googlecode.com/files/PerlAPK.apk -o perl/PerlAPK.apk
+    pushd perl
+    unzip PerlAPK.apk
+    pushd res/raw
+    unzip -q perl_r9.zip
+    unzip -q perl_extras_r7.zip
+    mkdir -p $PREFIX/lib/perl
+    mv perl/perl $PREFIX/bin
+    mv perl/* $PREFIX/lib/perl/
+    popd; popd
+    touch perl.done
+    notice "Perl installed"
+}
 ## ruby
 # if ! [ -r $pkg[ruby].done ]; then
 #     compile $pkg[ruby] default "--with-static-linked-ext=yes" nomake

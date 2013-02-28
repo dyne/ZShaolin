@@ -25,6 +25,24 @@ prepare_sources
 #     popd
 # }
 
+compile libexif default
+zinstall libexif
+
+compile libpng	default
+zinstall libpng
+
+compile jpeg	default
+zinstall jpeg
+
+compile giflib	default
+zinstall giflib
+
+compile tiff	default
+zinstall tiff
+
+compile	freetype	default
+zinstall freetype
+
 compile ImageMagick default \
     --disable-shared --disable-deprecated --without-fontconfig --without-x \
     --without-pango --without-openexr
@@ -36,6 +54,10 @@ zinstall ImageMagick
 
 ########
 ## AUDIO
+
+## libmad
+compile lame	default
+zinstall lame
 
 ## libogg
 compile libogg default "--disable-shared --enable-static --with-pic=no"
@@ -73,6 +95,22 @@ zinstall sox
 
 ########
 ## VIDEO
+
+notice "Building xvidcore"
+{ test -r xvidcore.done } || {
+	pushd xvidcore/build/generic
+	zconfigure default
+	zmake
+	{ test $? = 0 } && { touch ../../../xvidcore.done }
+	popd
+}
+{ test -r xvidcore.installed } || {
+	pushd xvidcore/build/generic
+	zinstall
+	{ test $? = 0 } && { touch ../../../xvidcore.installed }
+	popd
+}
+act "done."
 
 compile x264 default "--enable-static --cross-prefix=${TARGET}-"
 zinstall x264
