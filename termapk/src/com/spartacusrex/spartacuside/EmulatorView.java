@@ -33,6 +33,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Environment;
 import android.text.ClipboardManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -1272,8 +1273,18 @@ class PaintRenderer extends BaseTextRenderer {
     public PaintRenderer(int fontSize, int forePaintColor, int backPaintColor) {
         super(forePaintColor, backPaintColor);
         mTextPaint = new Paint();
-        mTextPaint.setTypeface(Typeface.MONOSPACE);
-        mTextPaint.setAntiAlias(true);
+
+	// our own TTF font
+	String fontfile = Environment.getExternalStorageDirectory().toString()
+	    + "/ZShaolin/" + "Font.ttf";
+	File file = new File(fontfile);
+
+	if(file.exists()) {
+	    Typeface _font = Typeface.createFromFile(fontfile);
+	    mTextPaint.setTypeface(_font);
+	} else mTextPaint.setTypeface(Typeface.MONOSPACE);
+
+        mTextPaint.setAntiAlias(false);
         mTextPaint.setTextSize(fontSize);
 
         mCharHeight = (int) Math.ceil(mTextPaint.getFontSpacing());
@@ -2285,14 +2296,14 @@ class TermKeyListener {
      * @param keyCode the keyCode of the keyUp event
      */
     public void keyUp(int keyCode) {
-//        Log.v("SpartacusRex","EMVIEW : keyup "+keyCode);
+	//        Log.v("ZShaolin","EMVIEW : keyup "+keyCode);
         
         switch (keyCode) {
 
         case -98:
         case KeyEvent.KEYCODE_ALT_LEFT:
         case KeyEvent.KEYCODE_ALT_RIGHT:
-            Log.v("SpartacusRex","EMVIEW : ALT OFF");
+	    //            Log.v("ZShaolin","EMVIEW : ALT OFF");
             mAltKey.onRelease();
             break;
         case KeyEvent.KEYCODE_SHIFT_LEFT:
@@ -2303,7 +2314,7 @@ class TermKeyListener {
         case -99:
         case KEYCODE_CTRL_LEFT:
         case KEYCODE_CTRL_RIGHT:
-//            Log.v("SpartacusRex","EMVIEW : CTRL OFF");
+//            Log.v("ZShaolin","EMVIEW : CTRL OFF");
             mControlKey.onRelease();
             break;
 
