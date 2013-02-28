@@ -286,9 +286,9 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
         }
 
         //Create the initial BASH init-file
-        if(!createBashInit(zHome)){
-            return;
-        }
+        // if(!createBashInit(zHome)){
+        //     return;
+        // }
         
         //Create 4 initial Terminals
         mTermSessions.add(createTermSession(zHome));
