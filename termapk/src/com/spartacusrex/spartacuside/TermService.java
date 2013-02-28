@@ -16,35 +16,39 @@
 
 package com.spartacusrex.spartacuside;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import android.app.Service;
+import android.os.Binder;
+import android.os.IBinder;
+import android.content.Intent;
+import android.util.Log;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.net.wifi.WifiManager;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
+
+import com.spartacusrex.spartacuside.session.TermSession;
+import com.spartacusrex.spartacuside.util.ServiceForegroundCompat;
+import com.spartacusrex.spartacuside.util.TermSettings;
+import com.spartacusrex.spartacuside.util.hardkeymappings;
+import com.spartacusrex.spartacuside.web.webserver;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.dyne.zshaolin.R;
 
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
-import android.os.Binder;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.preference.PreferenceManager;
-import android.util.Log;
-
-import com.spartacusrex.spartacuside.session.TermSession;
-import com.spartacusrex.spartacuside.util.ServiceForegroundCompat;
-import com.spartacusrex.spartacuside.util.TermSettings;
-import com.spartacusrex.spartacuside.web.webserver;
+import org.dyne.zshaolin.*;
 
 public class TermService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener
 {
@@ -66,9 +70,79 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
     private PowerManager.WakeLock mWakeLock;
     private WifiManager.WifiLock  mWifiLock;
 
-    public void onSharedPreferenceChanged(SharedPreferences arg0, String zKey) {
+    boolean mBacktoESC = false;
+
+    /*
+     * Key logger HACK to get the keycodes..
+     */
+    private static hardkeymappings mHardKeys = new hardkeymappings();
+    private static boolean mLogKeys = false;
+
+    //The Global Key logs File..
+    private static File mKeyLogFile = null;
+    private static FileOutputStream mKeyLogFileOutputStream = null;
+    private static PrintWriter mKeyLogger = null;
+
+    private void initKeyLog(){
+        mKeyLogFile = new File(getFilesDir(),".keylog");
+        try {
+            mKeyLogFileOutputStream = new FileOutputStream(mKeyLogFile,true);
+            mKeyLogger = new PrintWriter(mKeyLogFileOutputStream);
+            Log.v("KEY_LOGGER","Keylog file opened..");
+        } catch (FileNotFoundException fileNotFoundException) {
+            Log.v("KEY_LOGGER","Error - could not create ~/.keylog");
+        }
+
+        mLogKeys = true;
+    }
+
+    private void closeKeyLog(){
+        try {
+            if(mKeyLogger!=null){
+                mKeyLogger.close();
+            }
+            if(mKeyLogFileOutputStream!=null){
+                mKeyLogFileOutputStream.close();
+            }
+        } catch (IOException iOException) {
+        }
+
+        mKeyLogger = null;
+        mKeyLogFileOutputStream = null;
+
+        mLogKeys = false;
+    }
+
+    //A link to the key logger
+    public static void keyLoggerKey(int zKeyCode){
+        if(mLogKeys && mKeyLogger!=null){
+            Log.v("Terminal IDE KEY_LOGGER","Key Logged : "+zKeyCode);
+            mKeyLogger.println("Key Logged : "+zKeyCode);
+            mKeyLogger.flush();
+        }
+    }
+
+    public static boolean isHardKeyEnabled(){
+        return mHardKeys.isEnabled();
+    }
+
+    public static int isSpecialKeyCode(int zKeyCode){
+        return mHardKeys.checkKeyCode(zKeyCode);
+    }
+
+    public static void resetAllKeyCodes(){
+        //Set them all to -1
+        mHardKeys.resetAllMappings();
+    }
+
+    //Check for shared pref change
+    public void onSharedPreferenceChanged(SharedPreferences zPrefs, String zKey) {
         if(zKey.contains("lock")){
             setupWakeLocks();
+        }else if(zKey.contains("hardmap_")){
+            //Check the key logger..
+            Log.i("TermService", "Update Key Maps");
+            mHardKeys.setKeyMappings(zPrefs);
         }
     }
 
@@ -101,9 +175,12 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
         mTermSessions = new ArrayList<TermSession>();
 
         /* Put the service in the foreground. */
-        Notification notification = new Notification(R.drawable.yingyang, getText(R.string.service_notify_text), System.currentTimeMillis());
+        Notification notification = new Notification(R.drawable.terminal, getText(R.string.service_notify_text), System.currentTimeMillis());
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
-        Intent notifyIntent = new Intent(this, Term.class);
+
+//        Intent notifyIntent = new Intent(this, Term.class);
+        Intent notifyIntent = new Intent(this, Start.class);
+        
         notifyIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notifyIntent, 0);
         notification.setLatestEventInfo(this, getText(R.string.application_terminal), getText(R.string.service_notify_text), pendingIntent);
@@ -111,7 +188,9 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mPrefs.registerOnSharedPreferenceChangeListener(this);
-        
+        mHardKeys.setKeyMappings(mPrefs);
+
+        //Setup the Hard Key Mappings..
         mSettings = new TermSettings(mPrefs);
 
         //Need to set the HOME Folder and Bash startup..
@@ -232,16 +311,27 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
             
             FileOutputStream fos = new FileOutputStream(init);
             PrintWriter pw = new PrintWriter(fos);
-            pw.println("#BASH init-file");
-            pw.println("#AUTOMAGICALLY GENERATED - DO NOT TOUCH!");
+            pw.println("# BASH init-file - Called when BASH starts first time");
+            pw.println("# AUTOMAGICALLY GENERATED - DO NOT TOUCH!");
             pw.println("export HOME="+zHome.getPath());
             pw.println("export APK="+getPackageResourcePath());
             pw.println("export HOSTNAME="+getLocalIpAddress());
+            pw.println("");
+            pw.println("# This might work better as 'screen' ?");
+            pw.println("export TERM=xterm");
+            pw.println("");
+            pw.println("# Set Special Paths");
+            pw.println("export BOOTCLASSPATH=$HOME/system/classes/android.jar:$BOOTCLASSPATH");
+            pw.println("export LD_LIBRARY_PATH=$HOME/lib:$HOME/system/lib:$LD_LIBRARY_PATH");
+            pw.println("export PATH=$HOME/bin:$HOME/system/bin:$HOME/system/bin/bbdir:$PATH");
             pw.println("");
             pw.println("#If ~/.bashrc exists - run it.");
             pw.println("if [ -f $HOME/.bashrc ]; then");
             pw.println("    . $HOME/.bashrc");
             pw.println("fi");
+            pw.println("");
+            pw.println("# And finally cd $HOME");
+            pw.println("cd $HOME");
             pw.println("");
             pw.flush();
             pw.close();
@@ -281,6 +371,9 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
         if(mWifiLock.isHeld()){
             mWifiLock.release();
         }
+
+        //Close the key log file
+        closeKeyLog();
 
 //        mServer.stop();
         
@@ -336,5 +429,31 @@ public class TermService extends Service implements SharedPreferences.OnSharedPr
 
 //        return new TermSession(getApplicationContext(),mSettings, null, initialCommand);
         return new TermSession(zHome.getPath(),mSettings, null, initialCommand);
+    }
+
+    //Is BACK ESC
+    public boolean isBackESC(){
+        return mBacktoESC;
+    }
+
+    public void setBackToESC(boolean zBackToEsc){
+        mBacktoESC = zBackToEsc;
+    }
+
+    //Toggle Key Logger
+    public boolean isKeyLoggerOn(){
+        return mLogKeys;
+    }
+
+    public void setKeyLogger(boolean zOn){
+        if(zOn){
+            if(!mLogKeys){
+                initKeyLog();
+            }
+        }else{
+            if(mLogKeys){
+                closeKeyLog();
+            }
+        }
     }
 }

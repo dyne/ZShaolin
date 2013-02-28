@@ -19,7 +19,6 @@ package com.spartacusrex.spartacuside;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import org.dyne.zshaolin.R;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -44,6 +43,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.CompletionInfo;
+//import android.view.inputmethod.CorrectionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
@@ -52,11 +52,18 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.spartacusrex.spartacuside.model.TextRenderer;
 import com.spartacusrex.spartacuside.model.UpdateCallback;
-import com.spartacusrex.spartacuside.session.TermSession;
 import com.spartacusrex.spartacuside.session.TerminalEmulator;
+import com.spartacusrex.spartacuside.session.TermSession;
 import com.spartacusrex.spartacuside.session.TranscriptScreen;
 import com.spartacusrex.spartacuside.util.TermSettings;
+import com.spartacusrex.spartacuside.util.hardkeymappings;
+import com.spartacusrex.spartacuside.util.keydata;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.Vector;
 
+import org.dyne.zshaolin.R;
 /**
  * A view on a transcript and a terminal emulator. Displays the text of the
  * transcript and the current cursor position of the terminal emulator.
@@ -310,8 +317,8 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             private int mCursor;
             private int mComposingTextStart;
             private int mComposingTextEnd;
-            private int mSelectedTextStart;
-            private int mSelectedTextEnd;
+            private int mSelectedTextStart = 0;
+            private int mSelectedTextEnd   = 0;
 
             private void sendChar(int c) {
                 try {
@@ -337,7 +344,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             private void mapAndSend(int c) throws IOException {
                 int result = mKeyListener.mapControlChar(c);
                 if (result < TermKeyListener.KEYCODE_OFFSET) {
-//                    Log.v("ZShaolin","EMVIEW : 1) mapAndSend "+c+" "+result);
+//                    Log.v("SpartacusRex","EMVIEW : 1) mapAndSend "+c+" "+result);
                     
                     //Check for ALT
                     //if(mAl)
@@ -345,7 +352,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
                     mTermOut.write(result);
                 } else {
                     int code = result - TermKeyListener.KEYCODE_OFFSET;
-//                    Log.v("ZShaolin","EMVIEW : 2) mapAndSend "+c+" "+code);
+//                    Log.v("SpartacusRex","EMVIEW : 2) mapAndSend "+c+" "+code);
                     mKeyListener.handleKeyCode(result - TermKeyListener.KEYCODE_OFFSET, mTermOut, getKeypadApplicationMode());
                 }
             }
@@ -568,10 +575,24 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             }
 
             public CharSequence getSelectedText(int flags) {
-                if (TermDebug.LOG_IME) {
-                    Log.w(TAG, "getSelectedText " + flags);
+
+                try {
+
+                    if (TermDebug.LOG_IME) {
+                        Log.w(TAG, "getSelectedText " + flags);
+                    }
+
+                    if (mImeBuffer.length() < 1) {
+                        return "";
+                    }
+
+                    return mImeBuffer.substring(mSelectedTextStart, mSelectedTextEnd + 1);
+
+                } catch (Exception e) {
+                    
                 }
-                return mImeBuffer.substring(mSelectedTextStart, mSelectedTextEnd+1);
+
+                return "";
             }
 
         };
@@ -839,55 +860,147 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean onKeyDown(int zKeyCode, KeyEvent event) {
         if (LOG_KEY_EVENTS) {
-            Log.v("ZShaolin", "EmulatorView onKeyDown " + keyCode + " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
+            Log.v("Terminal IDE", "EmulatorView onKeyDown TOP EVENT code:"+zKeyCode);
         }
-        
+
+        //Could be scanning..
+        TermService.keyLoggerKey(zKeyCode);
+
+        //Check with HardKey Mappings..!
+        KeyEvent newevent = handleKeyCodeMapper(event.getAction(), zKeyCode);
+        if(newevent == null){
+            //Function press..
+            return true;
+        }
+
+        //The new Key Code
+        int keyCode = newevent.getKeyCode();
+
         if (handleControlKey(keyCode, true)) {
             return true;
         } else if (handleFnKey(keyCode, true)) {
             //Send the escape key
             try {
-                mKeyListener.keyDown(TermKeyListener.KEYCODE_ESCAPE, event, mTermOut, getKeypadApplicationMode());
+                mKeyListener.keyDown(TermKeyListener.KEYCODE_ESCAPE, newevent, mTermOut, getKeypadApplicationMode());
             } catch (IOException iOException) {
             }
-
             return true;
-        } else if (isSystemKey(keyCode, event) && keyCode!=122 && keyCode!=123 && keyCode!=92 && keyCode!=93) {
+        } else if (isSystemKey(keyCode, newevent) && keyCode!=122 && keyCode!=123 && keyCode!=92 && keyCode!=93) {
             // Don't intercept the system keys And the HOME /END / PGUP / PGDOWN KEYS
-            return super.onKeyDown(keyCode, event);
+            return super.onKeyDown(keyCode, newevent);
         }
 
-        // Translate the keyCode into an ASCII character.
-        //Log.v("ZShaolin","pass it on..");
-
         try {
-            mKeyListener.keyDown(keyCode, event, mTermOut,getKeypadApplicationMode());
+            mKeyListener.keyDown(keyCode, newevent, mTermOut,getKeypadApplicationMode());
         } catch (IOException e) {
             // Ignore I/O exceptions
         }
+
         return true;
     }
 
     @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    public boolean onKeyUp(int zKeyCode, KeyEvent event) {
         if (LOG_KEY_EVENTS) {
-            Log.w(TAG, "onKeyUp " + keyCode);
+            Log.w(TAG, "onKeyUp " + zKeyCode);
         }
+
+        //Check with HardKey Mappings..!
+        KeyEvent newevent = handleKeyCodeMapper(event.getAction(), zKeyCode);
+        if(newevent == null){
+            //Function press..
+            return true;
+        }
+
+        //The new Key Code
+        int keyCode = newevent.getKeyCode();
+
         if (handleControlKey(keyCode, false)) {
             return true;
         } else if (handleFnKey(keyCode, false)) {
-            mKeyListener.keyUp(TermKeyListener.KEYCODE_ESCAPE);
-            
+            mKeyListener.keyUp(TermKeyListener.KEYCODE_ESCAPE);   
             return true;
-        } else if (isSystemKey(keyCode, event)) {
+        } else if (isSystemKey(keyCode, newevent)) {
             // Don't intercept the system keys
-            return super.onKeyUp(keyCode, event);
+            return super.onKeyUp(keyCode, newevent);
         }
 
         mKeyListener.keyUp(keyCode);
         return true;
+    }
+
+    private KeyEvent handleKeyCodeMapper(int zAction, int zKeyCode){
+        //Check with HardKey Mappings..!
+        KeyEvent newevent = new KeyEvent(zAction, zKeyCode);
+
+        if(TermService.isHardKeyEnabled()){
+            int hardmap = TermService.isSpecialKeyCode(zKeyCode);
+
+            //Valid.. ?
+            if(hardmap != -1){
+                //Its a special key code..
+                if(hardmap == hardkeymappings.HARDKEY_CTRL_LEFT || hardmap == hardkeymappings.HARDKEY_CTRL_RIGHT){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_CTRL_LEFT);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_ALT_LEFT || hardmap == hardkeymappings.HARDKEY_ALT_RIGHT){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_ALT_LEFT);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_ESCAPE){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_ESCAPE);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_FUNCTION){
+                    //Just Update the Function Key Settings
+                    mKeyListener.handleFunctionKey(false);
+                    return null;
+                
+                }else if(hardmap == hardkeymappings.HARDKEY_TAB){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_TAB);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_LSHIFT || hardmap == hardkeymappings.HARDKEY_RSHIFT){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_SHIFT_LEFT);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_SPACE){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_SPACE);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_ENTER){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_ENTER);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_DELETE){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_FORWARD_DEL);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_BACKSPACE){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_DEL);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_UP){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_DPAD_UP);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_DOWN){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_DPAD_DOWN);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_LEFT){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_DPAD_LEFT);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_RIGHT){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_DPAD_RIGHT);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_PGUP){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_PAGE_UP);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_PGDOWN){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_PAGE_DOWN);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_HOME){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_MOVE_HOME);
+
+                }else if(hardmap == hardkeymappings.HARDKEY_END){
+                    newevent = new KeyEvent(zAction, TermKeyListener.KEYCODE_MOVE_END);
+                }
+            }
+        }
+
+        return newevent;
     }
 
 
@@ -915,6 +1028,14 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             return true;
         }
         return false;
+    }
+
+    private boolean handleFunctionKey(boolean down) {
+        if (LOG_KEY_EVENTS) {
+            Log.w(TAG, "handleFunctionKey ");
+        }
+        mKeyListener.handleFunctionKey(down);
+        return true;
     }
 
     private boolean isSystemKey(int keyCode, KeyEvent event) {
@@ -1878,6 +1999,8 @@ class TermKeyListener {
 
     private ModifierKey mFnKey = new ModifierKey();
 
+    private ModifierKey mFunctionKey = new ModifierKey();
+
     private boolean mCapsLock;
 
     static public final int KEYCODE_OFFSET = 1000;
@@ -1891,7 +2014,7 @@ class TermKeyListener {
     }
 
     public void handleControlKey(boolean down) {
-        Log.v("ZShaolin","handleControlKey "+down);
+//        Log.v("SpartacusRex","handleControlKey "+down);
 
         if (down) {
             mControlKey.onPress();
@@ -1903,17 +2026,25 @@ class TermKeyListener {
     public void handleFnKey(boolean down) {
         if (down) {
             //Send the ESC sequence
-
             mFnKey.onPress();
         } else {
             mFnKey.onRelease();
         }
     }
 
+    public void handleFunctionKey(boolean down) {
+        if (down) {
+            //Send the ESC sequence
+            mFunctionKey.onPress();
+        } else {
+            mFunctionKey.onRelease();
+        }
+    }
+
     public int mapControlChar(int ch) {
         int result = ch;
         if (mControlKey.isActive()) {
-//            Log.v("ZShaolin","mapControlChar CONTROL ON ");
+//            Log.v("SpartacusRex","mapControlChar CONTROL ON ");
             
             // Search is the control key.
             if (result >= 'a' && result <= 'z') {
@@ -1932,23 +2063,38 @@ class TermKeyListener {
                 result = 30; // control-^
             } else if (result == '_' || result == '7') {
                 result = 31;
-            } else if (result == '8') {
-                result = 127; // DEL
-            } else if (result == '9') {
-                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F11;
-            } else if (result == '0') {
-                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F12;
             }
+            else if (result == '8') {
+                result = 127; // DEL
+            }
+//            else if (result == '9') {
+//                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F11;
+//            } else if (result == '0') {
+//                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F12;
+//            }
 
             //Check if this is a one off
             if(mCTRLfromMETA){
-//                Log.v("ZShaolin","mapControlChar RELEASE CTRL from META");
+//                Log.v("SpartacusRex","mapControlChar RELEASE CTRL from META");
                mCTRLfromMETA = false;
                mControlKey.onRelease();
             }
 
+        } else if (mFunctionKey.isActive()) {
+
+            if (result > '0' && result <= '9') {
+                int offs = (int)'1';
+                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F1 + result - offs;
+            } else if (result == '0') {
+                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F10;
+            }else if (result == 'o' || result == 'O') {
+                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F11;
+            }else if (result == 'p'|| result == 'P') {
+                result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_F12;
+            }
+
         } else if (mFnKey.isActive()) {
-//            Log.v("ZShaolin","mapControlChar mFnKey.isActive() ");
+//            Log.v("SpartacusRex","mapControlChar mFnKey.isActive() ");
 
 /*            if (result == 'w' || result == 'W') {
                 result = KEYCODE_OFFSET + KeyEvent.KEYCODE_DPAD_UP;
@@ -1996,7 +2142,7 @@ class TermKeyListener {
             mFnKey.adjustAfterKeypress();
         }*/
 
-//        Log.v("ZShaolin","mapControlChar "+ch+" --> "+result);
+//        Log.v("SpartacusRex","mapControlChar "+ch+" --> "+result);
 
         return result;
     }
@@ -2009,21 +2155,21 @@ class TermKeyListener {
      */
     public boolean mCTRLfromMETA = false;
     public void keyDown(int keyCode, KeyEvent event, OutputStream out, boolean appMode) throws IOException {
-//        Log.v("ZShaolin","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
+//        Log.v("SpartacusRex","EMVIEW : keyDown "+keyCode+ " meta:"+event.getMetaState()+" unicode:"+event.getUnicodeChar());
 
         if (handleKeyCode(keyCode, out, appMode)) {
-//            Log.v("ZShaolin","EMVIEW : Easy handle..");
+//            Log.v("SpartacusRex","EMVIEW : Easy handle..");
             return;
         }
 
         boolean CTRL = (event.getMetaState() & 8) != 0;
         if(CTRL){
-//            Log.v("ZShaolin","EMVIEW : CONTROL PRESSED AND META SET!");
+//            Log.v("SpartacusRex","EMVIEW : CONTROL PRESSED AND META SET!");
             mControlKey.onPress();
             mCTRLfromMETA = true;
         }else if(mCTRLfromMETA){
             mCTRLfromMETA = false;
-//            Log.v("ZShaolin","EMVIEW : NO CONTROL PRESSED AND META NOT SET!");
+//            Log.v("SpartacusRex","EMVIEW : NO CONTROL PRESSED AND META NOT SET!");
             mControlKey.onRelease();
         }
 
@@ -2031,14 +2177,14 @@ class TermKeyListener {
         switch (keyCode) {
         case -100:
             //it's a forward delete..
-//            Log.v("ZShaolin","EMVIEW : FORW DELETE");
+//            Log.v("SpartacusRex","EMVIEW : FORW DELETE");
             result = KEYCODE_OFFSET + TermKeyListener.KEYCODE_FORWARD_DEL;
             break;
 
             case -98:
         case KeyEvent.KEYCODE_ALT_RIGHT:
         case KeyEvent.KEYCODE_ALT_LEFT:
-//            Log.v("ZShaolin","EMVIEW : ALT ON");
+//            Log.v("SpartacusRex","EMVIEW : ALT ON");
             mAltKey.onPress();
             break;
 
@@ -2050,7 +2196,7 @@ class TermKeyListener {
         case -99:
         case KEYCODE_CTRL_LEFT:
         case KEYCODE_CTRL_RIGHT:
-//            Log.v("ZShaolin","EMVIEW : CTRL ON");
+//            Log.v("SpartacusRex","EMVIEW : CTRL ON");
             mControlKey.onPress();
             break;
 
@@ -2062,37 +2208,35 @@ class TermKeyListener {
 
         default: {
 
-            result = event.getUnicodeChar(
-                   (mCapKey.isActive() || mCapsLock ? KeyEvent.META_SHIFT_ON : 0) |
-                   (mAltKey.isActive() ? KeyEvent.META_ALT_ON : 0));
-
-            /*int mstate = event.getMetaState();
-            int son = mstate & KeyEvent.META_SHIFT_ON;
-            int aon = mstate & KeyEvent.META_ALT_ON;
-            int yon = mstate & KeyEvent.META_SYM_ON;
-            //Control
-            int con = mstate & 8;
-            //Meta
-            int mon = mstate & 16;
-            Log.v("ZShaolin","EMVIEW : keyDown DEFAULT "+result+" "+son+" "+aon+" "+yon+" "+con+" "+mon);
-            */
+//            result = event.getUnicodeChar(
+//                   (mCapKey.isActive() || mCapsLock ? KeyEvent.META_SHIFT_ON : 0) |
+//                   (mAltKey.isActive() ? KeyEvent.META_ALT_ON : 0));
+            result = event.getUnicodeChar( (mCapKey.isActive() || mCapsLock ? KeyEvent.META_SHIFT_ON : 0) );
 
             break;
             }
         }
 
+        //Check for CTRL / FN key manipulation
         result = mapControlChar(result);
 
         if (result >= KEYCODE_OFFSET) {
             handleKeyCode(result - KEYCODE_OFFSET, out, appMode);
+            
         } else if (result >= 0) {
-//            Log.v("ZShaolin","TERM : write code:"+keyCode+" result:"+result);
+            //Check
+            if(mAltKey.isActive()){
+                //Send Escape First..
+                out.write(27);
+            }
+
+//            Log.v("SpartacusRex","TERM : write code:"+keyCode+" result:"+result);
             out.write(result);
         }
     }
 
     public boolean handleKeyCode(int keyCode, OutputStream out, boolean appMode) throws IOException {
-//        Log.v("ZShaolin","handleKeyCode "+keyCode);
+//        Log.v("SpartacusRex","handleKeyCode "+keyCode);
 
         //Special handling -19 >> -22
         String code = null;
@@ -2126,7 +2270,7 @@ class TermKeyListener {
                 int length = code.length();
                 for (int i = 0; i < length; i++) {
                     char cc = code.charAt(i);
-//                    Log.v("ZShaolin","TERM : handleKeyCode internal "+keyCode+" "+i+") "+(int)cc+" : "+cc);
+//                    Log.v("SpartacusRex","TERM : handleKeyCode internal "+keyCode+" "+i+") "+(int)cc+" : "+cc);
                     out.write(cc);
                 }
                 return true;
@@ -2141,14 +2285,14 @@ class TermKeyListener {
      * @param keyCode the keyCode of the keyUp event
      */
     public void keyUp(int keyCode) {
-//        Log.v("ZShaolin","EMVIEW : keyup "+keyCode);
+//        Log.v("SpartacusRex","EMVIEW : keyup "+keyCode);
         
         switch (keyCode) {
 
         case -98:
         case KeyEvent.KEYCODE_ALT_LEFT:
         case KeyEvent.KEYCODE_ALT_RIGHT:
-//            Log.v("ZShaolin","EMVIEW : ALT OFF");
+            Log.v("SpartacusRex","EMVIEW : ALT OFF");
             mAltKey.onRelease();
             break;
         case KeyEvent.KEYCODE_SHIFT_LEFT:
@@ -2159,7 +2303,7 @@ class TermKeyListener {
         case -99:
         case KEYCODE_CTRL_LEFT:
         case KEYCODE_CTRL_RIGHT:
-//            Log.v("ZShaolin","EMVIEW : CTRL OFF");
+//            Log.v("SpartacusRex","EMVIEW : CTRL OFF");
             mControlKey.onRelease();
             break;
 

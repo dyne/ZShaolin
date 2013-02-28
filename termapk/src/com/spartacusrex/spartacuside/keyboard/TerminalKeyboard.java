@@ -15,18 +15,16 @@
  */
 
 package com.spartacusrex.spartacuside.keyboard;
-import org.dyne.zshaolin.R;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
@@ -34,6 +32,7 @@ import android.media.AudioManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.text.method.MetaKeyKeyListener;
+import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
@@ -43,6 +42,12 @@ import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import com.spartacusrex.spartacuside.EmulatorView;
+import org.dyne.zshaolin.R;
+import org.dyne.zshaolin.startup.TerminalIDEPrefs;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**
@@ -175,7 +180,7 @@ public class TerminalKeyboard extends InputMethodService
      */
     @Override
     public void onInitializeInterface() {
-//        Log.v("ZShaolin", "Keyboard :  onInitializeInterface() orient : "+getResources().getConfiguration().orientation);
+//        Log.v("SpartacusRex", "Keyboard :  onInitializeInterface() orient : "+getResources().getConfiguration().orientation);
         
         //Orientation
         mCurrentOrientation = getResources().getConfiguration().orientation;
@@ -270,6 +275,8 @@ public class TerminalKeyboard extends InputMethodService
             }else{
                 mInputView.setMode(LatinKeyboardView.MODE_LARGE);
             }
+//            Log.v("SpartacusRex", "New Keyboard.. Setting Positions..");
+//            mInputView.setKeyPositions();
         }
     }
 
@@ -398,6 +405,7 @@ public class TerminalKeyboard extends InputMethodService
         // Apply the selected keyboard to the input view.
         mInputView.setKeyboard(mKeyboards.getCurrentKeyboard());
         mInputView.closing();
+        
     }
     
     /**
@@ -451,7 +459,7 @@ public class TerminalKeyboard extends InputMethodService
      * PROCESS_HARD_KEYS option.
      */
     private boolean translateKeyDown(int keyCode, KeyEvent event) {
-//        Log.v("ZShaolin","SOFT : translateKeyDown "+keyCode);
+//        Log.v("SpartacusRex","SOFT : translateKeyDown "+keyCode);
 
         mMetaState = MetaKeyKeyListener.handleKeyDown(mMetaState,
                 keyCode, event);
@@ -490,7 +498,7 @@ public class TerminalKeyboard extends InputMethodService
      * continue to the app.
      */
     @Override public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        Log.v("ZShaolin","SOFT : onKeyDown "+ keyCode+" "+event.getMetaState());
+//        Log.v("SpartacusRex","SOFT : onKeyDown "+ keyCode+" "+event.getMetaState());
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 // The InputMethodService already takes care of the back
@@ -558,7 +566,7 @@ public class TerminalKeyboard extends InputMethodService
      * continue to the app.
      */
     @Override public boolean onKeyUp(int keyCode, KeyEvent event) {
-//        Log.v("ZShaolin","SOFT : onKeyUp "+keyCode +" "+event.getMetaState());
+//        Log.v("SpartacusRex","SOFT : onKeyUp "+keyCode +" "+event.getMetaState());
 
         // If we want to do transformations on text being entered with a hard
         // keyboard, we need to process the up events to update the meta key
@@ -660,7 +668,7 @@ public class TerminalKeyboard extends InputMethodService
     // Implementation of KeyboardViewListener
     public int mLastPrimCode=-87687;
     public void onKey(int primaryCode, int[] keyCodes) {
-        //Log.v("ZShaolin","MAIN SOFT ENTRY : onKey "+primaryCode);
+//        Log.v("SpartacusRex","MAIN SOFT ENTRY : onKey "+primaryCode);
 
         if(mInputView == null){
             return;
@@ -668,11 +676,10 @@ public class TerminalKeyboard extends InputMethodService
 
         //Actions..
         if(mVibrate){
-            mVibrator.vibrate(40);
+            mVibrator.vibrate(25);
         }
-        if(mKeyClick){
-            mAudioManager.playSoundEffect(AudioManager.FX_KEY_CLICK,-1);
-        }
+
+        int soundeffect = AudioManager.FX_KEYPRESS_STANDARD;
         
         Keyboard current = mInputView.getKeyboard();
         boolean validkey = false;
@@ -757,14 +764,20 @@ public class TerminalKeyboard extends InputMethodService
 
             validkey = true;
 
-        }*/else if (primaryCode == Keyboard.KEYCODE_DELETE) {
+        }*/else if (primaryCode == -5) {
+            //Normal BACK delete
+            soundeffect = AudioManager.FX_KEYPRESS_DELETE;
             handleBackspace();
+
+        } else if (primaryCode == -743) {
+            //SPECIAL ENTER..
+            keyDownUp(KeyEvent.KEYCODE_ENTER);
 
         } else if (primaryCode == -6) {
             //Forward delete
             keyDownUp(-100);
 
-        } else if (primaryCode == Keyboard.KEYCODE_SHIFT && mInputView != null) {
+        } else if (primaryCode == -1  || primaryCode == -999) {
             handleShift();
             
         } else if (primaryCode == -3) {
@@ -780,6 +793,7 @@ public class TerminalKeyboard extends InputMethodService
 
             //Now redo
             mInputView.setKeyboard(mKeyboards.getCurrentKeyboard());
+            
 
         } else if (primaryCode >= 131 && primaryCode <= 142) {
             //F1-F12
@@ -827,8 +841,29 @@ public class TerminalKeyboard extends InputMethodService
                 handleCharacter(27, null);
             }
 
-            handleCharacter(primaryCode, keyCodes);
+            //Is it Enter or Space
+            if(primaryCode == 13){
+                //Return
+                soundeffect = AudioManager.FX_KEYPRESS_RETURN;
+
+            }else if(primaryCode == 32){
+                //Return
+                soundeffect = AudioManager.FX_KEYPRESS_SPACEBAR;
+            }
+
+            if(primaryCode == 13 && mKeyboards.isCTRL()){
+                //Always send the ENTER key
+                keyDownUp(KeyEvent.KEYCODE_ENTER);
+                
+            }else{
+                handleCharacter(primaryCode, keyCodes);
+            }
+
             validkey = true;
+        }
+
+        if(mKeyClick){
+            mAudioManager.playSoundEffect(soundeffect,-1);
         }
 
         //Reset the keyboard..
@@ -842,11 +877,13 @@ public class TerminalKeyboard extends InputMethodService
 
                 //Now redo
                 mInputView.setKeyboard(mKeyboards.getCurrentKeyboard());
+                
             }
 
             //Sort the shift
             if(mKeyboards.validKeyPress()){
                 mInputView.setKeyboard(mKeyboards.getCurrentKeyboard());
+                
             }
 
             //SWITCH OFF THE ALT / CTRL Combo
@@ -946,7 +983,7 @@ public class TerminalKeyboard extends InputMethodService
 
     //When the Preference Activity is finished..
     public void onSharedPreferenceChanged(SharedPreferences zPrefs, String zKey) {
-//        Log.v("ZShaolin","Pref Change "+zKey);
+//        Log.v("SpartacusRex","Pref Change "+zKey);
         if(zKey.equals("keyboard-port-size")){
             String value = zPrefs.getString(zKey, "0");
             int ival     = Integer.parseInt(value);
@@ -1011,7 +1048,7 @@ public class TerminalKeyboard extends InputMethodService
     }
 
     public void onText(CharSequence text) {
-//        Log.v("ZShaolin","SOFT : onText "+text.toString());
+//        Log.v("SpartacusRex","SOFT : onText "+text.toString());
 
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
@@ -1079,6 +1116,7 @@ public class TerminalKeyboard extends InputMethodService
 
         //Set the keyboard
         mInputView.setKeyboard(mKeyboards.getCurrentKeyboard());
+        
 
 //        Keyboard currentKeyboard = mInputView.getKeyboard();
         

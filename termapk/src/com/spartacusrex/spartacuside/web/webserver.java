@@ -5,16 +5,15 @@
 
 package com.spartacusrex.spartacuside.web;
 
+import android.content.Context;
+import android.util.Log;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Enumeration;
 import java.util.Vector;
-
 import javax.net.ServerSocketFactory;
-
-import android.content.Context;
-import android.util.Log;
 
 /**
  *
@@ -41,7 +40,7 @@ public class webserver implements Runnable{
     }
 
     public void log(String zLog){
-        Log.v("ZShaolin", "AppServer - "+zLog);
+        Log.v("SpartacusRex", "AppServer - "+zLog);
     }
 
     public void start(){

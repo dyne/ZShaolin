@@ -15,19 +15,27 @@
  */
 
 package com.spartacusrex.spartacuside.keyboard;
-import org.dyne.zshaolin.R;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.inputmethodservice.Keyboard;
+import android.inputmethodservice.Keyboard.Key;
+import android.inputmethodservice.Keyboard.Row;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import org.dyne.zshaolin.R;
 
 public class LatinKeyboard extends Keyboard {
+
+    private static int[] NORMAL_ENTER = {-743};
+    private static int[] TERMINAL_ENTER = {13};
 
     private Key mEnterKey;
     private Key mCtrlKey;
     private Key mALTKey;
-    private Key mShiftKey;
+    private Key mShiftKeyLeft;
+    private Key mShiftKeyRight;
     private Key mFNKey;
     
     public LatinKeyboard(Context context, int xmlLayoutResId) {
@@ -39,18 +47,28 @@ public class LatinKeyboard extends Keyboard {
         super(context, layoutTemplateResId, characters, columns, horizontalPadding);
     }
 
+    boolean mKeysPositionSet = false;
+    public boolean hasKeysSet(){
+        return mKeysPositionSet;
+    }
+    public void KeysSet(){
+        mKeysPositionSet = true;
+    }
+
     @Override
     protected Key createKeyFromXml(Resources res, Row parent, int x, int y, XmlResourceParser parser) {
         Key key = new LatinKey(res, parent, x, y, parser);
 
-        if (key.codes[0] == 10) {
+        if (key.codes[0] == 13) {
             mEnterKey = key;
         }else if (key.codes[0] == TerminalKeyboard.CTRL_KEY) {
             mCtrlKey = key;
         }else if (key.codes[0] == TerminalKeyboard.ALT_KEY) {
             mALTKey = key;
         }else if (key.codes[0] == -1) {
-            mShiftKey = key;
+            mShiftKeyLeft = key;
+        }else if (key.codes[0] == -999) {
+            mShiftKeyRight = key;
         }else if (key.codes[0] == -2) {
             mFNKey = key;
         }
@@ -66,8 +84,12 @@ public class LatinKeyboard extends Keyboard {
         return mALTKey;
     }
 
-    public Key getShiftKey(){
-        return mShiftKey;
+    public Key getShiftKeyLeft(){
+        return mShiftKeyLeft;
+    }
+
+    public Key getShiftKeyRight(){
+        return mShiftKeyRight;
     }
 
     private Key getFNKey(){
@@ -101,14 +123,14 @@ public class LatinKeyboard extends Keyboard {
         return false;
     }
 
-    public boolean setSHIFTKeyState(boolean zOn){
-        Key key = getShiftKey();
-        if(key != null){
-           key.on = zOn;
-           return true;
-        }
-        return false;
-    }
+//    public boolean setSHIFTKeyState(boolean zOn){
+//        Key key = getShiftKey();
+//        if(key != null){
+//           key.on = zOn;
+//           return true;
+//        }
+//        return false;
+//    }
     /**
      * This looks at the ime options given by the current editor, to set the
      * appropriate label on the keyboard's enter key (if it has one).
@@ -118,30 +140,36 @@ public class LatinKeyboard extends Keyboard {
             return;
         }
         
+        int valnorm = KeyEvent.KEYCODE_ENTER;
+
         switch (options&(EditorInfo.IME_MASK_ACTION|EditorInfo.IME_FLAG_NO_ENTER_ACTION)) {
             case EditorInfo.IME_ACTION_GO:
                 mEnterKey.iconPreview = null;
-                mEnterKey.icon = null;
+                mEnterKey.icon  = null;
+                mEnterKey.codes = NORMAL_ENTER;
                 mEnterKey.label = res.getText(R.string.label_go_key);
                 break;
             case EditorInfo.IME_ACTION_NEXT:
                 mEnterKey.iconPreview = null;
                 mEnterKey.icon = null;
+                mEnterKey.codes = NORMAL_ENTER;
                 mEnterKey.label = res.getText(R.string.label_next_key);
                 break;
             case EditorInfo.IME_ACTION_SEARCH:
-                mEnterKey.icon = res.getDrawable(
-                        R.drawable.sym_keyboard_search);
+                mEnterKey.icon = res.getDrawable(R.drawable.sym_keyboard_search);
+                mEnterKey.codes = NORMAL_ENTER;
                 mEnterKey.label = null;
                 break;
             case EditorInfo.IME_ACTION_SEND:
                 mEnterKey.iconPreview = null;
                 mEnterKey.icon = null;
+                mEnterKey.codes = NORMAL_ENTER;
                 mEnterKey.label = res.getText(R.string.label_send_key);
                 break;
             default:
                 mEnterKey.icon = res.getDrawable(R.drawable.sym_keyboard_return);
                 mEnterKey.label = null;
+                mEnterKey.codes = TERMINAL_ENTER;
                 break;
         }
     }
@@ -156,10 +184,10 @@ public class LatinKeyboard extends Keyboard {
          * Overriding this method so that we can reduce the target area for the key that
          * closes the keyboard. 
          */
-        @Override
-        public boolean isInside(int x, int y) {
-            return super.isInside(x, codes[0] == KEYCODE_CANCEL ? y - 10 : y);
-        }
+//        @Override
+//        public boolean isInside(int x, int y) {
+//            return super.isInside(x, codes[0] == KEYCODE_CANCEL ? y - 10 : y);
+//        }
     }
 
 }

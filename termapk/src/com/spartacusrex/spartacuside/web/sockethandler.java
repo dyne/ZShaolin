@@ -5,6 +5,8 @@
 
 package com.spartacusrex.spartacuside.web;
 
+import android.content.Context;
+import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,9 +19,6 @@ import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.util.Date;
-
-import android.content.Context;
-import android.util.Log;
 
 /**
  *
@@ -50,7 +49,7 @@ public class sockethandler implements Runnable {
     webserver mServer;
 
     public void log(String zLog){
-        Log.v("ZShaolin", "SocketHandler - "+mStartTime+" "+zLog);
+        Log.v("SpartacusRex", "SocketHandler - "+mStartTime+" "+zLog);
     }
 
     public sockethandler(Socket zSocket, Context zContext, webserver zServer){

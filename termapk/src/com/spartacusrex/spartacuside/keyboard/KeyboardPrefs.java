@@ -16,10 +16,10 @@
 
 package com.spartacusrex.spartacuside.keyboard;
 
-import org.dyne.zshaolin.R;
+import com.spartacusrex.spartacuside.*;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-
+import org.dyne.zshaolin.R;
 public class KeyboardPrefs extends PreferenceActivity {
 
     @Override

@@ -17,7 +17,6 @@
 package com.spartacusrex.spartacuside;
 
 import java.util.Iterator;
-import org.dyne.zshaolin.R;
 
 import android.content.Context;
 import android.util.AttributeSet;

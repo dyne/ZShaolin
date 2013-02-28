@@ -17,13 +17,12 @@
 
 package com.spartacusrex.spartacuside.util;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-import android.app.Notification;
-import android.app.NotificationManager;
+import java.lang.reflect.InvocationTargetException;
 import android.app.Service;
 import android.util.Log;
+import android.app.Notification;
+import android.app.NotificationManager;
 
 /* Provide startForeground() and stopForeground() compatibility, using the
    current interfaces where available and the deprecated setForeground()

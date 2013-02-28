@@ -17,25 +17,25 @@
 package com.spartacusrex.spartacuside;
 
 import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import org.dyne.zshaolin.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.ClipboardManager;
 import android.util.DisplayMetrics;
@@ -43,6 +43,7 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,9 +51,23 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.spartacusrex.spartacuside.session.TermSession;
+import org.dyne.zshaolin.startup.setup.filemanager;
 import com.spartacusrex.spartacuside.util.TermSettings;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Date;
+import java.util.Enumeration;
+
+import org.dyne.zshaolin.R;
 
 /**
  * A terminal emulator activity.
@@ -77,6 +92,7 @@ public class Term extends Activity {
     private final static int SELECT_TEXT_ID = 0;
     private final static int COPY_ALL_ID = 1;
     private final static int PASTE_ID = 2;
+    private final static int CLEAR_ALL_ID = 3;
 
     private boolean mAlreadyStarted = false;
 
@@ -86,8 +102,9 @@ public class Term extends Activity {
     public static final String EXTRA_WINDOW_ID = "jackpal.androidterm.window_id";
     private int onResumeSelectWindow = -1;
 
-//    private PowerManager.WakeLock mWakeLock;
-//    private WifiManager.WifiLock mWifiLock;
+
+    //    private PowerManager.WakeLock mWakeLock;
+    //    private WifiManager.WifiLock mWifiLock;
 
     private TermService mTermService;
     private ServiceConnection mTSConnection = new ServiceConnection() {
@@ -134,6 +151,7 @@ public class Term extends Activity {
         mAlreadyStarted = true;
     }
 
+
     private void populateViewFlipper() {
         if (mTermService != null) {
             mTermSessions = mTermService.getSessions(getFilesDir());
@@ -149,6 +167,9 @@ public class Term extends Activity {
 
             updatePrefs();
         }
+
+        //Set back to ESC
+        
     }
 
     @Override
@@ -320,6 +341,21 @@ public class Term extends Activity {
 //            doResetTerminal();
         } else if (id == R.id.menu_toggle_soft_keyboard) {
             doToggleSoftKeyboard();
+        
+        } else if (id == R.id.menu_back_esc) {
+            doBACKtoESC();
+        
+        } else if (id == R.id.menu_keylogger) {
+            doToggelKeyLogger();
+        
+        } else if (id == R.id.menu_paste) {
+            doPaste();
+        
+        } else if (id == R.id.menu_copyall) {
+            doCopyAll();
+            
+        } else if (id == R.id.menu_copyemail) {
+            doEmailTranscript();
         }
 
         /*if (id == R.id.menu_preferences) {
@@ -490,23 +526,25 @@ public class Term extends Activity {
         // currently it's required, otherwise we get an
         // exception.
         String addr = "user@example.com";
-        Intent intent =
-                new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"
-                        + addr));
-
-        intent.putExtra("body", getCurrentTermSession().getTranscriptText().trim());
+        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"+ addr));
+        String intro = "Terminal Transcript @ "+new Date().toLocaleString()+"\n\n";
+        intent.putExtra("body", intro+getCurrentTermSession().getTranscriptText().trim());
         startActivity(intent);
     }
 
     private void doCopyAll() {
-        ClipboardManager clip = (ClipboardManager)
-             getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clip = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
         clip.setText(getCurrentTermSession().getTranscriptText().trim());
     }
 
     private void doPaste() {
-        ClipboardManager clip = (ClipboardManager)
-         getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipboardManager clip = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+        if(!clip.hasText()){
+            Toast tt = Toast.makeText(this, "No text to Paste..", Toast.LENGTH_SHORT);
+            tt.show();
+            return;
+        }
+
         CharSequence paste = clip.getText();
         byte[] utf8;
         try {
@@ -515,6 +553,7 @@ public class Term extends Activity {
             Log.e(TermDebug.LOG_TAG, "UTF-8 encoding not found.");
             return;
         }
+
         getCurrentTermSession().write(paste.toString());
     }
 
@@ -553,6 +592,58 @@ public class Term extends Activity {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED,0);
     }
+
+    private void doToggelKeyLogger() {
+        if(mTermService == null){
+            return;
+        }
+
+        boolean on = mTermService.isKeyLoggerOn();
+        mTermService.setKeyLogger(!on);
+        if(mTermService.isKeyLoggerOn()){
+            Toast tt = Toast.makeText(this, "KEY LOGGER NOW ON!\n\nCheck ~/.keylog \n\n# tail -f ~/.keylog", Toast.LENGTH_LONG);
+            tt.show();
+        }else{
+            Toast tt = Toast.makeText(this, "Key Logger switched off..", Toast.LENGTH_SHORT);
+            tt.show();
+        }
+        
+    }
+    private void doBACKtoESC() {
+        if(mTermService == null){
+            return;
+        }
+        
+        boolean on = mTermService.isBackESC();
+        mTermService.setBackToESC(!on);
+        if(mTermService.isBackESC()){
+            Toast tt = Toast.makeText(this, "BACK => ESC", Toast.LENGTH_SHORT);
+            tt.show();
+        }else{
+            Toast tt = Toast.makeText(this, "BACK behaves NORMALLY", Toast.LENGTH_SHORT);
+            tt.show();
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //Is BACK ESC
+//        Log.v("Terminal IDE","TERM : onkeyDown code:"+keyCode+" flags:"+event.getFlags()+" meta:"+event.getMetaState());
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if(mTermService.isBackESC()){
+//                Log.v("SpartacusRex","TERM : ESC sent instead of back.!");
+                //Send the ESC sequence..
+                int ESC = TermKeyListener.KEYCODE_ESCAPE;
+                getCurrentEmulatorView().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, ESC));
+                getCurrentEmulatorView().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,   ESC));
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
+}
+
 
     private void doToggleWakeLock() {
 //        if (mWakeLock.isHeld()) {

@@ -17,7 +17,6 @@
 package com.spartacusrex.spartacuside;
 
 import java.io.FileDescriptor;
-import org.dyne.zshaolin.R;
 
 /**
  * Utility methods for creating and managing a subprocess.

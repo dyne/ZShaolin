@@ -19,7 +19,6 @@ package com.spartacusrex.spartacuside;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import org.dyne.zshaolin.R;
-
 public class TermPreferences extends PreferenceActivity {
 
     @Override

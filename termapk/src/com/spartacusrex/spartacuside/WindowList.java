@@ -17,7 +17,6 @@
 package com.spartacusrex.spartacuside;
 
 import java.util.ArrayList;
-import org.dyne.zshaolin.R;
 
 import android.app.ListActivity;
 import android.content.ComponentName;
@@ -37,6 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.spartacusrex.spartacuside.session.TermSession;
+
+import org.dyne.zshaolin.R;
 
 public class WindowList extends ListActivity {
     private ArrayList<TermSession> sessions;

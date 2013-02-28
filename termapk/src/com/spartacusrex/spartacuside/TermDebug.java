@@ -16,9 +16,6 @@
 
 package com.spartacusrex.spartacuside;
 
-import org.dyne.zshaolin.R;
-
-
 /**
  * Debug settings.
  */
