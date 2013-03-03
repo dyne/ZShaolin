@@ -13,11 +13,23 @@ sync_module() {
     rm -f all.tree && touch all.tree
     rm -f all.aliases && touch all.aliases
     for t in `find . -name '*.tree'`; do
-	cat $t | sort >> all.tree; done
+	# only first arg (2nd for rename, would break rsync)
+	cat $t | awk '{print $1}' | sort >> all.tree; done
     for a in `find . -name '*.aliases'`; do
 	cat $a | sort >> all.aliases; done
     
     rsync -dar --files-from=all.tree $ZHOME/system/ system/
+
+    # rename those that need it (2nd arg in .tree)
+    for t in `find . -name '*.tree'`; do
+      for i in `cat ${t} | awk '{if($2) print $1 ";" $2}'`; do
+	src=${i[(ws:;:)1]}
+	dst=${i[(ws:;:)2]}
+	act "rename $src in $dst"
+	mv system/${src} system/${dst}
+      done
+    done
+
 }
 
 strip_module() {

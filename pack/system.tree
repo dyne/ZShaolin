@@ -20,7 +20,6 @@
 ./bin/most
 ./bin/nano
 ./bin/gawk
-./bin/netcat
 ./bin/diff
 ./bin/zsh
 ./bin/grep

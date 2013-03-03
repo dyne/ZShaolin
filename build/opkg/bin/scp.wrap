@@ -1,0 +1,8 @@
+#!/data/data/org.dyne.zshaolin/files/system/bin/zsh
+
+/data/data/org.dyne.zshaolin/files/system/bin/scp.bin \
+  -S /data/data/org.dyne.zshaolin/files/system/bin/dbclient \
+  ${=@}
+
+
+

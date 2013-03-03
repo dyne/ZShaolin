@@ -1284,7 +1284,7 @@ class PaintRenderer extends BaseTextRenderer {
 	    mTextPaint.setTypeface(_font);
 	} else mTextPaint.setTypeface(Typeface.MONOSPACE);
 
-        mTextPaint.setAntiAlias(false);
+        mTextPaint.setAntiAlias(true);
         mTextPaint.setTextSize(fontSize);
 
         mCharHeight = (int) Math.ceil(mTextPaint.getFontSpacing());
