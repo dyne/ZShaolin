@@ -10,11 +10,12 @@
 ./share/awk
 ./share/zsh
 ./share/tabset
-./share/doc
 ./share/man/man1
 ./share/man/man4
 ./share/man/man5
 ./share/man/man7
+./share/doc/most
+./share/doc/slang
 ./bin/sed
 ./bin/htop
 ./bin/most

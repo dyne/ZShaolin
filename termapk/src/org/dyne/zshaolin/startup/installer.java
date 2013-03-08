@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.dyne.zshaolin.startup;
 import org.dyne.zshaolin.R;
@@ -31,16 +27,12 @@ import android.widget.Toast;
 import com.spartacusrex.spartacuside.TermService;
 import org.dyne.zshaolin.startup.setup.filemanager;
 
-/**
- *
- * @author Spartacus Rex
- */
 public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
-    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 9;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.7";
-    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.7.tar.lzma.mp3";
+    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 10;
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.7.1";
+    public static String   CURRENT_INSTALL_ASSETFILE   = "system-0.7.1.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
     

@@ -9,7 +9,6 @@
 ./bin/rsync
 ./bin/opkg-key
 ./bin/dropbearkey
-./bin/curl
 ./bin/dbclient
 ./bin/file
 ./bin/opkg

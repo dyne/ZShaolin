@@ -1,7 +1,9 @@
 ./etc
 ./etc/ImageMagick
 ./share/ImageMagick-6.7.8
+./share/doc/ImageMagick-6.7.8
 ./share/ffmpeg
+./share/doc/speex
 ./bin/oggz-info
 ./bin/speexdec
 ./bin/montage
@@ -35,4 +37,3 @@
 ./bin/oggz-scan
 ./bin/oggz-chop
 ./bin/oggz-codecs
-
