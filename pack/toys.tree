@@ -1,5 +1,7 @@
-./bin/cacaclock
-./bin/cacaview
-./bin/cacaplay
+# ./bin/cacaclock
+# ./bin/cacaview
+# ./bin/cacaplay
+./bin/cacademo
 ./bin/cacafire
 ./bin/sl
+./bin/matanza

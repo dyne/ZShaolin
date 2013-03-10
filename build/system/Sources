@@ -14,6 +14,10 @@ htop 		-1.0		.tar.gz
 nano 		-2.2.6		.tar.gz
 wipe		-2.3.1		.tar.bz2
 file		-5.11		.tar.gz
+less		-451		.tar.gz
+
+#libevent	-2.0.21-stable	.tar.gz		http://libevent.org/
+#tmux		-1.7		.tar.gz		http://tmux.sourceforge.net/
 
 # netcat 		-0.7.1		.tar.gz
 # opkg		-0.1.8		.tar.gz

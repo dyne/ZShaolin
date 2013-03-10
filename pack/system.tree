@@ -10,6 +10,7 @@
 ./share/awk
 ./share/zsh
 ./share/tabset
+./share/misc
 ./share/man/man1
 ./share/man/man4
 ./share/man/man5
@@ -24,10 +25,8 @@
 ./bin/diff
 ./bin/zsh
 ./bin/grep
-./bin/sl
-./bin/cacademo
-./bin/cacafire
 ./bin/lua
+./bin/file
 ./libexec
 ./libexec/awk
 ./libexec/awk/grcat

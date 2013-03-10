@@ -1,4 +1,3 @@
-./share/misc
 ./share/ncat
 ./share/opkg
 ./share/git-core
@@ -10,7 +9,6 @@
 ./bin/opkg-key
 ./bin/dropbearkey
 ./bin/dbclient
-./bin/file
 ./bin/opkg
 ./bin/sqlite3
 ./bin/dropbear

@@ -108,6 +108,19 @@ compile	wipe default
 compile file default
 zinstall file
 
+# less pager
+compile less default
+zinstall less
+
+
+## libevent
+#compile libevent default
+#zinstall libevent
+
+## tmux
+#compile tmux default "--enable-static"
+#zinstall tmux
+
 ## Opkg
 # compile opkg default "--disable-curl --disable-gpg --disable-shave"
 # zinstall opkg

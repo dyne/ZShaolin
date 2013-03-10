@@ -1,4 +1,4 @@
-curl		_7.24.0-3_armeabi	.opk
+# curl		_7.24.0-3_armeabi	.opk
 dropbear	_2011.54-1_armeabi	.opk
 # nmap		_5.51-1_armeabi		.opk
 opkg		_0.1.8-7_armeabi	.opk
