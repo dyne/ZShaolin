@@ -252,6 +252,7 @@ zconfigure() {
 	 CPPFLAGS="$CPPFLAGS" \
 	 CXXFLAGS="$CXXFLAGS" \
 	 LDFLAGS="$LDFLAGS" \
+	 PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig" \
 	 ./configure ${=confflags} >> $LOGS
      return $?
 }
@@ -370,7 +371,7 @@ zinstall() {
 list_sources() {
 	touch /tmp/zshaolin.list
 	typeset -a modules
-	if [ "${#@}" = "0" ]; then modules=(`find ${ZHOME}/build -type f -name Sources`)
+	if [ "${#@}" = "1" ]; then modules=(`find ${ZHOME}/build -type f -name Sources`)
 	else
 	    shift
 	    for m in ${=@}; do
