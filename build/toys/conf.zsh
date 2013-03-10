@@ -26,3 +26,6 @@ notice "Building steam locomotive"
     cp sl/sl ${PREFIX}/bin
     notice "Steam Locomotive installed"
 }
+
+compile matanza default
+zinstall matanza
