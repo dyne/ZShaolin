@@ -5,54 +5,68 @@
 # just one module for now
 
 
-sync_module() {
-    notice "Syncing from system"
-    rm -rf system
-    mkdir -p system
+ver=`cat ${ZHOME}/VERSION`
 
-    rm -f all.tree && touch all.tree
-    rm -f all.aliases && touch all.aliases
-    for t in `find . -name '*.tree'`; do
+
+streamline_zshaolin() {
+    act "including core scripts in dojo"
+
+    # list of core configurations
+    rm -f zshaolin.etc
+    cat <<EOF > zshaolin.etc
+./var/pid
+./var/log
+./etc/grmlrc
+./etc/zlogin
+./etc/zinit
+./etc/init.d
+./etc/skel
+EOF
+    # do the copy
+    rsync -dar --files-from=zshaolin.etc $ZHOME/system floor/
+    # zcompile the big stuff
+    zcompile floor/etc/grmlrc
+
+    rm -f zshaolin.etc
+}
+
+
+
+streamline() {
+    module=$1
+    act "streamlining $module"
+
+    # reset from previous streamlining    
+    mkdir -p tmp && rm -rf tmp/* > /dev/null 2>/dev/null
+
+    # find file trees in the selected dojo
+    trees=(`find $module -name '*.tree'`)
+    for t in ${=trees}; do
 	# only first arg (2nd for rename, would break rsync)
-	cat $t | awk '{print $1}' | sort >> all.tree; done
-    for a in `find . -name '*.aliases'`; do
-	cat $a | sort >> all.aliases; done
-    
-    rsync -dar --files-from=all.tree $ZHOME/system/ system/
+	act "reading $t"
+	cat $t | awk '{print $1}' | sort >> tmp/all.tree; done
+
+    # find aliases to be set for the selected dojo	
+    shadows=(`find $module -name '*.aliases'`);
+    for a in ${=shadows}; do
+	act "reading $a"
+	cat $a | sort >> tmp/all.aliases; done
+
+    # do the actual copy into the new system
+    rsync -dar --files-from=tmp/all.tree $ZHOME/system/ floor/
 
     # rename those that need it (2nd arg in .tree)
-    for t in `find . -name '*.tree'`; do
-      for i in `cat ${t} | awk '{if($2) print $1 ";" $2}'`; do
+    for i in `cat tmp/all.tree | awk '{if($2) print $1 ";" $2}'`; do
 	src=${i[(ws:;:)1]}
 	dst=${i[(ws:;:)2]}
 	act "rename $src in $dst"
-	mv system/${src} system/${dst}
-      done
+	mv floor/${src} floor/${dst}
     done
 
-}
-
-strip_module() {
-    notice "Stripping binaries"
-    for i in `find system -type f`; do
-	file $i | grep -e 'ELF.*executable' > /dev/null
-	if [ $? = 0 ]; then
-	    act "strip executable $i"
-	    $TOOLCHAIN/bin/$TARGET-strip $i
-	fi
-    done
-}
-
-zcompile_module() {
-    notice "Zcompiling zsh scripts"
-    zcompile system/etc/grmlrc
-}
-
-alias_module() {
-    notice "Setting aliases"
-    if [ -r $ZHOME/pack/all.aliases ]; then
-	aa=`cat all.aliases`
-	pushd system
+    if [ -r tmp/all.aliases ]; then
+	act "placing aliases in $module"
+	aa=`cat tmp/all.aliases`
+	pushd floor
 	for a in ${(f)aa}; do
 	    dir=`dirname ${a}`
 	    { test -r $dir } || continue
@@ -63,38 +77,102 @@ alias_module() {
 	done
 	popd
     fi
+
 }
 
-pack_module() {
-    ver=${ver:-`cat ${ZHOME}/VERSION`}
-    notice "Packing system version: $ver"
-    tar cf system-${ver}.tar system
-    { test -r system-${ver}.tar.lzma } && { rm -f system-${ver}.tar.lzma }
-    lzma -z -7 system-${ver}.tar
-    act "ready to be included in assets:"
-    ls -lh system-${ver}.tar.lzma
+clean_floor() {
+    # deletes contents from last packaging, preparing for the new one
+    act "cleaning up the floor"
+    { test -r floor } && { rm -rf floor }
+    mkdir floor && cp $ZHOME/VERSION floor/
 }
 
-install_module() {
-    ver=${ver:-`cat ${ZHOME}/VERSION`}
-    cp $ZHOME/pack/system-$ver.tar.lzma $ZHOME/termapk/assets/system-$ver.tar.lzma.mp3
-    act "Including busybox binary:"
+strip_floor() {
+    notice "Stripping binaries on the floor"
+    for i in `find floor -type f`; do
+	file $i | grep -e 'ELF.*executable' > /dev/null
+	if [ $? = 0 ]; then
+	    act "strip executable $i"
+	    $TOOLCHAIN/bin/$TARGET-strip $i
+	fi
+    done
+}
+
+pack_dojo() {
+    notice "Compressing dojo..."
+    rm -rf system # clear old dojo
+    mv floor system # renames the floor to dojo
+    
+    tar cf system.tar system
+    { test -r system.tar.lzma } && { rm -f system.tar.lzma }
+    lzma -z -7 --verbose system.tar
+    
+    notice "Including dojo in assets"
+    ls -lh system.tar.lzma
+    cp -v system.tar.lzma $ZHOME/termapk/assets/system.tar.lzma.mp3
+
+    act "including busybox in assets"
     ls -l $ZHOME/build/busybox/busybox.bin && \
-    cp $ZHOME/build/busybox/busybox.bin \
+	cp -v $ZHOME/build/busybox/busybox.bin \
 	$ZHOME/termapk/assets/busybox.mp3 
+    
+}    
+
+pack_weapon() {
+    w=${1:-all}
+    notice "Packing weapon: $module"
+    rm -rf $w
+    mv floor $w
+    
+    tar cf $w.tar $w
+    { test -r $w.tar.lzma } && { rm -f $w.tar.lzma }
+    lzma -z -7 --verbose $w.tar
+    mv $w.tar.lzma weapons/
+    
 }
 
 
-ver=`cat ${ZHOME}/VERSION`
 
-notice "Packing system version $ver"
+# MAIN()
 
-sync_module
-strip_module
-zcompile_module
-alias_module
-pack_module
-install_module
+notice "Packaging ZShaolin version $ver"
+
+# module is set by zmake from commandline args, defaults to "list"
+typeset -U weap # remove duplicates from array    
+dojo=(); weap=();
+{ test "$module" = "list" } && {
+    for i in `ls dojos/`; do dojo+=($i); done
+    for w in `ls weapons/`; do weap+=(${w[(ws:.:)1]}); done
+    notice "Choose dojo: ${dojo}"
+    notice "Available weapons: ${weap}"
+    return 0
+}
+
+act "module: $module"
+
+{ test -r dojos/$module } && {
+    notice "Streamlining dojo: $module"
+    
+    clean_floor # clean first and every time a new pack is done
+    
+# create the dojo
+    streamline_zshaolin # scripts
+    streamline dojos/$module # binaries
+    strip_floor # strips all in floor
+    pack_dojo # pack and copy into assets
+    return 0
+}
+
+{ test -r weapons/$module } && {
+    notice "Packing weapon: $module"
+    clean_floor
+    streamline weapons/$module
+    strip_floor
+    pack_weapon $module
+    return 0
+}
+
+error "No pack action for module $module"
 
 # cd $ZHOME
 # VER=`cat VERSION`

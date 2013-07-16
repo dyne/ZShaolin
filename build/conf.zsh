@@ -10,9 +10,12 @@ pkgs=(
     sound
     lang
     toys
+
 #    daemons
 )
 
+{ test "$module" = "list" } && {
+  notice "Build modules: $pkgs"; return 0 }
 
 { test "$module" = "all" } || { pkgs=("$module") }
 

@@ -190,7 +190,7 @@ prepare_sources() {
 		    ;;
 
 		## IPK
-		.ipk)
+		*.ipk)
 		    mkdir -p extract
 		    pushd extract
 		    ln -sf ../${file} ${name}${ver}.tar.gz
@@ -206,8 +206,8 @@ prepare_sources() {
 		    ;;
 
 		## BARE SOURCE
-		.tar.gz)  tar xfz ${file}; mv ${name}${ver} ${name} ;;
-		.tar.bz2) tar xfj ${file}; mv ${name}${ver} ${name} ;;
+		*.tar.gz)  tar xfz ${file}; mv ${name}${ver} ${name} ;;
+		*.tar.bz2) tar xfj ${file}; mv ${name}${ver} ${name} ;;
 		*) error "compression not supported: $arch"
 	    esac
 	    
@@ -388,30 +388,43 @@ typeset -h operation
 typeset -h module
 
 
+
 case "$1" in
+
+# here module is set with the second argument, after the commands listed here:
     build)
 	operation=build
 	module=${2:-all}
 	enter build/ ${=@}
        	;;
+
+# same here. if no setting specified, it becomes "all".
+# internal conf.zsh supports also "list" to list options
     pack)
 	operation=pack
+	module=${2:-list}
 	enter pack/ ${=@}
 	;;
+
     clean)
 	operation=clean
 	module=${2:-all}
 	{ test $module = all } && { rm -rf $PREFIX }
 	enter build/ ${=@}
 	;;
+
+    # this can be called from commandline
     compile)
 	args=($@) && shift args
 	operation=compile
 	zconfigure ${args}
 	;;
+
+    # this initialized the current shell with the zshaolin setup
     test)
 	ZHOME=$ZHOME zsh system/etc/zlogin
 	;;
+
     source)
 	return ;;
     list)

@@ -1,0 +1,17 @@
+./share/ncat
+./share/git-core
+./bin/xxd
+./bin/ndiff
+./bin/scp ./bin/scp.bin
+./bin/scp.wrap ./bin/scp
+./bin/rsync
+./bin/opkg-key
+./bin/dropbearkey
+./bin/dbclient
+./bin/sqlite3
+./bin/dropbear
+./bin/dropbearconvert
+./bin/git
+./etc/service
+./libexec
+

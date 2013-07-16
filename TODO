@@ -1,2 +1,9 @@
 build using NDK and scripts in
 http://dan.drown.org/android/src/
+
+or in new NDKs:
+botbrew_toolchain() {
+        ${G_NDKPATH}/build/tools/make-standalone-toolchain.sh --arch=arm --platform=android-${G_NDKAPI} --install-dir=
+${G_ROOT}/${G_TOOLCHAIN}
+        touch ${G_ROOT}/${G_TOOLCHAIN}/.d
+}

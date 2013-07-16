@@ -5,6 +5,8 @@
 *.done
 *.log
 *.installed
+.#*
+*.lzma
 !conf.zsh
 bootstrap/crosstool-ng*
 bootstrap/build*
