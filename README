@@ -1,5 +1,12 @@
 
-Short build notes
+ZShaolin - Interactive and scriptable console terminal on Android 
+
+
+For more information see: http://www.dyne.org/software/zshaolin
+
+and https://play.google.com/store/apps/details?id=org.dyne.zshaolin
+
+* Short build notes
 
 You'll need a 64bit gnu/linux machine to do this
 plus a fair amount of common development tools
@@ -7,9 +14,9 @@ and of course some familiarity to build sources
 
 Let's get started:
 
-git clone git://code.dyne.org/zshaolin.git
+ git clone git://code.dyne.org/zshaolin.git
 
-cd zshaolin/toolchains/crosstool-ng
+ cd zshaolin/toolchains/crosstool-ng
 
 download the toolchain from files.dyne.org/zshaolin/toolchains
  (and please make a donation to dyne.org/donation at least for the bandwidth...)
@@ -21,6 +28,7 @@ possibly set it inside your ~/.profile or something like that
 so that it is initialized at every login
 
 then you are ready to run:
+
  ./zmake build
 
 and fingers crossed :^)
