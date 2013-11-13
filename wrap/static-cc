@@ -29,7 +29,7 @@ typeset -a cflags cppflags ldflags
 typeset -lA libraries # map (name, static|dynamic)
 typeset -h argc
 
-QUIET=1 source ${ZHOME}/zmake source
+# QUIET=1 source ${ZHOME}/zmake source
 
 case `basename $0`; in
 	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;

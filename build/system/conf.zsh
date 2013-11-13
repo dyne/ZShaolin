@@ -14,6 +14,7 @@ prepare_sources
 ###########################################
 ## COMPILE PACKAGES:
 
+
 ## zlib
 compile zlib "--prefix=$PREFIX --static"
 #zinstall zlib
@@ -26,21 +27,23 @@ touch zlib.installed
 }
 
 ## ncurses
-compile ncurses default \
-	"--enable-widec --enable-ext-colors --enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core"
+compile ncurses default "--enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core --enable-widec --enable-ext-colors"
 zinstall ncurses
+# create ncurses symlinks in PREFIX
 pushd $PREFIX/include
 ln -sf ncursesw/* .
 popd
 pushd $PREFIX/lib
 ln -sf libncursesw.a libncurses.a 
+ln -sf libncursesw.a libcurses.a 
 popd
+
 
 ## s-lang
 notice "Building S-Lang"
 { test -r slang.done } || {
     pushd slang
-    zconfigure default --disable-static
+    zconfigure default #  --disable-static
     { test $? = 0 } && { 
 	pushd src && make static >> $LOGS
 	{ test $? = 0 } && { touch ../../slang.done }
@@ -48,24 +51,26 @@ notice "Building S-Lang"
     popd }
 zinstall slang install-static
 
-## zsh
-compile zsh default
-zinstall zsh
-{test $? = 0 } && {
-    # zcompile the grmlrc script to gain loading speed
-    zcompile $PREFIX/etc/grmlrc }
-
-# awk
-compile gawk default
-zinstall gawk
 
 ## sed
 compile sed default
 zinstall sed
 
+# awk
+compile gawk default
+zinstall gawk
+
 ## grep
 compile grep default
 zinstall grep
+
+## file
+compile file default
+zinstall file
+
+# less pager
+compile less default
+zinstall less
 
 ## diff
 compile diffutils default
@@ -103,15 +108,6 @@ compile	wipe default
   touch wipe.installed
   act "Wipe installed."
 }
-
-## file
-compile file default
-zinstall file
-
-# less pager
-compile less default
-zinstall less
-
 
 ## libevent
 #compile libevent default
