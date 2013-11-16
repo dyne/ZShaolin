@@ -32,9 +32,9 @@ typeset -h argc
 # QUIET=1 source ${ZHOME}/zmake source
 
 case `basename $0`; in
-	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${TARGET}-gcc ;;
-	static-c++|c++|g++) cc=${TOOLCHAIN}/bin/${TARGET}-g++ ;;
-	static-ld|ld) cc=${TOOLCHAIN}/bin/${TARGET}-ld ;;
+	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${ZTARGET}-gcc ;;
+	static-c++|c++|g++) cc=${TOOLCHAIN}/bin/${ZTARGET}-g++ ;;
+	static-ld|ld) cc=${TOOLCHAIN}/bin/${ZTARGET}-ld ;;
 	*)
 	echo "Error: unknown command to static wrapper: $0"
 	exit 1
