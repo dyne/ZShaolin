@@ -1,21 +1,15 @@
 #!env sh
 # ZShaolin initialization
 
-# detect if we are running in a debugging mode from zmake
-# if yes, set to use system-wide zsh binary on dev machine
-if ! [ -z $ZHOME ]; then
-  export HOME=$ZHOME/sysroot
-else
-  export HOME=/data/data/org.dyne.zshaolin/files
-  export SYS=$HOME/system
-  export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:/system/xbin:$PATH
-  export SHELL="$SYS/bin/zsh"
-fi
-
+export HOME=/data/data/org.dyne.zshaolin/files
+export SYS=$HOME/system
+export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:/system/xbin:$PATH
+export SHELL="$SYS/bin/zsh"
+export TMPDIR=$ZHOME/tmp
 export MANPATH=$SYS/share/man
 export MANPAGER=most
 export TERMINFO=$SYS/share/terminfo
-export TERM=xterm
+export TERM=linux
 
 cd $HOME
 echo "Welcome to ZShaolin"
