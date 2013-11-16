@@ -8,7 +8,7 @@
   return 1 }
 
 
-typeset TARGET TOOLCHAIN PREFIX
+typeset ZTARGET TOOLCHAIN PREFIX
 typeset CC CXX LD AR RANLIB OBJCOPY STRIP
 
 
@@ -18,7 +18,7 @@ init-toolchain-crosstool() {
 notice "Initializing Crosstool-NG toolchain"
 
 # configure the target
-export TARGET=arm-dyne-linux-gnueabi
+export ZTARGET=arm-dyne-linux-gnueabi
 
 # toolchain full path
 export TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
@@ -30,20 +30,20 @@ export PREFIX=$ZHOME/system
 export CC=${ZHOME}/wrap/static-cc
 export CXX=${ZHOME}/wrap/static-c++
 export LD=${ZHOME}/wrap/static-ld
-export AR=${TOOLCHAIN}/bin/${TARGET}-ar
-export RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
-export OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
-export STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
+export AR=${TOOLCHAIN}/bin/${ZTARGET}-ar
+export RANLIB=${TOOLCHAIN}/bin/${ZTARGET}-ranlib
+export OBJCOPY=${TOOLCHAIN}/bin/${ZTARGET}-objcopy
+export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 
 
 # configure the compile flags
 OPTIMIZATIONS="-Os -O2"
-CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include)
-#CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
-CPPFLAGS=(-I$PREFIX/include)
+CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ARCH)
+#CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
+CPPFLAGS=(-I$PREFIX/include -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
 CXXFLAGS=$CFLAGS
-LDFLAGS=(-static -static-libgcc -L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
-# LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
+LDFLAGS=(-static -static-libgcc -L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
+# LDFLAGS="-L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 # LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
 # PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
 PATH=$TOOLCHAIN/bin:$ZHOME/wrap:/bin:/usr/bin
@@ -61,7 +61,7 @@ init-toolchain-android() {
 notice "Initializing Android-NDK toolchain"
 
 # configure the target
-export TARGET=arm-linux-androideabi
+export ZTARGET=arm-linux-androideabi
 
 # toolchain full path
 export TOOLCHAIN=$ZHOME/toolchains/arm-linux-androideabi-4.6
@@ -79,28 +79,26 @@ export PREFIX=$ZHOME/system
 export CC=${ZHOME}/wrap/static-cc
 export CXX=${ZHOME}/wrap/static-c++
 export LD=${ZHOME}/wrap/static-ld
-#CC=${TOOLCHAIN}/bin/${TARGET}-gcc
-#CXX=${TOOLCHAIN}/bin/${TARGET}-g++
-#LD=${TOOLCHAIN}/bin/${TARGET}-ld
+#CC=${TOOLCHAIN}/bin/${ZTARGET}-gcc
+#CXX=${TOOLCHAIN}/bin/${ZTARGET}-g++
+#LD=${TOOLCHAIN}/bin/${ZTARGET}-ld
 
-export AR=${TOOLCHAIN}/bin/${TARGET}-ar
-export RANLIB=${TOOLCHAIN}/bin/${TARGET}-ranlib
-export OBJCOPY=${TOOLCHAIN}/bin/${TARGET}-objcopy
-export STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
+export AR=${TOOLCHAIN}/bin/${ZTARGET}-ar
+export RANLIB=${TOOLCHAIN}/bin/${ZTARGET}-ranlib
+export OBJCOPY=${TOOLCHAIN}/bin/${ZTARGET}-objcopy
+export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 
 # configure the compile flags
-CFLAGS=(-I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include)
-CFLAGS+=(--sysroot=$SYSROOT)
+CFLAGS=(--sysroot=$SYSROOT)
 CFLAGS+=(-march=armv7-a -mfloat-abi=softfp) # -mfpu=neon) # architecture
 CFLAGS+=(-Os -O2) # optimization
-
+CPPFLAGS=(-I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
 # some notes
 #ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-enums -fgcse-after-reload -frename-registers"
 #ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
 
 
-CPPFLAGS=(-I$PREFIX/include)
-CPPFLAGS+=(--sysroot=$SYSROOT)
+# CPPFLAGS+=(--sysroot=$SYSROOT)
 
 CXXFLAGS=$CFLAGS
 LDFLAGS=(-L$SYSROOT/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
@@ -108,7 +106,7 @@ LDFLAGS+=($ZHOME/wrap/libzshaolin.a)
 #LDFLAGS+=(-ldl -lm -lc -lgcc)
 LDFLAGS+=(--sysroot=$SYSROOT)
 LDFLAGS+=(-Wl,--fix-cortex-a8)
-# LDFLAGS="-L$TOOLCHAIN/$TARGET/sysroot/lib -L$TOOLCHAIN/$TARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
+# LDFLAGS="-L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 # LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
 # PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
 PATH=$TOOLCHAIN/bin:$ZHOME/wrap:/bin:/usr/bin
@@ -116,8 +114,8 @@ PATH=$TOOLCHAIN/bin:$ZHOME/wrap:/bin:/usr/bin
 # make sure we have the wrapper library for ndk crap
 #{ test -r $ZHOME/wrap/libzshaolin.a } || {
 	pushd $ZHOME/wrap
-	$TOOLCHAIN/bin/${TARGET}-gcc -c zshaolin.c -o zshaolin.o
-	$TOOLCHAIN/bin/${TARGET}-ar rcs libzshaolin.a zshaolin.o
+	$TOOLCHAIN/bin/${ZTARGET}-gcc -c zshaolin.c -o zshaolin.o
+	$TOOLCHAIN/bin/${ZTARGET}-ar rcs libzshaolin.a zshaolin.o
 	popd
 #}
 
@@ -139,14 +137,14 @@ case "$1" in
 	*) error "Unknown toolchain: $1"; return 1 ;;
 esac
 # make sure the toolchain exists in /usr
-if ! [ -r $TOOLCHAIN/bin/${TARGET}-gcc ]; then
-    error "error: toolchain not found: $TOOLCHAIN/bin/$TARGET-gcc"
+if ! [ -r $TOOLCHAIN/bin/${ZTARGET}-gcc ]; then
+    error "error: toolchain not found: $TOOLCHAIN/bin/$ZTARGET-gcc"
     error "first you need to bootstrap."
 #    return 1
 fi
 
 notice "ZShaolin build system"
-act "Target:    $TARGET"
+act "Target:    $ZTARGET"
 act "Toolchain: $TOOLCHAIN"
 act "Install:   $PREFIX"
 func "CFLAGS:    $CFLAGS"
@@ -222,6 +220,8 @@ prepare_sources() {
 		## BARE SOURCE
 		*.tar.gz)  tar xfz ${file}; mv ${name}${ver} ${name} ;;
 		*.tar.bz2) tar xfj ${file}; mv ${name}${ver} ${name} ;;
+		*.tar.xz) tar xfJ ${file}; mv ${name}${ver} ${name} ;;
+
 		*) error "compression not supported: $arch"
 	    esac
 	    
@@ -241,7 +241,7 @@ zconfigure() {
     args=(${=@})
 
     # configure the compile flags defaults
-#    CFLAGS=${CFLAGS:-"-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$TARGET/sysroot/usr/include -I$PREFIX/include"}
+#    CFLAGS=${CFLAGS:-"-static -static-libgcc $OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include"}
 #    CXXFLAGS=${CXXFLAGS:-$CFLAGS}
 
     { test -r configure } || {
@@ -266,9 +266,12 @@ zconfigure() {
 	 CPPFLAGS="$CPPFLAGS" \
 	 CXXFLAGS="$CXXFLAGS" \
 	 LDFLAGS="$LDFLAGS" \
+	 CONFIG_SITE="$ZHOME/build/config.site" \
 	 PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig" \
-	 ./configure ${=confflags} | tee -a $LOGS
-     return $?
+	 ./configure ${=confflags}
+     { test $? = 0 } || { error "error: configure returns error value"; return 1 }
+     act "configure was succesful"
+     return 0
 }
 
 zmake() {
@@ -278,7 +281,7 @@ zmake() {
     if [ -r $LOGS ]; then
 	PATH=${PATH} \
 	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
-	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
+	    AR="${ZTARGET}-ar" RANLIB="${ZTARGET}-ranlib" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
@@ -287,7 +290,7 @@ zmake() {
     else
 	PATH=${PATH} \
 	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
-	    AR="${TARGET}-ar" RANLIB="${TARGET}-ranlib" \
+	    AR="${ZTARGET}-ar" RANLIB="${ZTARGET}-ranlib" \
 	    CFLAGS="$CFLAGS $extracflags" \
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
@@ -330,7 +333,7 @@ compile() {
 
     { test -r configure } && {
 	func "launching configure ${compile_args}"
-	zconfigure ${compile_args} | tee ${LOGS}
+	zconfigure ${compile_args}
 
 	{ test $? = 0 } || {
 	    error "error: $1 cannot configure, build left incomplete"
