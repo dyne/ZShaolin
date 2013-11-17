@@ -1,7 +1,14 @@
 # ZShaoling packages file
 
-openssl-static	-0.9.9	.tar.gz
-android-openssh	-6.1	.tar.gz
-rsync	-3.1.0	.tar.gz	http://rsync.samba.org
-git	-1.8.4.3	.tar.gz	http://git-scm.com
+openssl-static	-0.9.9		.tar.gz
+android-openssh	-6.1		.tar.gz
+rsync		-3.1.0		.tar.gz	http://rsync.samba.org
+git		-1.8.4.3	.tar.gz	http://git-scm.com
 
+#glib	-2.39.1	.tar.xz
+
+#irssi	-0.8.16-rc1	.tar.bz2	http://www.irssi.org
+
+
+# aria2 from android binary build direct
+# aria2	-1.18.1	.tar.bz2	http://aria2.sourceforge.net

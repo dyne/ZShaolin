@@ -1,0 +1,19 @@
+ac_cv_file__dev_ptmx=no
+ac_cv_file__dev_ptc=no
+ac_cv_c_bigendian=no
+ac_cv_func_gethostbyname=yes
+ac_cv_func_writev=yes
+
+# openssh
+ac_cv_search_getrrsetbyname=no
+ac_cv_header_sys_un_h=yes
+
+
+# vim
+vim_cv_toupper_broken=no
+vim_cv_terminfo=yes
+vim_cv_tty_group=world
+vim_cv_getcwd_broken=no
+vim_cv_stat_ignores_slash=yes
+vim_cv_memmove_handles_overlap=yes
+ac_cv_sizeof_int=4

@@ -17,6 +17,7 @@ vim_cv_getcwd_broken=no \
 vim_cv_stat_ignores_slash=yes \
 vim_cv_memmove_handles_overlap=yes \
 ac_cv_sizeof_int=4 \
+ac_cv_c_uint32_t=yes \
 compile vim default "--with-features=huge --without-x --without-gnome --with-tlib=ncurses --disable-xsmp --disable-sysmouse --disable-gpm --disable-acl --disable-xim --disable-gui"
 zinstall vim
 

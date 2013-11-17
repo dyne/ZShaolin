@@ -13,13 +13,13 @@ prepare_sources
 
 ## lua
 { test ! -r lua.done } && {
-    act "compiling lua" | tee -a $LOGS
+    act "compiling lua"
     pushd lua/src
     for s in `find . -name '*.c'`; do
         { test -r ${s%.*}.o } || {
-	${TARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
+	${ZTARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
     luas=`find . -name '*.o' | grep -v luac.o`
-    ${TARGET}-gcc -o lua ${=CFLAGS} ${=luas} ${=LDFLAGS} -lncursesw -lm
+    ${ZTARGET}-gcc -o lua ${=CFLAGS} ${=luas} ${=LDFLAGS} -lncursesw -lm
     { test $? = 0 } && { 
 	touch ../../lua.done
 	notice "lua compiled"
@@ -27,7 +27,7 @@ prepare_sources
     popd
 }
 { test -f lua.done } && {
-    act "installing lua" | tee -a ../$LOGS
+    act "installing lua"
     cp lua/src/lua $PREFIX/bin/
     cp lua/doc/lua.1 $PREFIX/share/man/man1
     notice "lua installed"

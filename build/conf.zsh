@@ -8,10 +8,11 @@
   return 1 }
 
 
-typeset ZTARGET TOOLCHAIN PREFIX
+typeset ZTARGET TOOLCHAIN PREFIX ZARCH
 typeset CC CXX LD AR RANLIB OBJCOPY STRIP
 
 
+ZARCH=(-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8) # -mfpu=neon) # architecture
 
 init-toolchain-crosstool() {
 
@@ -38,7 +39,7 @@ export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 
 # configure the compile flags
 OPTIMIZATIONS="-Os -O2"
-CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ARCH)
+CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ZARCH)
 #CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
 CPPFLAGS=(-I$PREFIX/include -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
 CXXFLAGS=$CFLAGS
@@ -89,9 +90,8 @@ export OBJCOPY=${TOOLCHAIN}/bin/${ZTARGET}-objcopy
 export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 
 # configure the compile flags
-CFLAGS=(--sysroot=$SYSROOT)
-CFLAGS+=(-march=armv7-a -mfloat-abi=softfp) # -mfpu=neon) # architecture
-CFLAGS+=(-Os -O2) # optimization
+OPTIMIZATIONS="-O3" # optimization
+CFLAGS=(--sysroot=$SYSROOT $OPTIMIZATIONS $ZARCH)
 CPPFLAGS=(-I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
 # some notes
 #ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-enums -fgcse-after-reload -frename-registers"
@@ -105,7 +105,6 @@ LDFLAGS=(-L$SYSROOT/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
 LDFLAGS+=($ZHOME/wrap/libzshaolin.a)
 #LDFLAGS+=(-ldl -lm -lc -lgcc)
 LDFLAGS+=(--sysroot=$SYSROOT)
-LDFLAGS+=(-Wl,--fix-cortex-a8)
 # LDFLAGS="-L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 # LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
 # PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"

@@ -31,12 +31,20 @@ typeset -h argc
 
 # QUIET=1 source ${ZHOME}/zmake source
 
+# save compile settings dir by dir so that we
+# can go there and run make by hand
+if [ "$TOOLCHAIN" = "" ]; then source .zbuild
+else rm -f .zbuild; touch .zbuild
+	print TOOLCHAIN=$TOOLCHAIN >> .zbuild
+	print ZTARGET=$ZTARGET >> .zbuild
+fi
+
 case `basename $0`; in
 	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${ZTARGET}-gcc ;;
 	static-c++|c++|g++) cc=${TOOLCHAIN}/bin/${ZTARGET}-g++ ;;
 	static-ld|ld) cc=${TOOLCHAIN}/bin/${ZTARGET}-ld ;;
 	*)
-	echo "Error: unknown command to static wrapper: $0"
+	print "Error: unknown command to static wrapper: $0"
 	exit 1
 esac
 
@@ -119,9 +127,11 @@ linkdep() {
 }
 
 # check if we are linking
+action=compile # or link
+
 echo $arguments | grep -i ' -l' > /dev/null
 { test $? = 0 } && {
-
+    action=link
     argc=0
     for i in ${=arguments}; do
 	argc=$(( $argc + 1 ))
@@ -155,16 +165,19 @@ echo $arguments | grep -i ' -l' > /dev/null
     done
 
     # check if full static
-    { test -z $isshared } && { cflags+=(-static -static-libgcc) }
-    cflags=(${=cflags} ${=ldflags})
+    { test -z $isshared } && { ldflags+=(-static -static-libgcc) }
 }
 
 # remove duplicate arguments
 typeset -U arguments
 
 # execute
-print "$cc ${=cflags} ${=arguments}"
-$cc ${=cflags} ${=arguments}
+case $action in
+	compile) print "$cc ${=cflags} ${=arguments}"
+		$cc ${=cflags} ${=arguments} ;;
+	link) print "$cc ${=ldflags} ${=arguments}"
+		$cc ${=ldflags} ${=arguments} ;;
+esac
 return $?
 
 

@@ -11,6 +11,8 @@ export MANPAGER=most
 export TERMINFO=$SYS/share/terminfo
 export TERM=linux
 
+alias mc='mc -aX' # correct midnight rendering
+
 cd $HOME
 echo "Welcome to ZShaolin"
 zsh

@@ -29,3 +29,16 @@ notice "Building steam locomotive"
 
 compile matanza default
 zinstall matanza
+
+compile curseofwar default
+zinstall curseofwar
+
+compile ctris default
+{ test $? = 0 } && { pushd ctris
+cp ctris $PREFIX/bin
+mkdir -p $PREFIX/share/man/man6/
+gunzip -d -c ctris.6.gz > $PREFIX/share/man/man6/ctris.6
+popd }
+
+compile cryptoslam default
+{ test $? = 0 } && { cp cryptoslam/cryptoslam $PREFIX/bin }

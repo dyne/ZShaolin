@@ -1,3 +1,6 @@
 libcaca		-0.99.beta18	.tar.gz
 sl		-3.03		.tar.gz
 matanza		-0.13		.tar.gz
+curseofwar	-1.2		.tar.gz		https://github.com/a-nikolaev/curseofwar
+ctris		-0.42		.tar.bz2	http://hackl.dhs.org/ctris
+cryptoslam	-1.2		.tar.gz		http://sf.net/projects/cryptoslam
