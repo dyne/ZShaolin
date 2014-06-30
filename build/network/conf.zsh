@@ -40,20 +40,20 @@ compile rsync default
 zinstall rsync
 
 # make git
-{ test -r git.done } || {
 notice "Building git"
 GIT_FLAGS=(prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1 NO_NSEC=1 NO_ICONV=1)
 GIT_FLAGS+=(NO_PERL=1 NO_PYTHON=1)
+{ test -r git.done } || {
 pushd git
 autoconf
-zconfigure default "--without-iconv"
+zconfigure default "--without-iconv --with-openssl"
 { test $? = 0 } && {
     make git ${GIT_FLAGS}
+    pushd templates
+    make install ${GIT_FLAGS}
+    popd
 #    make man prefix=${APKPATH}/files/system
-    { test $? = 0 } && {
-	touch ../git.done
-	rm -f ../git.installed
-    }
+    touch ../git.done
 }
 popd
 }
@@ -67,7 +67,7 @@ make install ${GIT_FLAGS}
 # now fix all shellbangs in git's scripts. can't do that from config
 # flags because of config checks conflicting with cross-compilation.
 notice "Fixing shell bangs in git scripts"
-gitshellscripts=`find $PREFIX/libexec/git-core -type f`
+gitshellscripts=`find $APKPATH/files/system/libexec/git-core -type f`
 for i in ${(f)gitshellscripts}; do
     func "git: fixing shellbang for $i"
     file $i | grep -i 'posix shell script' > /dev/null
