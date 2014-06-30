@@ -42,7 +42,7 @@ LOGS=build.log
 #ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 # very old devices: ARCH="-march=armv5 -mfloat-abi=softfp"
 
-REPO="http://files.dyne.org/zshaolin/sources"
+REPO="http://releases.dyne.org/zshaolin/sources"
 
 
 autoload colors; colors
