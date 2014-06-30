@@ -30,8 +30,8 @@ import org.dyne.zshaolin.startup.setup.filemanager;
 public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
-    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 10;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.8";
+    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 12;
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.9";
     public static String   CURRENT_INSTALL_ASSETFILE   = "system.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
@@ -203,22 +203,24 @@ public class installer extends Activity implements OnClickListener{
                         // zshrc
                         File zshrc   = new File(skel,"zshrc");
                         File zshrcu  = new File(home,".zshrc");
-                        if(!zshrcu.exists()  || mOverwriteAll){
+			// force overwrite of zshrc because is our zsh init file
+                        // if(!zshrcu.exists()  || mOverwriteAll){
                             pp = Runtime.getRuntime().exec
 				(busytar.getPath()+
 				 " cp -f "+zshrc.getPath()+" "+zshrcu.getPath(),env,home);
                             pp.waitFor();
-                        }
+                        // force }
 
                         // grml.conf
                         File grml   = new File(skel,"grml.conf");
                         File grmlu  = new File(home,".grml.conf");
-                        if(!grmlu.exists()  || mOverwriteAll){
+			// force overwrite of grml.conf as we update it
+                        // if(!grmlu.exists()  || mOverwriteAll){
                             pp = Runtime.getRuntime().exec
 				(busytar.getPath()+
 				 " cp -f "+grml.getPath()+" "+grmlu.getPath(),env,home);
                             pp.waitFor();
-                        }
+                        // }
 
                         // vimrc
                         File vimrc   = new File(skel,"vimrc");
@@ -230,7 +232,15 @@ public class installer extends Activity implements OnClickListener{
                             pp.waitFor();
                         }
 
-
+                        // xdg config
+                        File xdg   = new File(skel,"xdg");
+                        File xdgu  = new File(home,".config");
+                        if(!xdgu.exists()  || mOverwriteAll){
+                            pp = Runtime.getRuntime().exec
+				(busytar.getPath()+
+				 " cp -rf "+xdg.getPath()+" "+xdgu.getPath(),env,home);
+                            pp.waitFor();
+                        }
 
                         //Create a link to the sdcard
                         File sdcard  = Environment.getExternalStorageDirectory();

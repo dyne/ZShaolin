@@ -44,7 +44,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.CompletionInfo;
-//import android.view.inputmethod.CorrectionInfo;
+import android.view.inputmethod.CorrectionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
@@ -462,12 +462,12 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
                 return true;
             }
 
-            /*public boolean commitCorrection (CorrectionInfo correctionInfo) {
+            public boolean commitCorrection (CorrectionInfo correctionInfo) {
                 if (TermDebug.LOG_IME) {
                     Log.w(TAG, "commitCorrection");
                 }
                 return true;
-            }*/
+            }
 
             public boolean commitText(CharSequence text, int newCursorPosition) {
                 if (TermDebug.LOG_IME) {
