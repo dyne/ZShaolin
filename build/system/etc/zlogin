@@ -1,18 +1,38 @@
 #!env sh
 # ZShaolin initialization
-
+#
+# To include permanent changes, use .profile in your HOME directory
+# which is:
 export HOME=/data/data/org.dyne.zshaolin/files
+# and can be abbreviated in ~/.profile
+# included from our ~/.zshrc (which also gets rewritten here)
+
 export SYS=$HOME/system
 export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:/system/xbin:$PATH
 export SHELL="$SYS/bin/zsh"
-export TMPDIR=$ZHOME/tmp
+export TMPDIR=$HOME/tmp
 export MANPATH=$SYS/share/man
 export MANPAGER=most
 export TERMINFO=$SYS/share/terminfo
 export TERM=linux
 
-alias mc='mc -aX' # correct midnight rendering
+# restores home configurations if absent or empty
+function restore_rc() {
+	rc="$1"
+	res=0
+	if ! [ -r "$HOME/.$rc" ]; then
+	  cp -f "$SYS/etc/skel/$rc" "$HOME/.$rc"; res=1
+	else
+ 	  file $HOME/.$rc | grep empty > /dev/null
+          if [ $? = 0 ]; then cp -f "$SYS/etc/skel/$rc" "$HOME/.$rc"; res=1; fi
+	fi
+	if [ "$res" = "1" ]; then echo " . restored: ~/.$rc"; fi
+}
 
 cd $HOME
 echo "Welcome to ZShaolin"
+restore_rc zshrc
+restore_rc profile
+restore_rc vimrc
+restore_rc grml.conf 
 zsh

@@ -2,10 +2,6 @@
 # (C) 2012 Denis Roio - GNU GPL v3
 # refer to zmake for license details
 
-# configure the logfile
-LOGS=build.log
-rm -f $LOGS; touch $LOGS
-
 
 # download and decompress all sources
 prepare_sources
@@ -38,6 +34,8 @@ ln -sf libncursesw.a libncurses.a
 ln -sf libncursesw.a libcurses.a 
 popd
 
+compile zsh default
+zinstall zsh
 
 ## s-lang
 notice "Building S-Lang"
@@ -45,7 +43,7 @@ notice "Building S-Lang"
     pushd slang
     zconfigure default #  --disable-static
     { test $? = 0 } && { 
-	pushd src && make static >> $LOGS
+	pushd src && make static
 	{ test $? = 0 } && { touch ../../slang.done }
 	popd }
     popd }
@@ -111,12 +109,14 @@ compile	wipe default
 
 
 ## libevent
-#compile libevent default
-#zinstall libevent
+compile libevent default
+zinstall libevent
 
 ## tmux
 #compile tmux default "--enable-static"
-#zinstall tmux
+pushd tmux
+zmake
+zinstall tmux
 
 ## Opkg
 # compile opkg default "--disable-curl --disable-gpg --disable-shave"

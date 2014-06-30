@@ -5,7 +5,7 @@
 
 # setup zsh modules path
 fpath=(
-    $SYS/share/zsh/4.3.15/functions
+    $SYS/share/zsh/5.0.2/functions
     $SYS/share/zsh/site-functions
 )
 
@@ -15,6 +15,12 @@ source $SYS/etc/grmlrc
 
 # Vim configuration
 export VIMRUNTIME=${SYS}/share/vim/vim73
+
+# Midnight commander
+alias mc='mc -aX' # correct rendering
+
+# Lynx web browser
+alias lynx="lynx -cfg ${SYS}/etc/lynx.cfg -lss ${SYS}/etc/lynx.lss"
 
 # Custom user configuration
 { test -r ~/.profile } && { source ~/.profile }
