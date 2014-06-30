@@ -7,6 +7,11 @@
 
 ver=`cat ${ZHOME}/VERSION`
 
+# android toolchain strip
+export TOOLCHAIN=$ZHOME/toolchains/arm-linux-androideabi-4.6
+export TARGET=arm-linux-androideabi
+export STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
+
 
 streamline_zshaolin() {
     act "including core scripts in dojo"
@@ -18,8 +23,6 @@ streamline_zshaolin() {
 ./var/log
 ./etc/grmlrc
 ./etc/zlogin
-./etc/zinit
-./etc/init.d
 ./etc/skel
 EOF
     # do the copy
@@ -93,7 +96,7 @@ strip_floor() {
 	file $i | grep -e 'ELF.*executable' > /dev/null
 	if [ $? = 0 ]; then
 	    act "strip executable $i"
-	    $TOOLCHAIN/bin/$TARGET-strip $i
+	    ${STRIP} $i
 	fi
     done
 }

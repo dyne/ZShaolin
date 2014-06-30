@@ -1,9 +1,5 @@
-sbin/dropbear sshd
-bin/dbclient ssh
-bin/dropbearkey ssh-keygen
 bin/htop top
 bin/zsh sh
 bin/zsh ash
 bin/zsh bash
 bin/gawk awk
-

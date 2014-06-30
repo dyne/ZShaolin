@@ -18,6 +18,7 @@
 ./bin/grep
 ./bin/mandoc
 ./bin/demandoc
+./bin/file
 ./libexec
 ./libexec/awk
 ./libexec/awk/grcat
