@@ -17,6 +17,7 @@ rsync -r openssl-static/include/openssl $PREFIX/include
 { test -r android-openssh.done } || {
     cp openssh-config.h android-openssh/jni/config.h
     cp openssh-pathnames.h android-openssh/jni/pathnames.h
+    cp openssh-session.c android-openssh/jni/session.c
     zndk-build android-openssh
     { test $? = 0 } && { 
 	touch android-openssh.done
@@ -30,7 +31,7 @@ rsync -r openssl-static/include/openssl $PREFIX/include
     rsync android-openssh/jni/*.8 $PREFIX/share/man/man8/
     mv $PREFIX/bin/client-ssh $PREFIX/bin/ssh
     mkdir -p $PREFIX/etc/ssh
-    rsync android-openssh/jni/*-config $PREFIX/etc/ssh/
+    rsync android-openssh/jni/*_config $PREFIX/etc/ssh/
     touch android-openssh.installed
 }
 
@@ -74,4 +75,57 @@ for i in ${(f)gitshellscripts}; do
 done
 popd
 }
+
+CFLAGS+=" -DOPENSSL_NO_ECDH " \
+compile lighttpd default "--enable-static --disable-shared --without-bzip2 --without-pcre --with-openssl"
+zinstall lighttpd
+
+
+compile ncurses default "--enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core --enable-widec --enable-ext-colors"
+pushd ncurses
+make -k
+popd
+zinstall ncurses
+# create ncurses symlinks in PREFIX
+pushd $PREFIX/include
+ln -sf ncursesw/* .
+popd
+pushd $PREFIX/lib
+ln -sf libncursesw.a libncurses.a
+ln -sf libncursesw.a libcurses.a
+popd
+compile lynx default # "--with-screen=slang"
+zinstall lynx
+
+# file occupation visualizator
+compile ncdu default
+zinstall ncdu
+
+
+#############################
+# copy all binaries in system
+rsync -r $PREFIX/bin $ZHOME/system/
+rsync -r $PREFIX/etc $ZHOME/system/
+rsync -r $PREFIX/sbin $ZHOME/system/
+rsync -r $PREFIX/share/man/* $ZHOME/system/share/man/
+
+
+######
+# experimental zone
+return
+
+
+## s-lang
+notice "Building S-Lang"
+{ test -r slang.done } || {
+    pushd slang
+    zconfigure "--host=arm-linux-gnueabi --prefix=$SYSROOT/usr" 
+    { test $? = 0 } && {
+        pushd src && make static
+        { test $? = 0 } && { touch ../../slang.done }
+        popd }
+    popd }
+zinstall slang install-static
+
+
 
