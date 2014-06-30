@@ -19,7 +19,7 @@ zinstall libcaca
 notice "Building steam locomotive"
 { test -r sl.done } || {	
     pushd sl  
-    ${TARGET}-gcc ${=CFLAGS} -o sl sl.c ${=LDFLAGS} -lncursesw
+    ${ZTARGET}-gcc ${=CFLAGS} -o sl sl.c ${=LDFLAGS} -I$PREFIX/include -lncursesw
     { test $? = 0 } && { touch ../sl.done }
     popd }
 { test -r sl.installed } || {

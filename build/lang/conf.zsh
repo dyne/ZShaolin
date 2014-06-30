@@ -2,10 +2,6 @@
 # (C) 2012 Denis Roio - GNU GPL v3
 # refer to zmake for license details
 
-# configure the logfile
-LOGS=build.log
-rm -f $LOGS; touch $LOGS
-
 ###########################################
 ## COMPILE PACKAGES:
 
@@ -17,9 +13,11 @@ prepare_sources
     pushd lua/src
     for s in `find . -name '*.c'`; do
         { test -r ${s%.*}.o } || {
+	print "[CC] ${ZTARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s}"
 	${ZTARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
     luas=`find . -name '*.o' | grep -v luac.o`
-    ${ZTARGET}-gcc -o lua ${=CFLAGS} ${=luas} ${=LDFLAGS} -lncursesw -lm
+    print "[LD] ${ZTARGET}-ld -o lua ${=luas} ${=LDFLAGS} -lncursesw -lm"
+    ${ZTARGET}-ld -o lua ${=luas} ${=LDFLAGS} -lm -lc -lstdc++ -ldl
     { test $? = 0 } && { 
 	touch ../../lua.done
 	notice "lua compiled"

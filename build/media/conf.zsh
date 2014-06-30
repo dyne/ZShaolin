@@ -3,8 +3,8 @@
 # refer to zmake for license details
 
 # configure the compile flags
-OPTIMIZATIONS="-O3"
-ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
+#OPTIMIZATIONS="-O3"
+#ARCH="-mfloat-abi=softfp -march=armv7-a -mtune=cortex-a8"
 
 ###########################################
 ## COMPILE PACKAGES:
@@ -99,7 +99,7 @@ zinstall sox
 notice "Building xvidcore"
 { test -r xvidcore.done } || {
 	pushd xvidcore/build/generic
-	zconfigure default
+	zconfigure default "--disable-shared --enable-static"
 	zmake
 	{ test $? = 0 } && { touch ../../../xvidcore.done }
 	popd
@@ -112,10 +112,10 @@ notice "Building xvidcore"
 }
 act "done."
 
-compile x264 default "--enable-static --cross-prefix=${TARGET}-"
+compile x264 default "--disable-shared --enable-static --cross-prefix=${ZTARGET}-"
 zinstall x264
 
-compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${TARGET}- --target-os=linux --cc=$TARGET-gcc --host-cc=$TARGET-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
+compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${ZTARGET}- --target-os=linux --cc=${ZTARGET}-gcc --host-cc=${ZTARGET}-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
 pushd ffmpeg
 make doc/ffmpeg.1
 make doc/ffprobe.1
@@ -123,10 +123,11 @@ popd
 zinstall ffmpeg
 
 
+
 # TODO: theora broken
 
 # if ! [ -r $pkg[theora].done ]; then
-#     cd $pkg[theora]; CFLAGS=$CFLAGS ./configure --host=$TARGET --prefix=$PREFIX \
+#     cd $pkg[theora]; CFLAGS=$CFLAGS ./configure --host=${ZTARGET} --prefix=$PREFIX \
 # 	--disable-shared --enable-static --with-pic=no \
 # 	--disable-spec --disable-examples --disable-sdltest
 #     make
