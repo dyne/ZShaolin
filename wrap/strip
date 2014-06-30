@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 QUIET=1 source $ZHOME/zmake source
-$TOOLCHAIN/bin/${TARGET}-strip ${=@}
+$TOOLCHAIN/bin/${ZTARGET}-strip ${=@}
 { test "$?" = "0" } || { error "Strip error on: ${@}"; return 1 }
 return 0
 

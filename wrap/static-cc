@@ -2,7 +2,7 @@
 
 # Static build wrapper
 #
-# Copyleft (C) 2012 Denis Roio <jaromil@dyne.org>
+# Copyleft (C) 2012-2013 Denis Roio <jaromil@dyne.org>
 #
 # This source code is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Public License as published by
@@ -42,20 +42,21 @@ fi
 case `basename $0`; in
 	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${ZTARGET}-gcc ;;
 	static-c++|c++|g++) cc=${TOOLCHAIN}/bin/${ZTARGET}-g++ ;;
-	static-ld|ld) cc=${TOOLCHAIN}/bin/${ZTARGET}-ld ;;
+	static-ld|ld) cc=${TOOLCHAIN}/bin/${ZTARGET}-gcc ;; # was -ld until 0.8
 	*)
 	print "Error: unknown command to static wrapper: $0"
 	exit 1
 esac
 
-libdirs+=${PREFIX}/lib
+libdirs=(${PREFIX}/lib)
+libdirs+=(${TOOLCHAIN}/x-tools/arm-dyne-linux-gnueabi/sysroot/usr/lib)
 cflags=(${=CFLAGS})
 ldflags+=(${=LDFLAGS})
 
 libraries+=(ld-linux-x86 skip)
 libraries+=(linux-vdso   skip)
 libraries+=(c            skip)
-libraries+=(rt           skip)
+# libraries+=(rt           skip)
 libraries+=(gcc		 skip)
 libraries+=(gcc_s	 skip)
 
@@ -169,13 +170,13 @@ echo $arguments | grep -i ' -l' > /dev/null
 }
 
 # remove duplicate arguments
-typeset -U arguments
+# typeset -U arguments
 
 # execute
 case $action in
-	compile) print "$cc ${=cflags} ${=arguments}"
+	compile) print "[CC] $cc ${=cflags} ${=arguments}"
 		$cc ${=cflags} ${=arguments} ;;
-	link) print "$cc ${=ldflags} ${=arguments}"
+	link) print "[LD] ${TOOLCHAIN}/bin/${ZTARGET}-ld ${=ldflags} ${=arguments}"
 		$cc ${=ldflags} ${=arguments} ;;
 esac
 return $?
