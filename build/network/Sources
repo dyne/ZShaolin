@@ -5,6 +5,13 @@ android-openssh	-6.1		.tar.gz
 rsync		-3.1.0		.tar.gz	http://rsync.samba.org
 git		-1.8.4.3	.tar.gz	http://git-scm.com
 
+lighttpd	-1.4.33		.tar.xz http://www.lighttpd.net/
+
+# slang		-2.2.4		.tar.bz2
+ncurses		-5.9		.tar.gz
+lynx		-2.8.7		.tar.gz	http://lynx.isc.org
+
+ncdu		-1.10		.tar.gz http://dev.yorhel.nl/ncdu
 #glib	-2.39.1	.tar.xz
 
 #irssi	-0.8.16-rc1	.tar.bz2	http://www.irssi.org
