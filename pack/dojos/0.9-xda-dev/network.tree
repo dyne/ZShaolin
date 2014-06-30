@@ -1,0 +1,11 @@
+bin/git
+bin/git-upload-pack
+bin/git-shell
+bin/git-receive-pack
+bin/git-upload-archive
+libexec/git-core
+bin/ssh
+bin/scp
+bin/sftp
+bin/ssh-keygen
+bin/ncdu

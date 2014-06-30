@@ -1,0 +1,5 @@
+./bin/nroff
+./bin/preconv
+./bin/mandoc
+./bin/demandoc
+./bin/emacs

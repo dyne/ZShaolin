@@ -1,0 +1,7 @@
+./bin/nroff
+./bin/preconv
+./bin/mandoc
+./bin/demandoc
+./bin/vim
+./bin/emacs
+./share/vim

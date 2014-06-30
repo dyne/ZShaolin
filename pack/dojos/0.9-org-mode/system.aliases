@@ -1,0 +1,5 @@
+bin/htop top
+bin/zsh sh
+bin/zsh ash
+bin/zsh bash
+bin/gawk awk

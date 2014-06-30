@@ -1,0 +1,7 @@
+bin/mc
+bin/mcedit
+bin/mcdiff
+bin/mcview
+libexec/mc
+share/mc
+etc/mc
