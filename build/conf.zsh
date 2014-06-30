@@ -383,7 +383,6 @@ zinstall() {
 
     act "installing $1 (target ${target})" | tee -a ${LOGS}
 
-    if [ 
     PATH="${PATH}" PREFIX="$PREFIX" \
 	${=MAKE} -C $1 ${target}
     { test $? = 0 } || {

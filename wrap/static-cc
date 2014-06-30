@@ -31,13 +31,9 @@ typeset -h argc
 
 # QUIET=1 source ${ZHOME}/zmake source
 
-# save compile settings dir by dir so that we
-# can go there and run make by hand
-if [ "$TOOLCHAIN" = "" ]; then source .zbuild
-else rm -f .zbuild; touch .zbuild
-	print TOOLCHAIN=$TOOLCHAIN >> .zbuild
-	print ZTARGET=$ZTARGET >> .zbuild
-fi
+TOOLCHAIN=${TOOLCHAIN:=$ZHOME/toolchains/crosstool-ng/x-tools}
+ZTARGET=${ZTARGET:=arm-dyne-linux-gnueabi}
+
 
 case `basename $0`; in
 	static-cc|cc|gcc) cc=${TOOLCHAIN}/bin/${ZTARGET}-gcc ;;
@@ -173,11 +169,11 @@ echo $arguments | grep -i ' -l' > /dev/null
 # typeset -U arguments
 
 # execute
-case $action in
+case "$action" in
 	compile) print "[CC] $cc ${=cflags} ${=arguments}"
-		$cc ${=cflags} ${=arguments} ;;
+		$cc ${cflags} ${arguments} ;;
 	link) print "[LD] ${TOOLCHAIN}/bin/${ZTARGET}-ld ${=ldflags} ${=arguments}"
-		$cc ${=ldflags} ${=arguments} ;;
+		$cc ${ldflags} ${arguments} ;;
 esac
 return $?
 

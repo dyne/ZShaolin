@@ -34,8 +34,8 @@ ln -sf libncursesw.a libncurses.a
 ln -sf libncursesw.a libcurses.a 
 popd
 
-compile zsh default
-zinstall zsh
+#compile zsh default
+#zinstall zsh
 
 ## s-lang
 notice "Building S-Lang"
@@ -113,23 +113,10 @@ compile libevent default
 zinstall libevent
 
 ## tmux
-#compile tmux default "--enable-static"
-pushd tmux
-zmake
+compile tmux default "--enable-static"
+#pushd tmux
+#zmake
 zinstall tmux
-
-## Opkg
-# compile opkg default "--disable-curl --disable-gpg --disable-shave"
-# zinstall opkg
-
-## manual page browser
-#compile man default
-#zinstall man
-
-## openssl
-# cp $pkg[openssl].Makefile $pkg[openssl]/Makefile
-# compile $pkg[openssl] default
-# zinstall $pkg[openssl]
 
 # ## shellinabox
 # { test ! -r $pkg[shellinabox].done } && {
@@ -140,23 +127,6 @@ zinstall tmux
 # 	"--disable-pam --enable-static --with-objcopy=$TARGET-objcopy"
 # }
 # zinstall $pkg[shellinabox]
-
-# compile $pkg[dropbear] default # "" noinstal
-# zinstall $pkg[dropbear]
-# # manual install
-# { test -r $pkg[dropbear].done } && {
-#     cp $pkg[dropbear]/dropbear        $PREFIX/sbin/
-#     cp $pkg[dropbear]/dbclient        $PREFIX/bin/
-#     cp $pkg[dropbear]/dropbearconvert $PREFIX/bin/
-#     cp $pkg[dropbear]/dropbearkey     $PREFIX/bin/
-#     mkdir -p $PREFIX/share/man/man1
-#     mkdir -p $PREFIX/share/man/man8
-#     cp $pkg[dropbear]/*.1 $PREFIX/share/man/man1;
-#     cp $pkg[dropbear]/*.8 $PREFIX/share/man/man8;
-# }
-
-###########################################
-## COPY CONFIGURATIONS AND SCRIPTS
 
 
 
@@ -170,4 +140,3 @@ zinstall tmux
 #     cd -; touch $pkg[busybox].done
 # fi
 
-# OpenSSL works but not needed for now
