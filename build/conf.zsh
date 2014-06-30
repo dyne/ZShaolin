@@ -10,13 +10,19 @@
 
 typeset ZTARGET TOOLCHAIN PREFIX ZARCH
 typeset CC CXX LD AR RANLIB OBJCOPY STRIP
+typeset ZTOOLCHAIN MAKE
 
+ZARCH=(-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8) # -mfpu=neon)
+ZARCH+=(-DARCH=arm -DOSTYPE=android -DVENDOR=dyne)
 
-ZARCH=(-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8) # -mfpu=neon) # architecture
+# TODO: should be /data/data/org.dyne.zshaolin/files/system/
+
 
 init-toolchain-crosstool() {
 
 notice "Initializing Crosstool-NG toolchain"
+
+export PREFIX=$ZHOME/system
 
 # configure the target
 export ZTARGET=arm-dyne-linux-gnueabi
@@ -25,7 +31,6 @@ export ZTARGET=arm-dyne-linux-gnueabi
 export TOOLCHAIN=$ZHOME/toolchains/crosstool-ng/x-tools
 
 # configure the install prefix
-export PREFIX=$ZHOME/system
 
 # configure the compilers
 export CC=${ZHOME}/wrap/static-cc
@@ -39,11 +44,13 @@ export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 
 # configure the compile flags
 OPTIMIZATIONS="-Os -O2"
-CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ZARCH)
+CFLAGS=($OPTIMIZATIONS $ZARCH)
+# CFLAGS=(-static -static-libgcc $OPTIMIZATIONS $ZARCH)
 #CFLAGS="$OPTIMIZATIONS $ARCH -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include $ANDROID_CFLAGS"
-CPPFLAGS=(-I$PREFIX/include -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
+CPPFLAGS=(-I$PREFIX/include -I$TOOLCHAIN/$ZTARGET/sysroot/usr/include)
 CXXFLAGS=$CFLAGS
-LDFLAGS=(-static -static-libgcc -L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
+LDFLAGS=(-L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib)
+# LDFLAGS=(-static -static-libgcc -L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
 # LDFLAGS="-L$TOOLCHAIN/$ZTARGET/sysroot/lib -L$TOOLCHAIN/$ZTARGET/sysroot/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib"
 # LDFLAGS="$ANDROID_LDFLAGS -L$PREFIX/lib -L$PREFIX/usr/lib"
 # PATH="$PATH:$ANDROID_NDK/toolchains/$ANDROID_TOOLCHAIN/bin"
@@ -61,6 +68,7 @@ init-toolchain-android() {
 
 notice "Initializing Android-NDK toolchain"
 
+
 # configure the target
 export ZTARGET=arm-linux-androideabi
 
@@ -72,9 +80,7 @@ NDK=/android/android-ndk-r9b
 
 # SYSROOT=$NDK/platforms/android-8/arch-arm
 export SYSROOT=$TOOLCHAIN/sysroot
-
-# configure the install prefix
-export PREFIX=$ZHOME/system
+export PREFIX=$SYSROOT/usr
 
 # configure the compilers
 export CC=${ZHOME}/wrap/static-cc
@@ -92,7 +98,7 @@ export STRIP=${TOOLCHAIN}/bin/${ZTARGET}-strip
 # configure the compile flags
 OPTIMIZATIONS="-O3" # optimization
 CFLAGS=(--sysroot=$SYSROOT $OPTIMIZATIONS $ZARCH)
-CPPFLAGS=(-I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
+CPPFLAGS=(-I$PREFIX/include)
 # some notes
 #ANDROID_CFLAGS="-DANDROID -D__ANDROID__ -DSK_RELEASE -nostdlib -fpic -fno-short-enums -fgcse-after-reload -frename-registers"
 #ANDROID_LDFLAGS="-L${ANDROID_NDK}/platforms/${ANDROID_PLATFORM}/usr/lib -Xlinker -z -Xlinker muldefs -nostdlib -Bdynamic -Xlinker -dynamic-linker -Xlinker /system/bin/linker -Xlinker -z -Xlinker nocopyreloc -Xlinker --no-undefined $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtbegin_dynamic.o $ANDROID_NDK/platforms/$ANDROID_PLATFORM/usr/lib/crtend_android.o -ldl -lm -lc -lgcc"
@@ -101,7 +107,7 @@ CPPFLAGS=(-I$TOOLCHAIN/$ZTARGET/sysroot/usr/include -I$PREFIX/include)
 # CPPFLAGS+=(--sysroot=$SYSROOT)
 
 CXXFLAGS=$CFLAGS
-LDFLAGS=(-L$SYSROOT/usr/lib -L$PREFIX/lib -L$PREFIX/usr/lib)
+LDFLAGS=(-L$PREFIX/lib)
 LDFLAGS+=($ZHOME/wrap/libzshaolin.a)
 #LDFLAGS+=(-ldl -lm -lc -lgcc)
 LDFLAGS+=(--sysroot=$SYSROOT)
@@ -128,11 +134,13 @@ export LDFLAGS
 
 init-toolchain() {
 
-case "$1" in
+ZTOOLCHAIN="$1"
+
+case "$ZTOOLCHAIN" in
 	android) init-toolchain-android ;;
 	crosstool) init-toolchain-crosstool ;;
 	"") act "Unconfigured toolchain, default to crosstool"
-		init-toolchain-crosstool ;;
+		ZTOOLCHAIN=crosstool; init-toolchain-crosstool ;;
 	*) error "Unknown toolchain: $1"; return 1 ;;
 esac
 # make sure the toolchain exists in /usr
@@ -142,6 +150,8 @@ if ! [ -r $TOOLCHAIN/bin/${ZTARGET}-gcc ]; then
 #    return 1
 fi
 
+MAKE=make
+
 notice "ZShaolin build system"
 act "Target:    $ZTARGET"
 act "Toolchain: $TOOLCHAIN"
@@ -149,7 +159,7 @@ act "Install:   $PREFIX"
 func "CFLAGS:    $CFLAGS"
 func "LDFLAGS:   $LDFLAGS"
 func "Command:   ${=@}"
-
+{ test "$MAKE" = "colormake" } && { act "Using colormake" }
 
 ## make sure basic directories exist
 mkdir -p $PREFIX/sbin
@@ -220,6 +230,7 @@ prepare_sources() {
 		*.tar.gz)  tar xfz ${file}; mv ${name}${ver} ${name} ;;
 		*.tar.bz2) tar xfj ${file}; mv ${name}${ver} ${name} ;;
 		*.tar.xz) tar xfJ ${file}; mv ${name}${ver} ${name} ;;
+		*.tar.lz) tar --lzip xf ${file}; mv ${name}${ver} ${name} ;;
 
 		*) error "compression not supported: $arch"
 	    esac
@@ -275,9 +286,7 @@ zconfigure() {
 
 zmake() {
 
-    # pass extra arguments to make (for instance targets)
-    # check if logs don't exist print out to streen
-    if [ -r $LOGS ]; then
+    if [ "$ZTOOLCHAIN" = "android" ]; then
 	PATH=${PATH} \
 	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
 	    AR="${ZTARGET}-ar" RANLIB="${ZTARGET}-ranlib" \
@@ -285,16 +294,18 @@ zmake() {
 	    CPPFLAGS="$CPPFLAGS" \
 	    CXXFLAGS="$CXXFLAGS" \
 	    LDFLAGS="$LDFLAGS" \
-	    make V=1 ${=@}
+	    ${=MAKE} V=1 ${=@}
+    elif [ "$ZTOOLCHAIN" = "crosstool" ]; then
+	PATH=${PATH} \
+	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
+	    AR="${ZTARGET}-ar" RANLIB="${ZTARGET}-ranlib" \
+	    CFLAGS="$CFLAGS $extracflags" \
+	    CPPFLAGS="$CPPFLAGS" \
+	    CXXFLAGS="$CXXFLAGS" \
+	    LDFLAGS="$LDFLAGS" \
+	    ${=MAKE} V=1 ${=@}
     else
-	PATH=${PATH} \
-	    CC="${CC}" CXX="${CXX}" LD="${LD}" STRIP="${STRIP}" \
-	    AR="${ZTARGET}-ar" RANLIB="${ZTARGET}-ranlib" \
-	    CFLAGS="$CFLAGS $extracflags" \
-	    CPPFLAGS="$CPPFLAGS" \
-	    CXXFLAGS="$CXXFLAGS" \
-	    LDFLAGS="$LDFLAGS" \
-	    make V=1 ${=@}
+	error "Toolchain not recognized: $ZTOOLCHAIN"
     fi
     { test $? = 0 } || {
 	error "error: make returns error value $?"
@@ -372,8 +383,9 @@ zinstall() {
 
     act "installing $1 (target ${target})" | tee -a ${LOGS}
 
+    if [ 
     PATH="${PATH}" PREFIX="$PREFIX" \
-	make -C $1 ${target}
+	${=MAKE} -C $1 ${target}
     { test $? = 0 } || {
 	error "error: $1 cannot make install, check permissions"
 	return 1
@@ -388,7 +400,7 @@ zndk-build() {
     PATH="$NDK:$PATH"
 
     pushd $1
-    ndk-build
+    ndk-build V=1
     popd
 
     # { test ! -r $1.done } && {
