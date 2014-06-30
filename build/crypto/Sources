@@ -1,0 +1,14 @@
+# gnutls
+gmp	-5.1.3	.tar.lz	http://gmplib.org
+nettle	-2.7.1	.tar.gz	http://www.lysator.liu.se/~nisse/nettle
+libidn	-1.28	.tar.gz http://www.gnu.org/software/libidn
+gnutls	-3.1.16	.tar.xz
+
+# gcrypt
+libgpg-error	-1.12	.tar.bz2 http://www.gnupg.org
+libgcrypt	-1.5.3	.tar.gz	http://www.gnu.org/software/libgcrypt/
+
+# gnupg
+gnupg		-1.4.15	.tar.bz2	http://gnupg.org
+pinentry	-0.8.3	.tar.bz2
+
