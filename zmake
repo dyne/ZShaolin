@@ -94,10 +94,19 @@ list_sources() {
 		modules+=(${ZHOME}/build/${m}/Sources); done
 	fi
 	for i in  $modules; do
-		cat $i | awk '!/^#/ { print $1 $2 }' >> /tmp/zshaolin.list
+		cat $i | awk '!/^#/ { print $1 $2 " " $4 }' >> /tmp/zshaolin.list
 	done
-	cat /tmp/zshaolin.list | sort | uniq | sed 's/_arm//;s/eabi//'
+	swlist=`cat /tmp/zshaolin.list | sort | uniq | sed 's/_arm//;s/eabi//'`
 	rm -f /tmp/zshaolin.list
+	for i in ${(f)swlist}; do
+		name=${i[(ws: :)1]}
+		url=${i[(ws: :)2]}
+		if [ "$url" = "$name" ]; then
+			print "<li>$name</li>"
+		else
+			print "<li><a href=\"${url}\" target=\"_blank\">$name</a></li>"
+		fi
+	done
 }
 
 typeset -h operation
