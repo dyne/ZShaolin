@@ -1,6 +1,8 @@
 # ZShaoling packages file
 
+zlib		-1.2.5		.tar.gz		http://www.gnu.org
 openssl-static	-0.9.9		.tar.gz
+curl		-7.37.0		.tar.gz http://curl.haxx.se
 android-openssh	-6.1		.tar.gz
 rsync		-3.1.0		.tar.gz	http://rsync.samba.org
 git		-1.8.4.3	.tar.gz	http://git-scm.com

@@ -107,6 +107,11 @@ compile	wipe default
   act "Wipe installed."
 }
 
+return
+
+
+###################
+# experiments below
 
 ## libevent
 compile libevent default

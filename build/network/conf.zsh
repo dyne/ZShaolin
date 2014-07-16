@@ -8,10 +8,29 @@ rm -f $LOGS; touch $LOGS
 
 prepare_sources
 
+## zlib
+compile zlib "--prefix=$PREFIX --static"
+#zinstall zlib
+{ test -r zlib.installed } || {
+act "Installing ZLib"
+mkdir -p $PREFIX/lib $PREFIX/include
+cp zlib/libz.a $PREFIX/lib/
+cp zlib/zlib.h zlib/zconf.h $PREFIX/include
+touch zlib.installed
+}
+
+
 # make openssl static libraries
 zndk-build openssl-static
 rsync openssl-static/obj/local/armeabi/*.a $PREFIX/lib/
 rsync -r openssl-static/include/openssl $PREFIX/include
+
+# make curl with ssl
+{ test -r curl.done } || {
+    cp curl_setup.h curl/lib/
+    LIBS="$LIBS -ldl -lssl -lcrypto" compile curl default "--with-ssl=$PREFIX --disable-shared --enable-static"
+}
+zinstall curl
 
 # make openssh
 { test -r android-openssh.done } || {
@@ -42,15 +61,17 @@ zinstall rsync
 # make git
 notice "Building git"
 GIT_FLAGS=(prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1 NO_NSEC=1 NO_ICONV=1)
+GIT_FLAGS+=(CURLDIR=$PREFIX OPENSSLDIR=$PREFIX)
 GIT_FLAGS+=(NO_PERL=1 NO_PYTHON=1)
 { test -r git.done } || {
 pushd git
 autoconf
-zconfigure default "--without-iconv --with-openssl"
+LIBS="$LIBS -lz -ldl -lssl -lcurl -lcrypto" \
+ zconfigure default "--without-iconv --with-openssl=$PREFIX --with-curl=$PREFIX"
 { test $? = 0 } && {
-    make git ${GIT_FLAGS}
+    LIBS="$LIBS" make git ${GIT_FLAGS}
     pushd templates
-    make install ${GIT_FLAGS}
+    LIBS="$LIBS" make install ${GIT_FLAGS}
     popd
 #    make man prefix=${APKPATH}/files/system
     touch ../git.done
@@ -60,7 +81,7 @@ popd
 
 { test -r git.installed } || {
 pushd git
-make install ${GIT_FLAGS}
+LIBS="$LIBS" make install ${GIT_FLAGS}
 { test $? = 0 } && { touch ../git.installed }
 #make install-man prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1
 
