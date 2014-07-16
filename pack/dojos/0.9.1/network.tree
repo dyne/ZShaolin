@@ -5,6 +5,7 @@ bin/git-receive-pack
 bin/git-upload-archive
 libexec/git-core
 share/git-core
+bin/curl
 bin/rsync
 bin/ssh
 bin/scp

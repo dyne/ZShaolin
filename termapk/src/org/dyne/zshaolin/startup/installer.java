@@ -30,8 +30,8 @@ import org.dyne.zshaolin.startup.setup.filemanager;
 public class installer extends Activity implements OnClickListener{
 
     //THE MAIN INSTALL VALUE
-    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 12;
-    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.9";
+    public static int      CURRENT_INSTALL_SYSTEM_NUM  = 13;
+    public static String   CURRENT_INSTALL_SYSTEM      = "System v0.9.1";
     public static String   CURRENT_INSTALL_ASSETFILE   = "system.tar.lzma.mp3";
 
     private ProgressDialog mInstallProgress;
