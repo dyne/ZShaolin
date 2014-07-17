@@ -17,12 +17,23 @@ ZARCH+=(-DARCH=arm -DOSTYPE=android -DVENDOR=dyne)
 
 # TODO: should be /data/data/org.dyne.zshaolin/files/system/
 
-
 init-toolchain-crosstool() {
 
 notice "Initializing Crosstool-NG toolchain"
 
+# make sure target prefix exists
 export PREFIX=$ZHOME/system
+mkdir -p  \
+    "$PREFIX"/lib \
+    "$PREFIX"/include \
+    "$PREFIX"/share \
+    "$PREFIX"/man \
+    "$PREFIX"/bin \
+    "$PREFIX"/sbin \
+    "$PREFIX"/etc \
+    "$PREFIX"/var \
+    "$PREFIX"/busybox \
+    "$PREFIX"/libexec
 
 # configure the target
 export ZTARGET=arm-dyne-linux-gnueabi
