@@ -1,5 +1,5 @@
 # ZShaolin build script
-# (C) 2013 Denis Roio - GNU GPL v3
+# (C) 2013-2014 Denis Roio - GNU GPL v3
 # refer to zmake for license details
 
 # configure the logfile
@@ -31,6 +31,9 @@ rsync -r openssl-static/include/openssl $PREFIX/include
     LIBS="$LIBS -ldl -lssl -lcrypto" compile curl default "--with-ssl=$PREFIX --disable-shared --enable-static"
 }
 zinstall curl
+# manual
+cp -v curl/lib/.libs/libcurl.a $PREFIX/lib
+
 
 # make openssh
 { test -r android-openssh.done } || {
@@ -60,8 +63,9 @@ zinstall rsync
 
 # make git
 notice "Building git"
+cp -v git-read-cache.c git/read-cache.c
 GIT_FLAGS=(prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1 NO_NSEC=1 NO_ICONV=1)
-GIT_FLAGS+=(CURLDIR=$PREFIX) # OPENSSLDIR=$PREFIX)
+GIT_FLAGS+=(CURLDIR=$PREFIX OPENSSLDIR=$PREFIX)
 GIT_FLAGS+=(NO_PERL=1 NO_PYTHON=1)
 { test -r git.done } || {
 pushd git
@@ -69,11 +73,10 @@ autoconf
 
 # -lssl
 LIBS="$LIBS -lz -ldl -lcurl -lcrypto" \
- zconfigure default "--without-iconv --with-curl=$PREFIX"
-# --with-openssl=$PREFIX 
+ zconfigure default "--without-iconv --with-curl=$PREFIX --with-openssl=$PREFIX"
 
 { test $? = 0 } && {
-    LIBS="$LIBS" make git ${GIT_FLAGS}
+    LIBS="$LIBS" make ${GIT_FLAGS}
     pushd templates
     LIBS="$LIBS" make install ${GIT_FLAGS}
     popd
@@ -126,18 +129,18 @@ zinstall lynx
 compile ncdu default
 zinstall ncdu
 
+######
+# experimental zone
+return
+
+
 
 #############################
-# copy all binaries in system
+# copy all binaries in system (uat?)
 rsync -r $PREFIX/bin $ZHOME/system/
 rsync -r $PREFIX/etc $ZHOME/system/
 rsync -r $PREFIX/sbin $ZHOME/system/
 rsync -r $PREFIX/share/man/* $ZHOME/system/share/man/
-
-
-######
-# experimental zone
-return
 
 
 ## s-lang
