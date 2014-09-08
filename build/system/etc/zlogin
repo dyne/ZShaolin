@@ -11,6 +11,7 @@ export SYS=$HOME/system
 export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:/system/xbin:$PATH
 export SHELL="$SYS/bin/zsh"
 export TMPDIR=$HOME/tmp
+export TMPPREFIX=$TMPDIR
 export MANPATH=$SYS/share/man
 export MANPAGER=most
 export TERMINFO=$SYS/share/terminfo
