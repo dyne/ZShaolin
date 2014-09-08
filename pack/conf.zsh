@@ -16,18 +16,13 @@ export STRIP=${TOOLCHAIN}/bin/${TARGET}-strip
 streamline_zshaolin() {
     act "including core scripts in dojo"
 
-    # list of core configurations
-    rm -f zshaolin.etc
-    cat <<EOF > zshaolin.etc
-./var/pid
-./var/log
-./etc/grmlrc
-./etc/zlogin
-./etc/skel
-EOF
-    # do the copy
-    rsync -dar --files-from=zshaolin.etc $ZHOME/system floor/
-    # zcompile the big stuff
+    mkdir -p floor/var/pid
+    mkdir -p floor/var/log
+
+    # now etc and the helper scripts (new since 0.9.1)
+    rsync -ar $ZHOME/conf/etc		floor/
+    rsync -ar $ZHOME/conf/helpers	floor/
+    # eventually zcompile some helpers, still too small to need that
     zcompile floor/etc/grmlrc
 
     rm -f zshaolin.etc
@@ -159,8 +154,8 @@ act "module: $module"
     clean_floor # clean first and every time a new pack is done
     
 # create the dojo
-    streamline_zshaolin # scripts
     streamline dojos/$module # binaries
+    streamline_zshaolin # confs and scripts
     strip_floor # strips all in floor
     pack_dojo # pack and copy into assets
     return 0

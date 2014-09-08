@@ -61,13 +61,17 @@ zinstall rsync
 # make git
 notice "Building git"
 GIT_FLAGS=(prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1 NO_NSEC=1 NO_ICONV=1)
-GIT_FLAGS+=(CURLDIR=$PREFIX OPENSSLDIR=$PREFIX)
+GIT_FLAGS+=(CURLDIR=$PREFIX) # OPENSSLDIR=$PREFIX)
 GIT_FLAGS+=(NO_PERL=1 NO_PYTHON=1)
 { test -r git.done } || {
 pushd git
 autoconf
-LIBS="$LIBS -lz -ldl -lssl -lcurl -lcrypto" \
- zconfigure default "--without-iconv --with-openssl=$PREFIX --with-curl=$PREFIX"
+
+# -lssl
+LIBS="$LIBS -lz -ldl -lcurl -lcrypto" \
+ zconfigure default "--without-iconv --with-curl=$PREFIX"
+# --with-openssl=$PREFIX 
+
 { test $? = 0 } && {
     LIBS="$LIBS" make git ${GIT_FLAGS}
     pushd templates

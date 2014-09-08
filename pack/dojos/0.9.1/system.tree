@@ -21,6 +21,7 @@
 ./bin/mandoc
 ./bin/demandoc
 ./bin/file
+./bin/tmux
 ./libexec
 ./libexec/awk
 ./libexec/awk/grcat

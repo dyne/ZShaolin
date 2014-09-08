@@ -8,7 +8,7 @@ export HOME=/data/data/org.dyne.zshaolin/files
 # included from our ~/.zshrc (which also gets rewritten here)
 
 export SYS=$HOME/system
-export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:/system/xbin:$PATH
+export PATH=$SYS/bin:$SYS/sbin:$SYS/busybox/bin:$SYS/busybox/sbin:$SYS/helpers:/system/xbin:$PATH
 export SHELL="$SYS/bin/zsh"
 export TMPDIR=$HOME/tmp
 export TMPPREFIX=$TMPDIR

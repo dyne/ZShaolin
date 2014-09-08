@@ -1,0 +1,119 @@
+#!env zsh
+
+# Copyright (C) 2014 Denis Roio <jaromil@dyne.org>
+#
+# This source  code is free  software; you can redistribute  it and/or
+# modify it under the terms of  the GNU Public License as published by
+# the Free  Software Foundation; either  version 3 of the  License, or
+# (at your option) any later version.
+#
+# This source code is distributed in  the hope that it will be useful,
+# but  WITHOUT ANY  WARRANTY;  without even  the  implied warranty  of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# Please refer to the GNU Public License for more details.
+#
+# You should have received a copy of the GNU Public License along with
+# this source code; if not, write to:
+# Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+FILES=/data/data/org.dyne.zshaolin/files
+SYS=$FILES/system
+VAR=$FILES/.ssh
+dsa="$VAR/ssh_host_dsa_key"
+rsa="$VAR/ssh_host_rsa_key"
+client="$VAR/ssh_client_rsa_key"
+httpport="2221"
+port="2222"
+
+IP=`ifconfig | awk '/127.0.0.1/ { next } /inet addr/ { print $2 }'`
+IP=${IP[(ws@:@)2]}
+ID=`id -un`
+
+pid=`ps | awk '/awk/ {next} /'"$ID"'.*sshd/ {print $1}'`
+httppid=`ps | awk '/awk/ {next} /'"$ID"'.*httpd.*'"$httpport"'/ {print $1}'`
+
+# check permissions first and at every run
+mkdir -p $VAR
+chmod -R go-rwx $VAR
+
+print "ZShaolin's SSH script invoked."
+
+[[ $1 = off ]] || [[ $1 = stop ]] || [[ $1 = "kill" ]] && {
+	[[ "$pid" = "" ]] && {
+		print "Our SSH daemon is not running"
+		return 0 }
+	print "Stopping SSHD (pid $pid)"; kill $pid
+	[[ "$httppid" = "" ]] || {
+	print "Stopping HTTPD (pid $httppid)"; kill $httppid }
+	return 0
+}
+
+[[ $1 = secure ]] && {
+	[[ $httppid = "" ]] && {
+		print "Our HTTP daemon is not running"
+		return 0 }
+	print "Securing the key and stop serving it over HTTP"
+	print
+	print "Stopping HTTPD (pid $httppid)"; kill $httppid
+	return 0
+}
+
+connectinfo() {
+    cat <<EOF
+Login permitted as $ID on $IP:$port
+
+SSH access key file to use: $client
+this needs to be copied to the client device to be used.
+
+At your terminal convenience, download and run in few steps:
+
+  curl http://$IP:$httpport/ssh-to-z.sh ; sh ssh-to-z.sh
+
+It logins for you and creates a zshaolin.key for later use
+
+To stop SSHD type: z-ssh off
+
+To stop httpd serving the key: z-ssh secure
+EOF
+}
+
+# if we are here is because we want to start SSHD
+# then first check if its already running
+[[ "$pid" = "" ]] || {
+	print "SSHD is already running (pid $pid)"
+	connectinfo
+	return 0
+}
+
+{ test -r $dsa } || { ssh-keygen -t dsa -f $dsa -P ''}
+{ test -r $rsa } || { ssh-keygen -t rsa -f $rsa -P ''}
+
+{ test -r $client } || { ssh-keygen -t rsa -f $client -P ''}
+
+{ test -r $FILES/tmp } || { mkdir $FILES/tmp }
+
+{ test -r $VAR } || {
+	mkdir -p $VAR
+	ln -s $SYS/etc/zlogin $FILES/.ssh/environment }
+	
+{ test -r $FILES/.ssh/authorized_keys } || {
+	cp ${client}.pub $FILES/.ssh/authorized_keys }
+
+key=`cat $client`
+mkdir -p $FILES/tmp/z-ssh
+cat << EOF > ${FILES}/tmp/z-ssh/ssh-to-z.sh
+#!/bin/sh
+echo "Logging into ZShaolin running on Android via SSH"
+echo "$key" > zshaolin.key
+chmod 600 zshaolin.key
+ssh -i zshaolin.key -p ${port} ${ID}@${IP}
+EOF
+
+$SYS/bin/sshd -p 2222
+[[ $? = 0 ]] && {
+	httpd -p $httpport -h $FILES/tmp/z-ssh/
+	print "SSH daemon running and accepting connections"
+	connectinfo
+	return 0
+}
+

@@ -107,6 +107,13 @@ compile	wipe default
   act "Wipe installed."
 }
 
+## tmux
+compile tmux default "--enable-static"
+#pushd tmux
+#zmake
+zinstall tmux
+
+
 return
 
 
@@ -116,13 +123,6 @@ return
 ## libevent
 compile libevent default
 zinstall libevent
-
-## tmux
-compile tmux default "--enable-static"
-#pushd tmux
-#zmake
-zinstall tmux
-
 # ## shellinabox
 # { test ! -r $pkg[shellinabox].done } && {
 #     cp $pkg[shellinabox].configure.ac $pkg[shellinabox]/configure.ac
