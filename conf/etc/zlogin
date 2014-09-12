@@ -30,9 +30,6 @@ function restore_rc() {
 	if [ "$res" = "1" ]; then echo " . restored: ~/.$rc"; fi
 }
 
-# links vim if present
-{ test -r $SYS/bin/vim } && { alias vi=vim }
-
 cd $HOME
 echo "Welcome to ZShaolin"
 restore_rc zshrc

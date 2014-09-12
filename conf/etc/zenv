@@ -1,0 +1,7 @@
+# This file defines some aliases and user-friendly tweaks that
+# may change in new releases. It is overwritten by system install.
+# It is processed by the default .zshrc (in etc/skel)
+
+alias vi='vim'
+alias less='most'
+

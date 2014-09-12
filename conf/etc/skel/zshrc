@@ -22,6 +22,9 @@ alias mc='mc -aX' # correct rendering
 # Lynx web browser
 alias lynx="lynx -cfg ${SYS}/etc/lynx.cfg -lss ${SYS}/etc/lynx.lss"
 
+# System wide fine tuning
+{ test -f $SYS/etc/zenv } && { source $SYS/etc/zenv }
+
 # Custom user configuration
 { test -r ~/.profile } && { source ~/.profile }
 
