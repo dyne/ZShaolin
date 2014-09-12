@@ -7,6 +7,8 @@
 
 prepare_sources
 
+PATH=$SYS/wrap:$PATH
+
 ## lua
 { test ! -r lua.done } && {
     act "compiling lua"
@@ -14,10 +16,10 @@ prepare_sources
     for s in `find . -name '*.c'`; do
         { test -r ${s%.*}.o } || {
 	print "[CC] ${ZTARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s}"
-	${ZTARGET}-gcc ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
+	static-c++ ${=CFLAGS} -DLUA_USE_POSIX -DLUA_COMPAT_ALL -c ${s} }; done
     luas=`find . -name '*.o' | grep -v luac.o`
     print "[LD] ${ZTARGET}-ld -o lua ${=luas} ${=LDFLAGS} -lncursesw -lm"
-    ${ZTARGET}-ld -o lua ${=luas} ${=LDFLAGS} -lm -lc -lstdc++ -ldl
+    static-c++ -o lua ${=luas} ${=LDFLAGS} -lm -lc -lstdc++ -ldl
     { test $? = 0 } && { 
 	touch ../../lua.done
 	notice "lua compiled"
