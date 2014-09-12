@@ -3,7 +3,9 @@
 zlib		-1.2.5		.tar.gz		http://www.gnu.org
 ncurses		-5.9		.tar.gz
 slang		-2.2.4		.tar.bz2	http://www.jedsoft.org/slang
-zsh 		-5.0.2		.tar.bz2	http://www.zsh.org
+pcre		-8.35		.tar.bz2	http://www.pcre.org
+zsh 		-5.0.6		.tar.bz2	http://www.zsh.org
+# zsh 		-4.3.17		.tar.bz2	http://www.zsh.org
 # zsh 		-4.3.15		.tar.bz2	http://www.zsh.org
 sed 		-4.2.1		.tar.bz2	http://www.gnu.org
 gawk 		-4.0.0		.tar.bz2	http://www.gnu.org

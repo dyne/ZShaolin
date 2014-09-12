@@ -34,8 +34,23 @@ ln -sf libncursesw.a libncurses.a
 ln -sf libncursesw.a libcurses.a 
 popd
 
+# The ZSH
+compile pcre default "--disable-cpp"
+zinstall pcre
+
 #compile zsh default
-#zinstall zsh
+{ test -r zsh.done } || {
+pushd zsh
+LIBS="-lpcre" zconfigure default "--enable-pcre --enable-cap"
+cp ../zsh-config.h config.h
+cp ../zsh-modules-parameter.c Src/Modules/parameter.c
+cp ../zsh-config.modules config.modules
+make prep
+zmake
+[[ $? = 0 ]] && touch ../zsh.done
+popd
+}
+zinstall zsh
 
 ## s-lang
 notice "Building S-Lang"

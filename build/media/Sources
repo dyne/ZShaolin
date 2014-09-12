@@ -1,6 +1,7 @@
 # image
 libexif		-0.6.21		.tar.bz2
-#lcms2		-2.4		.tar.gz
+jasper		-1.900.1	.tar.bz2  
+lcms2		-2.6		.tar.gz
 libpng		-1.5.13		.tar.gz
 #openjpeg	-1.5.1		.tar.gz
 jpeg		-8d		.tar.gz
@@ -8,6 +9,10 @@ giflib		-5.0.2		.tar.bz2
 tiff		-4.0.3		.tar.gz
 freetype	-2.4.10		.tar.bz2
 ImageMagick	-6.7.8-7	.tar.bz2
+
+# meta
+jhead		-2.97		.tar.gz
+# dcraw by hand in conf.sh
 
 # audio
 libsndfile	-1.0.25		.tar.gz

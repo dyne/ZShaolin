@@ -77,6 +77,9 @@ LIBS="$LIBS -lz -ldl -lcurl -lcrypto" \
 
 { test $? = 0 } && {
     LIBS="$LIBS" make ${GIT_FLAGS}
+    # for manuals by hand:
+    # make man
+    # make install-man
     pushd templates
     LIBS="$LIBS" make install ${GIT_FLAGS}
     popd
@@ -99,7 +102,7 @@ gitshellscripts=`find $APKPATH/files/system/libexec/git-core -type f`
 for i in ${(f)gitshellscripts}; do
     func "git: fixing shellbang for $i"
     file $i | grep -i 'posix shell script' > /dev/null
-    { test $? = 0 } && { sed -i "s@^#!/bin/sh@#!$PREFIX/bin/zsh@" $i }
+    { test $? = 0 } && { sed -i "s@^#!/bin/sh@#!env zsh@" $i }
 done
 popd
 }

@@ -13,6 +13,8 @@
 prepare_sources
 
 
+
+
 ########
 ## IMAGE
 
@@ -24,6 +26,12 @@ prepare_sources
 #     autoreconf -i >> $LOGS
 #     popd
 # }
+
+compile jasper default
+zinstall jasper
+
+compile lcms2 default
+zinstall lcms2
 
 compile libexif default
 zinstall libexif
@@ -43,13 +51,26 @@ zinstall tiff
 compile	freetype	default
 zinstall freetype
 
+####################
+## META DATA IMAGE EDITOR
+pushd jhead
+zmake
+cp jhead $PREFIX/bin/
+popd
+
+# DCRAW
+{ test -r dcraw.o } || { $CC ${=CFLAGS} -I $ZHOME/system/include -c dcraw.c }
+{ test -r dcraw } || { $LD ${=LDFLAGS} -L $ZHOME/system/lib dcraw.o -o dcraw -lm -llcms2 -ljasper -ljpeg -lpthread -lm }
+cp dcraw $PREFIX/bin/
+
+
+####################
+## ImageMagick suite
 compile ImageMagick default \
     --disable-shared --disable-deprecated --without-fontconfig --without-x \
     --without-pango --without-openexr
 
 zinstall ImageMagick
-
-
 
 
 ########
@@ -93,8 +114,26 @@ zinstall liboggz
 compile sox default "--disable-shared --with-distro=ZShaolin"
 zinstall sox
 
+#pushd id3ren/src
+#zmake
+#popd
+
+
 ########
 ## VIDEO
+
+compile x264 default "--disable-shared --enable-static --cross-prefix=${ZTARGET}-"
+zinstall x264
+
+compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${ZTARGET}- --target-os=linux --cc=${ZTARGET}-gcc --host-cc=${ZTARGET}-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
+pushd ffmpeg
+make doc/ffmpeg.1
+make doc/ffprobe.1
+popd
+zinstall ffmpeg
+
+
+return
 
 notice "Building xvidcore"
 { test -r xvidcore.done } || {
@@ -111,18 +150,6 @@ notice "Building xvidcore"
 	popd
 }
 act "done."
-
-compile x264 default "--disable-shared --enable-static --cross-prefix=${ZTARGET}-"
-zinstall x264
-
-compile ffmpeg "--prefix=$PREFIX --disable-shared --enable-static --enable-gpl --enable-version3 --extra-libs=-static --extra-cflags=-static-libgcc" "--enable-zlib --enable-cross-compile --cross-prefix=${ZTARGET}- --target-os=linux --cc=${ZTARGET}-gcc --host-cc=${ZTARGET}-gcc --arch=armv5 --disable-asm --disable-debug --enable-libvorbis --enable-libx264 --enable-libspeex"
-pushd ffmpeg
-make doc/ffmpeg.1
-make doc/ffprobe.1
-popd
-zinstall ffmpeg
-
-
 
 # TODO: theora broken
 
