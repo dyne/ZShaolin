@@ -1,0 +1,5 @@
+bin/vim ex
+bin/vim rview
+bin/vim rvim
+bin/vim view
+bin/vim vimdiff

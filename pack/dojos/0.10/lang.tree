@@ -1,0 +1,5 @@
+./bin/lua
+./share/man/man1/lua.1
+bin/perl
+lib/perl
+
