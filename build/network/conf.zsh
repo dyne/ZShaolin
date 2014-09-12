@@ -91,8 +91,9 @@ popd
 
 { test -r git.installed } || {
 pushd git
-LIBS="$LIBS" make install ${GIT_FLAGS}
-{ test $? = 0 } && { touch ../git.installed }
+{ LIBS="$LIBS" make install ${GIT_FLAGS} } && {
+  LIBS="$LIBS" make install-man ${GIT_FLAGS} } && {
+  touch ../git.installed }
 #make install-man prefix=${APKPATH}/files/system NO_INSTALL_HARDLINKS=1
 
 # now fix all shellbangs in git's scripts. can't do that from config
