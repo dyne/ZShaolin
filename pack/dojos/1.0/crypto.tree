@@ -1,0 +1,10 @@
+bin/gpg
+bin/gpgv
+bin/gpg-error
+bin/pinentry
+bin/pinentry-curses
+bin/steghide
+bin/srm
+libexec/gnupg/gpgkeys_hkp
+libexec/gnupg/gpgkeys_finger
+libexec/gnupg/gpgkeys_curl

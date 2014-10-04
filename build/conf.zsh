@@ -341,14 +341,14 @@ compile() {
     }
 
 
-    { test -r configure } && {
+#    { test -r configure } && {
 	func "launching configure ${compile_args}"
 	zconfigure ${compile_args}
 
 	{ test $? = 0 } || {
 	    error "error: $1 cannot configure, build left incomplete"
 	    popd; return 1 }
-    }
+#    }
 
     { test "$nomake" = "1" } || {
 

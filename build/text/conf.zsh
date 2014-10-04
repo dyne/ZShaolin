@@ -6,7 +6,6 @@
 LOGS=build.log
 rm -f $LOGS; touch $LOGS
 
-
 # download and decompress all sources
 prepare_sources
 

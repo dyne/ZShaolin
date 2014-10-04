@@ -14,7 +14,6 @@ bin/ssh-keygen
 bin/sshd
 bin/lynx
 bin/ncdu
-sbin/lighttpd
-sbin/lighttpd-angel
+bin/mongoose
 etc/lynx.lss
 etc/lynx.cfg

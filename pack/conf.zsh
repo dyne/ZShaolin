@@ -20,7 +20,7 @@ streamline_zshaolin() {
     mkdir -p floor/var/log
 
     # now etc and the helper scripts (new since 0.9.1)
-    rsync -ar $ZHOME/conf/aux		floor/
+#    rsync -ar $ZHOME/conf/aux		floor/
     rsync -ar $ZHOME/conf/etc		floor/
     rsync -ar $ZHOME/conf/helpers	floor/
     # eventually zcompile some helpers, still too small to need that

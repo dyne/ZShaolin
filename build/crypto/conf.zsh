@@ -16,7 +16,7 @@ notice "Building GNUtls"
 pushd gnutls
 zconfigure default "--disable-shared --enable-static --disable-crywrap --without-p11-kit"
 zmake -C lib
-{ test $? = 0 } && { touch ../gnutls.done }
+touch ../gnutls.done
 popd }
 { test -r gnutls.installed } || {
 pushd gnutls
@@ -39,5 +39,26 @@ zinstall pinentry
 
 compile gnupg default
 zinstall gnupg
+
+
+# steghide
+compile libmcrypt default
+zinstall libmcrypt
+
+#compile mcrypt default
+#zinstall mcrypt
+
+compile mhash default
+zinstall mhash
+
+# steghide has an annoying libtool bug
+# pushd into src and make then run the command without libtool by hand
+compile steghide default
+zinstall steghide
+
+###################
+# filesystem wipers
+compile srm default
+zinstall srm 
 
 

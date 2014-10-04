@@ -12,3 +12,12 @@ libgcrypt	-1.5.3	.tar.gz	http://www.gnu.org/software/libgcrypt/
 gnupg		-1.4.15	.tar.bz2	http://gnupg.org
 pinentry	-0.8.3	.tar.bz2
 
+# steg
+libmcrypt	-2.5.8	.tar.bz2
+mcrypt		-2.6.8	.tar.gz
+mhash		-0.9.9.9	.tar.bz2
+steghide	-0.5.1-deb	.tar.bz2
+
+# fs wipe
+#wipe	-2.3.1	.tar.bz2
+srm	-1.2.14	.tar.gz

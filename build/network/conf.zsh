@@ -108,10 +108,17 @@ done
 popd
 }
 
-CFLAGS+=" -DOPENSSL_NO_ECDH " \
-compile lighttpd default "--enable-static --disable-shared --without-bzip2 --without-pcre --with-openssl"
-zinstall lighttpd
-
+{ test -r mongoose.done } || {
+  pushd mongoose
+  static-cc -c mongoose.c
+  static-cc -o mongoose mongoose.o examples/server.c  -I .
+  [[ $? = 0 ]] && { touch ../mongoose.done }
+  popd
+}
+{ test -r mongoose.installed } || {
+  cp -v mongoose/mongoose $PREFIX/bin/
+  touch mongoose.installed
+}
 
 compile ncurses default "--enable-ext-mouse --without-trace --without-tests --without-debug --disable-big-core --enable-widec --enable-ext-colors"
 pushd ncurses
@@ -133,6 +140,25 @@ zinstall lynx
 compile ncdu default
 zinstall ncdu
 
+
+
+
+
+notice "copy all binaries from NDK in system"
+cp -v $PREFIX/bin/lynx $ZHOME/system/bin/
+cp -v $PREFIX/bin/curl $ZHOME/system/bin/
+cp -v $PREFIX/bin/ssh $ZHOME/system/bin/
+cp -v $PREFIX/bin/ssh-keygen $ZHOME/system/bin/
+cp -v $PREFIX/bin/scp $ZHOME/system/bin/
+cp -v $PREFIX/bin/sshd $ZHOME/system/bin/
+cp -v $PREFIX/bin/sftp $ZHOME/system/bin/
+cp -v $PREFIX/bin/rsync $ZHOME/system/bin/
+cp -v $PREFIX/bin/mongoose $ZHOME/system/bin/
+rsync -r $PREFIX/share/man/* $ZHOME/system/share/man/
+
+
+
+
 ######
 # experimental zone
 return
@@ -140,12 +166,6 @@ return
 
 
 #############################
-# copy all binaries in system (uat?)
-rsync -r $PREFIX/bin $ZHOME/system/
-rsync -r $PREFIX/etc $ZHOME/system/
-rsync -r $PREFIX/sbin $ZHOME/system/
-rsync -r $PREFIX/share/man/* $ZHOME/system/share/man/
-
 
 ## s-lang
 notice "Building S-Lang"
@@ -158,6 +178,11 @@ notice "Building S-Lang"
         popd }
     popd }
 zinstall slang install-static
+
+
+CFLAGS+=" -DOPENSSL_NO_ECDH " \
+compile lighttpd default "--enable-static --disable-shared --without-bzip2 --without-pcre --with-openssl"
+zinstall lighttpd
 
 
 

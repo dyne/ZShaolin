@@ -56,6 +56,7 @@ zinstall freetype
 pushd jhead
 zmake
 cp jhead $PREFIX/bin/
+cp jhead.1 $PREFIX/share/man/man1
 popd
 
 # DCRAW
