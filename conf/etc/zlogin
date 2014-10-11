@@ -36,4 +36,5 @@ restore_rc zshrc
 restore_rc profile
 restore_rc vimrc
 restore_rc grml.conf 
+restore_rc tmux.conf
 zsh

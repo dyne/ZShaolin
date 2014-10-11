@@ -67,7 +67,7 @@ this needs to be copied to the client device to be used.
 
 At your terminal convenience, download and run in few steps:
 
-  curl http://$IP:$httpport/ssh-to-z.sh ; sh ssh-to-z.sh
+  curl http://$IP:$httpport/ssh-to-z.sh -O; sh ssh-to-z.sh
 
 It logins for you and creates a zshaolin.key for later use
 
