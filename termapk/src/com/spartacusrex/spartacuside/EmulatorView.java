@@ -619,6 +619,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
         mLeftColumn = 0;
         mGestureDetector = new GestureDetector(this);
         // mGestureDetector.setIsLongpressEnabled(false);
+/*
         mGestureDetector.setOnDoubleTapListener(new GestureDetector.OnDoubleTapListener() {
             public boolean onSingleTapConfirmed(MotionEvent arg0) {
                return true;
@@ -635,7 +636,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
                 return true;
             }
         });
-
+*/
         setVerticalScrollBarEnabled(true);
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -777,6 +778,8 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
 
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
             float velocityY) {
+	return true;
+/*
         if (Math.abs(velocityX) > Math.abs(velocityY)) {
             // Assume user wanted side to side movement
             if (velocityX > 0) {
@@ -798,6 +801,7 @@ public class EmulatorView extends View implements GestureDetector.OnGestureListe
             onScroll(e1, e2, 2 * velocityX, -2 * velocityY);
         }
         return true;
+*/
     }
 
     public void onShowPress(MotionEvent e) {
