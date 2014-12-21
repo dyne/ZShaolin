@@ -72,8 +72,8 @@
                         android:gravity="center"
                         android:textColor="#ffffff"
                         android:textSize="12dip"
-                        android:text="ZShaolin Nomadic GNU/Linux OS\n
-by Jaromil @ dyne.org (2012-2014)"/>
+                        android:text="ZShaolin Nomadic GNU/Linux app\n
+by Jaromil @ dyne.org (2012-2015)"/>
 
         </LinearLayout>
 
