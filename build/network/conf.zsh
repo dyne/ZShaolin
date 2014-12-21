@@ -140,8 +140,12 @@ zinstall lynx
 compile ncdu default
 zinstall ncdu
 
+# file recovery
+compile libuuid default
+zinstall libuuid
 
-
+compile testdisk default
+zinstall testdisk
 
 
 notice "copy all binaries from NDK in system"
@@ -154,6 +158,9 @@ cp -v $PREFIX/bin/sshd $ZHOME/system/bin/
 cp -v $PREFIX/bin/sftp $ZHOME/system/bin/
 cp -v $PREFIX/bin/rsync $ZHOME/system/bin/
 cp -v $PREFIX/bin/mongoose $ZHOME/system/bin/
+cp -v $PREFIX/bin/fidentify $ZHOME/system/bin/
+cp -v $PREFIX/bin/photorec $ZHOME/system/bin/
+cp -v $PREFIX/bin/testdisk $ZHOME/system/bin/
 rsync -r $PREFIX/share/man/* $ZHOME/system/share/man/
 
 

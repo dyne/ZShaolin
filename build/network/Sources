@@ -15,6 +15,10 @@ ncurses		-5.9		.tar.gz
 lynx		-2.8.7		.tar.gz	http://lynx.isc.org
 
 ncdu		-1.10		.tar.gz http://dev.yorhel.nl/ncdu
+
+
+libuuid		-1.0.3		.tar.gz http://sourceforge.net/projects/libuuid
+testdisk	-6.14		.tar.bz2 http://www.cgsecurity.org
 #glib	-2.39.1	.tar.xz
 
 #irssi	-0.8.16-rc1	.tar.bz2	http://www.irssi.org
